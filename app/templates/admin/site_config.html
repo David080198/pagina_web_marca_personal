@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Configuración del Sitio - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="mb-4">Configuración del Sitio</h1>
+            
+            <form method="POST">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Información General</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="site_name" class="form-label">Nombre del Sitio</label>
+                            <input type="text" class="form-control" id="site_name" name="site_name" 
+                                   value="{{ config.site_name if config else '' }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="site_description" class="form-label">Descripción del Sitio</label>
+                            <textarea class="form-control" id="site_description" name="site_description" rows="3">{{ config.site_description if config else '' }}</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="contact_email" class="form-label">Email de Contacto</label>
+                            <input type="email" class="form-control" id="contact_email" name="contact_email" 
+                                   value="{{ config.contact_email if config else '' }}">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Contenido Principal</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="hero_title" class="form-label">Título Principal</label>
+                            <input type="text" class="form-control" id="hero_title" name="hero_title" 
+                                   value="{{ config.hero_title if config else '' }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="hero_subtitle" class="form-label">Subtítulo</label>
+                            <input type="text" class="form-control" id="hero_subtitle" name="hero_subtitle" 
+                                   value="{{ config.hero_subtitle if config else '' }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="about_text" class="form-label">Texto Sobre Mí</label>
+                            <textarea class="form-control" id="about_text" name="about_text" rows="4">{{ config.about_text if config else '' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Colores y Tema</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="primary_color" class="form-label">Color Primario</label>
+                                    <input type="color" class="form-control form-control-color" id="primary_color" name="primary_color" 
+                                           value="{{ config.primary_color if config else '#3b82f6' }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="secondary_color" class="form-label">Color Secundario</label>
+                                    <input type="color" class="form-control form-control-color" id="secondary_color" name="secondary_color" 
+                                           value="{{ config.secondary_color if config else '#1e40af' }}">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="dark_mode" name="dark_mode" 
+                                   {% if config and config.dark_mode %}checked{% endif %}>
+                            <label class="form-check-label" for="dark_mode">
+                                Activar Modo Oscuro
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Redes Sociales</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="linkedin_url" class="form-label">LinkedIn URL</label>
+                            <input type="url" class="form-control" id="linkedin_url" name="linkedin_url" 
+                                   value="{{ config.linkedin_url if config else '' }}" placeholder="https://linkedin.com/in/tu-perfil">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="github_url" class="form-label">GitHub URL</label>
+                            <input type="url" class="form-control" id="github_url" name="github_url" 
+                                   value="{{ config.github_url if config else '' }}" placeholder="https://github.com/tu-usuario">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="twitter_url" class="form-label">Twitter URL</label>
+                            <input type="url" class="form-control" id="twitter_url" name="twitter_url" 
+                                   value="{{ config.twitter_url if config else '' }}" placeholder="https://twitter.com/tu-usuario">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

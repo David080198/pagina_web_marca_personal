@@ -1,0 +1,120 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Configuración del Sitio - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Configuración del Sitio</h2>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="site_name" class="form-label">Nombre del Sitio</label>
+                                    <input type="text" class="form-control" id="site_name" name="site_name" 
+                                           value="{{ config.site_name if config else 'CodexSoto' }}" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="site_description" class="form-label">Descripción del Sitio</label>
+                                    <textarea class="form-control" id="site_description" name="site_description" rows="3">{{ config.site_description if config else 'Investigación en IA y Automatizaciones' }}</textarea>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="hero_title" class="form-label">Título Hero</label>
+                                    <input type="text" class="form-control" id="hero_title" name="hero_title" 
+                                           value="{{ config.hero_title if config else 'David Soto' }}">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="hero_subtitle" class="form-label">Subtítulo Hero</label>
+                                    <input type="text" class="form-control" id="hero_subtitle" name="hero_subtitle" 
+                                           value="{{ config.hero_subtitle if config else 'Especialista en IA y Automatizaciones' }}">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="about_text" class="form-label">Texto Sobre Mí</label>
+                                    <textarea class="form-control" id="about_text" name="about_text" rows="4">{{ config.about_text if config else 'Investigador especializado en inteligencia artificial.' }}</textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="primary_color" class="form-label">Color Primario</label>
+                                    <input type="color" class="form-control form-control-color" id="primary_color" name="primary_color" 
+                                           value="{{ config.primary_color if config else '#00d4aa' }}">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="secondary_color" class="form-label">Color Secundario</label>
+                                    <input type="color" class="form-control form-control-color" id="secondary_color" name="secondary_color" 
+                                           value="{{ config.secondary_color if config else '#00b894' }}">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="contact_email" class="form-label">Email de Contacto</label>
+                                    <input type="email" class="form-control" id="contact_email" name="contact_email" 
+                                           value="{{ config.contact_email if config else '' }}">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="linkedin_url" class="form-label">URL LinkedIn</label>
+                                    <input type="url" class="form-control" id="linkedin_url" name="linkedin_url" 
+                                           value="{{ config.linkedin_url if config else '' }}" placeholder="https://linkedin.com/in/tu-perfil">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="github_url" class="form-label">URL GitHub</label>
+                                    <input type="url" class="form-control" id="github_url" name="github_url" 
+                                           value="{{ config.github_url if config else '' }}" placeholder="https://github.com/tu-usuario">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="twitter_url" class="form-label">URL Twitter</label>
+                                    <input type="url" class="form-control" id="twitter_url" name="twitter_url" 
+                                           value="{{ config.twitter_url if config else '' }}" placeholder="https://twitter.com/tu-usuario">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="youtube_url" class="form-label">URL YouTube</label>
+                                    <input type="url" class="form-control" id="youtube_url" name="youtube_url" 
+                                           value="{{ config.youtube_url if config else '' }}" placeholder="https://youtube.com/@tu-canal">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="instagram_url" class="form-label">URL Instagram</label>
+                                    <input type="url" class="form-control" id="instagram_url" name="instagram_url" 
+                                           value="{{ config.instagram_url if config else '' }}" placeholder="https://instagram.com/tu-usuario">
+                                </div>
+                                
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="dark_mode" name="dark_mode" 
+                                           {{ 'checked' if config and config.dark_mode else '' }}>
+                                    <label class="form-check-label" for="dark_mode">
+                                        Modo Oscuro
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Guardar Configuración
+                            </button>
+                            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Volver
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,156 @@
+{% extends "admin/base.html" %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Mensajes de Contacto</h2>
+    <div>
+        <span class="badge bg-warning">{{ unread_count }} sin leer</span>
+        <span class="badge bg-info">{{ total_count }} total</span>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        {% if messages %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Estado</th>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Asunto</th>
+                            <th>Fecha</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for message in messages %}
+                        <tr class="{{ 'table-warning' if not message.read else '' }}">
+                            <td>
+                                {% if message.read %}
+                                    <span class="badge bg-success">Leído</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Sin leer</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ message.name }}</td>
+                            <td>
+                                <a href="mailto:{{ message.email }}">{{ message.email }}</a>
+                            </td>
+                            <td>{{ message.subject[:50] }}{{ '...' if message.subject|length > 50 else '' }}</td>
+                            <td>{{ message.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="viewMessage({{ message.id }})">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                {% if not message.read %}
+                                <button class="btn btn-sm btn-success" onclick="markAsRead({{ message.id }})">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                {% endif %}
+                                <button class="btn btn-sm btn-danger" onclick="deleteMessage({{ message.id }})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-envelope fa-3x text-muted mb-3"></i>
+                <h5>No hay mensajes aún</h5>
+                <p class="text-muted">Los mensajes de contacto aparecerán aquí.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal para ver mensaje -->
+<div class="modal fade" id="messageModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Mensaje de Contacto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="messageContent">
+                <!-- Contenido del mensaje se carga aquí -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="replyButton">
+                    <i class="fas fa-reply"></i> Responder
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewMessage(id) {
+    fetch(`/admin/messages/${id}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('messageContent').innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>De:</strong> ${data.name}<br>
+                        <strong>Email:</strong> <a href="mailto:${data.email}">${data.email}</a><br>
+                        <strong>Fecha:</strong> ${data.created_at}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Asunto:</strong> ${data.subject}
+                    </div>
+                </div>
+                <hr>
+                <div>
+                    <strong>Mensaje:</strong><br>
+                    <div class="border p-3 bg-light">
+                        ${data.message.replace(/\n/g, '<br>')}
+                    </div>
+                </div>
+            `;
+            document.getElementById('replyButton').onclick = () => {
+                window.location.href = `mailto:${data.email}?subject=Re: ${data.subject}`;
+            };
+            new bootstrap.Modal(document.getElementById('messageModal')).show();
+            
+            // Marcar como leído automáticamente
+            if (!data.read) {
+                markAsRead(id);
+            }
+        });
+}
+
+function markAsRead(id) {
+    fetch(`/admin/messages/${id}/read`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    }).then(response => {
+        if (response.ok) {
+            location.reload();
+        }
+    });
+}
+
+function deleteMessage(id) {
+    if (confirm('¿Estás seguro de que quieres eliminar este mensaje?')) {
+        fetch(`/admin/messages/${id}/delete`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

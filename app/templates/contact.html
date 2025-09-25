@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Contacto - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="text-center mb-5">Contacto</h1>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Información de Contacto</h5>
+                            {% if config and config.contact_email %}
+                            <p><i class="bi bi-envelope"></i> {{ config.contact_email }}</p>
+                            {% endif %}
+                            
+                            <div class="mt-4">
+                                <h6>Sígueme en:</h6>
+                                <div class="d-flex gap-3 mt-3">
+                                    {% if config and config.linkedin_url %}
+                                    <a href="{{ config.linkedin_url }}" class="btn btn-outline-primary" target="_blank">
+                                        <i class="bi bi-linkedin"></i> LinkedIn
+                                    </a>
+                                    {% endif %}
+                                    {% if config and config.github_url %}
+                                    <a href="{{ config.github_url }}" class="btn btn-outline-dark" target="_blank">
+                                        <i class="bi bi-github"></i> GitHub
+                                    </a>
+                                    {% endif %}
+                                    {% if config and config.twitter_url %}
+                                    <a href="{{ config.twitter_url }}" class="btn btn-outline-info" target="_blank">
+                                        <i class="bi bi-twitter"></i> Twitter
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">Enviar Mensaje</h5>
+                            <form method="POST">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Nombre *</label>
+                                    <input type="text" class="form-control" id="name" name="name" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email *</label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="subject" class="form-label">Asunto</label>
+                                    <input type="text" class="form-control" id="subject" name="subject">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="message" class="form-label">Mensaje *</label>
+                                    <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary w-100">Enviar Mensaje</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

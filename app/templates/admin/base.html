@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-cog"></i> Panel Admin
+                    </h6>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{{ url_for('admin.dashboard') }}" class="list-group-item list-group-item-action {{ 'active' if request.endpoint == 'admin.dashboard' }}">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    <a href="{{ url_for('admin.site_config') }}" class="list-group-item list-group-item-action {{ 'active' if request.endpoint == 'admin.site_config' }}">
+                        <i class="fas fa-cog"></i> Configuración
+                    </a>
+                    <a href="{{ url_for('admin.blog_list') }}" class="list-group-item list-group-item-action {{ 'active' if 'blog' in request.endpoint }}">
+                        <i class="fas fa-blog"></i> Blog
+                    </a>
+                    <a href="{{ url_for('admin.course_list') }}" class="list-group-item list-group-item-action {{ 'active' if 'course' in request.endpoint }}">
+                        <i class="fas fa-graduation-cap"></i> Cursos
+                    </a>
+                    <a href="{{ url_for('admin.project_list') }}" class="list-group-item list-group-item-action {{ 'active' if 'project' in request.endpoint }}">
+                        <i class="fas fa-project-diagram"></i> Proyectos
+                    </a>
+                    <a href="{{ url_for('admin.contact_list') }}" class="list-group-item list-group-item-action {{ 'active' if 'contact' in request.endpoint }}">
+                        <i class="fas fa-envelope"></i> Contactos
+                    </a>
+                    <div class="list-group-item">
+                        <hr>
+                        <a href="{{ url_for('main.index') }}" class="text-muted text-decoration-none">
+                            <i class="fas fa-external-link-alt"></i> Ver Sitio
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-10">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            {% block admin_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}

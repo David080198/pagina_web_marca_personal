@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <article>
+                {% if post.featured_image %}
+                <img src="{{ post.featured_image }}" class="img-fluid rounded mb-4" alt="{{ post.title }}">
+                {% endif %}
+                
+                <header class="mb-4">
+                    <h1 class="mb-3">{{ post.title }}</h1>
+                    <div class="text-muted">
+                        <i class="bi bi-calendar"></i> {{ post.created_at.strftime('%d de %B de %Y') }}
+                        {% if post.updated_at != post.created_at %}
+                        <span class="ms-3">
+                            <i class="bi bi-pencil"></i> Actualizado: {{ post.updated_at.strftime('%d de %B de %Y') }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </header>
+                
+                {% if post.summary %}
+                <div class="alert alert-info">
+                    <h5>Resumen</h5>
+                    <p class="mb-0">{{ post.summary }}</p>
+                </div>
+                {% endif %}
+                
+                <div class="post-content">
+                    {{ post.content | safe }}
+                </div>
+                
+                <footer class="mt-5 pt-4 border-top">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <a href="{{ url_for('main.blog') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Volver al Blog
+                            </a>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <div class="d-inline-block">
+                                <span class="me-3">Compartir:</span>
+                                <a href="https://twitter.com/intent/tweet?text={{ post.title | urlencode }}&url={{ request.url | urlencode }}" 
+                                   class="btn btn-sm btn-outline-info me-1" target="_blank">
+                                    <i class="bi bi-twitter"></i>
+                                </a>
+                                <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.url | urlencode }}" 
+                                   class="btn btn-sm btn-outline-primary me-1" target="_blank">
+                                    <i class="bi bi-linkedin"></i>
+                                </a>
+                                <a href="mailto:?subject={{ post.title | urlencode }}&body={{ request.url | urlencode }}" 
+                                   class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-envelope"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+            </article>
+        </div>
+    </div>
+</div>
+
+<style>
+.post-content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+}
+
+.post-content h1, .post-content h2, .post-content h3 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+.post-content p {
+    margin-bottom: 1.2rem;
+}
+
+.post-content code {
+    background-color: #f8f9fa;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    font-size: 0.9em;
+}
+
+.post-content pre {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+}
+
+.post-content blockquote {
+    border-left: 4px solid var(--primary-color);
+    padding-left: 1rem;
+    margin: 1.5rem 0;
+    font-style: italic;
+    color: #6c757d;
+}
+</style>
+{% endblock %}

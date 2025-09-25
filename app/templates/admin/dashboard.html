@@ -1,0 +1,178 @@
+{% extends "admin/base.html" %}
+
+{% block admin_content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Panel de Administración</h1>
+        </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ total_posts }}</h4>
+                            <p class="mb-0">Posts Totales</p>
+                        </div>
+                        <div>
+                            <i class="bi bi-file-text fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ total_courses }}</h4>
+                            <p class="mb-0">Cursos</p>
+                        </div>
+                        <div>
+                            <i class="bi bi-book fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ total_projects }}</h4>
+                            <p class="mb-0">Proyectos</p>
+                        </div>
+                        <div>
+                            <i class="bi bi-gear fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ unread_messages }}</h4>
+                            <p class="mb-0">Mensajes Sin Leer</p>
+                        </div>
+                        <div>
+                            <i class="bi bi-envelope fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Acciones Rápidas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2 mb-2">
+                            <a href="{{ url_for('admin.blog_new') }}" class="btn btn-primary w-100">
+                                <i class="bi bi-plus-circle"></i> Nuevo Post
+                            </a>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <a href="{{ url_for('admin.course_new') }}" class="btn btn-success w-100">
+                                <i class="bi bi-plus-circle"></i> Nuevo Curso
+                            </a>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <a href="{{ url_for('admin.project_new') }}" class="btn btn-info w-100">
+                                <i class="bi bi-plus-circle"></i> Nuevo Proyecto
+                            </a>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <a href="{{ url_for('admin.site_config') }}" class="btn btn-secondary w-100">
+                                <i class="bi bi-gear"></i> Configuración
+                            </a>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <a href="{{ url_for('admin.contact_list') }}" class="btn btn-warning w-100">
+                                <i class="bi bi-envelope"></i> Mensajes
+                            </a>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-eye"></i> Ver Sitio
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Messages -->
+    {% if recent_messages %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Mensajes Recientes</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Asunto</th>
+                                    <th>Fecha</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for message in recent_messages %}
+                                <tr class="{% if not message.read %}table-warning{% endif %}">
+                                    <td>{{ message.name }}</td>
+                                    <td>{{ message.email }}</td>
+                                    <td>{{ message.subject or 'Sin asunto' }}</td>
+                                    <td>{{ message.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                                    <td>
+                                        {% if message.read %}
+                                            <span class="badge bg-success">Leído</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">Sin leer</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if not message.read %}
+                                        <a href="{{ url_for('admin.message_read', message_id=message.id) }}" 
+                                           class="btn btn-sm btn-outline-primary">Marcar como leído</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('admin.contact_list') }}" class="btn btn-primary">Ver Todos los Mensajes</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

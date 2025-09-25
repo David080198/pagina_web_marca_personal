@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # Aplicación Flask
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=postgresql://codexsoto:password123@db:5432/codexsoto_db
+      - SECRET_KEY=your-super-secret-key-change-in-production
+      - ADMIN_EMAIL=admin@codexsoto.com
+      - ADMIN_PASSWORD=admin123
+      - FLASK_ENV=production
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./uploads:/app/uploads
+      - ./app/static/images:/app/app/static/images
+    restart: unless-stopped
+
+  # Base de datos PostgreSQL
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=codexsoto_db
+      - POSTGRES_USER=codexsoto
+      - POSTGRES_PASSWORD=password123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  # Redis para cache (opcional)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  # Nginx (reverse proxy opcional)
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./uploads:/var/www/uploads:ro
+      - ./app/static:/var/www/static:ro
+    depends_on:
+      - web
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  default:
+    name: codexsoto_network

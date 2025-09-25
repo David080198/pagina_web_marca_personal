@@ -1,0 +1,114 @@
+{% extends "admin/base.html" %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{{ 'Editar Proyecto' if project else 'Nuevo Proyecto' }}</h2>
+    <a href="{{ url_for('admin.project_list') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Volver
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Título *</label>
+                        <input type="text" class="form-control" id="title" name="title" 
+                               value="{{ project.title if project else '' }}" required>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="category" class="form-label">Categoría</label>
+                        <select class="form-control" id="category" name="category">
+                            <option value="research" {{ 'selected' if project and project.category == 'research' else '' }}>Investigación</option>
+                            <option value="automation" {{ 'selected' if project and project.category == 'automation' else '' }}>Automatización</option>
+                            <option value="web" {{ 'selected' if project and project.category == 'web' else '' }}>Desarrollo Web</option>
+                            <option value="ai" {{ 'selected' if project and project.category == 'ai' else '' }}>Inteligencia Artificial</option>
+                            <option value="other" {{ 'selected' if project and project.category == 'other' else '' }}>Otro</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="description" class="form-label">Descripción *</label>
+                <textarea class="form-control" id="description" name="description" rows="4" required>{{ project.description if project else '' }}</textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label for="content" class="form-label">Contenido Detallado</label>
+                <textarea class="form-control" id="content" name="content" rows="10">{{ project.content if project else '' }}</textarea>
+                <div class="form-text">Descripción completa del proyecto (HTML y Markdown permitido)</div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="technologies" class="form-label">Tecnologías</label>
+                        <input type="text" class="form-control" id="technologies" name="technologies" 
+                               value="{{ project.technologies if project else '' }}" placeholder="Python, Django, PostgreSQL">
+                        <div class="form-text">Separadas por comas</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="github_url" class="form-label">URL de GitHub</label>
+                        <input type="url" class="form-control" id="github_url" name="github_url" 
+                               value="{{ project.github_url if project else '' }}" placeholder="https://github.com/usuario/proyecto">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="demo_url" class="form-label">URL de Demo</label>
+                        <input type="url" class="form-control" id="demo_url" name="demo_url" 
+                               value="{{ project.demo_url if project else '' }}" placeholder="https://demo.ejemplo.com">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="image_url" class="form-label">URL de Imagen</label>
+                        <input type="url" class="form-control" id="image_url" name="image_url" 
+                               value="{{ project.image_url if project else '' }}" placeholder="https://ejemplo.com/imagen.jpg">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="featured" name="featured" 
+                       {{ 'checked' if project and project.featured else '' }}>
+                <label class="form-check-label" for="featured">
+                    Proyecto destacado
+                </label>
+            </div>
+            
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="active" name="active" 
+                       {{ 'checked' if project and project.active else '' }}>
+                <label class="form-check-label" for="active">
+                    Proyecto activo
+                </label>
+            </div>
+            
+            <div class="mt-4">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> {{ 'Actualizar' if project else 'Crear' }} Proyecto
+                </button>
+                <a href="{{ url_for('admin.project_list') }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+                {% if project %}
+                <a href="{{ url_for('main.project_detail', id=project.id) }}" class="btn btn-info" target="_blank">
+                    <i class="fas fa-eye"></i> Vista Previa
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

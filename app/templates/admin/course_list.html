@@ -1,0 +1,91 @@
+{% extends "admin/base.html" %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Gestión de Cursos</h2>
+    <a href="{{ url_for('admin.course_new') }}" class="btn btn-success">
+        <i class="fas fa-plus"></i> Nuevo Curso
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        {% if courses %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Título</th>
+                            <th>Duración</th>
+                            <th>Precio</th>
+                            <th>Estado</th>
+                            <th>Fecha</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for course in courses %}
+                        <tr>
+                            <td>{{ course.title }}</td>
+                            <td>{{ course.duration }} horas</td>
+                            <td>
+                                {% if course.price > 0 %}
+                                    ${{ course.price }}
+                                {% else %}
+                                    <span class="badge bg-success">Gratis</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if course.active %}
+                                    <span class="badge bg-success">Activo</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Inactivo</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ course.created_at.strftime('%d/%m/%Y') }}</td>
+                            <td>
+                                <a href="{{ url_for('admin.course_edit', id=course.id) }}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{{ url_for('main.course_detail', id=course.id) }}" class="btn btn-sm btn-info" target="_blank">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button class="btn btn-sm btn-danger" onclick="deleteCourse({{ course.id }})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-graduation-cap fa-3x text-muted mb-3"></i>
+                <h5>No hay cursos aún</h5>
+                <p class="text-muted">Crea tu primer curso para comenzar.</p>
+                <a href="{{ url_for('admin.course_new') }}" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Crear Curso
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function deleteCourse(id) {
+    if (confirm('¿Estás seguro de que quieres eliminar este curso?')) {
+        fetch(`/admin/courses/${id}/delete`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

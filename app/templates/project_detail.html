@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.title }} - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-4">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            {% if project.featured_image %}
+            <img src="{{ project.featured_image }}" class="img-fluid rounded mb-4" alt="{{ project.title }}">
+            {% endif %}
+            
+            <h1 class="mb-4">{{ project.title }}</h1>
+            
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    {% if project.short_description %}
+                    <p class="lead">{{ project.short_description }}</p>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <span class="badge bg-{{ 'primary' if project.category == 'research' else 'success' }} me-2">
+                            {{ 'Investigación' if project.category == 'research' else 'Automatización' }}
+                        </span>
+                        {% if project.featured %}
+                        <span class="badge bg-warning">Destacado</span>
+                        {% endif %}
+                    </div>
+                    
+                    {% if project.technologies %}
+                    <div class="mb-3">
+                        <h6>Tecnologías utilizadas:</h6>
+                        {% for tech in project.technologies.split(',') %}
+                        <span class="badge bg-secondary me-1">{{ tech.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Enlaces</h5>
+                            {% if project.github_url %}
+                            <a href="{{ project.github_url }}" class="btn btn-outline-dark w-100 mb-2" target="_blank">
+                                <i class="bi bi-github"></i> Ver en GitHub
+                            </a>
+                            {% endif %}
+                            {% if project.demo_url %}
+                            <a href="{{ project.demo_url }}" class="btn btn-outline-primary w-100 mb-2" target="_blank">
+                                <i class="bi bi-eye"></i> Ver Demo
+                            </a>
+                            {% endif %}
+                            <a href="{{ url_for('main.contact') }}" class="btn btn-primary w-100">
+                                <i class="bi bi-envelope"></i> Contactar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <h3>Descripción del Proyecto</h3>
+                <div class="project-description">
+                    {{ project.description | safe }}
+                </div>
+            </div>
+            
+            {% if project.images %}
+            <div class="mb-4">
+                <h3>Galería</h3>
+                <div class="row">
+                    <!-- Aquí se mostrarían las imágenes del proyecto -->
+                    <div class="col-12">
+                        <p class="text-muted">Galería de imágenes del proyecto (por implementar)</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="text-center mt-5">
+                <a href="{{ url_for('main.research' if project.category == 'research' else 'main.automation') }}" 
+                   class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver a {{ 'Investigación' if project.category == 'research' else 'Automatizaciones' }}
+                </a>
+                <a href="{{ url_for('main.contact') }}" class="btn btn-primary ms-2">
+                    <i class="bi bi-envelope"></i> Contactar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

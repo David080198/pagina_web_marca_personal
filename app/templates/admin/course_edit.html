@@ -1,0 +1,113 @@
+{% extends "admin/base.html" %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{{ 'Editar Curso' if course else 'Nuevo Curso' }}</h2>
+    <a href="{{ url_for('admin.course_list') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Volver
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Título *</label>
+                        <input type="text" class="form-control" id="title" name="title" 
+                               value="{{ course.title if course else '' }}" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="duration" class="form-label">Duración (horas) *</label>
+                        <input type="number" class="form-control" id="duration" name="duration" 
+                               value="{{ course.duration if course else '' }}" min="1" required>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="description" class="form-label">Descripción *</label>
+                <textarea class="form-control" id="description" name="description" rows="4" required>{{ course.description if course else '' }}</textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label for="content" class="form-label">Contenido del Curso</label>
+                <textarea class="form-control" id="content" name="content" rows="10">{{ course.content if course else '' }}</textarea>
+                <div class="form-text">Puedes usar HTML y Markdown para describir el contenido</div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="price" class="form-label">Precio</label>
+                        <input type="number" class="form-control" id="price" name="price" 
+                               value="{{ course.price if course else '0' }}" min="0" step="0.01">
+                        <div class="form-text">0 para curso gratuito</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="level" class="form-label">Nivel</label>
+                        <select class="form-control" id="level" name="level">
+                            <option value="beginner" {{ 'selected' if course and course.level == 'beginner' else '' }}>Principiante</option>
+                            <option value="intermediate" {{ 'selected' if course and course.level == 'intermediate' else '' }}>Intermedio</option>
+                            <option value="advanced" {{ 'selected' if course and course.level == 'advanced' else '' }}>Avanzado</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="language" class="form-label">Idioma</label>
+                        <select class="form-control" id="language" name="language">
+                            <option value="es" {{ 'selected' if course and course.language == 'es' else '' }}>Español</option>
+                            <option value="en" {{ 'selected' if course and course.language == 'en' else '' }}>Inglés</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="image_url" class="form-label">URL de Imagen</label>
+                        <input type="url" class="form-control" id="image_url" name="image_url" 
+                               value="{{ course.image_url if course else '' }}" placeholder="https://ejemplo.com/imagen.jpg">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="video_url" class="form-label">URL de Video</label>
+                        <input type="url" class="form-control" id="video_url" name="video_url" 
+                               value="{{ course.video_url if course else '' }}" placeholder="https://youtube.com/watch?v=...">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="active" name="active" 
+                       {{ 'checked' if course and course.active else '' }}>
+                <label class="form-check-label" for="active">
+                    Curso activo
+                </label>
+            </div>
+            
+            <div class="mt-4">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> {{ 'Actualizar' if course else 'Crear' }} Curso
+                </button>
+                <a href="{{ url_for('admin.course_list') }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+                {% if course %}
+                <a href="{{ url_for('main.course_detail', id=course.id) }}" class="btn btn-info" target="_blank">
+                    <i class="fas fa-eye"></i> Vista Previa
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

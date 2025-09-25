@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}{{ course.title }} - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            {% if course.featured_image %}
+            <img src="{{ course.featured_image }}" class="img-fluid rounded mb-4" alt="{{ course.title }}">
+            {% endif %}
+            
+            <h1 class="mb-4">{{ course.title }}</h1>
+            
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Información del Curso</h5>
+                            {% if course.level %}
+                            <p><strong>Nivel:</strong> {{ course.level }}</p>
+                            {% endif %}
+                            {% if course.duration %}
+                            <p><strong>Duración:</strong> {{ course.duration }}</p>
+                            {% endif %}
+                            {% if course.price > 0 %}
+                            <p><strong>Precio:</strong> <span class="text-primary h5">${{ "%.2f"|format(course.price) }}</span></p>
+                            {% else %}
+                            <p><strong>Precio:</strong> <span class="text-success h5">Gratis</span></p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('main.contact') }}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-envelope"></i> Solicitar Información
+                        </a>
+                        <a href="{{ url_for('main.contact') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-person-plus"></i> Inscribirse
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            {% if course.short_description %}
+            <div class="alert alert-info">
+                <h5>Resumen</h5>
+                <p class="mb-0">{{ course.short_description }}</p>
+            </div>
+            {% endif %}
+            
+            <div class="mb-4">
+                <h3>Descripción</h3>
+                <div class="course-description">
+                    {{ course.description | safe }}
+                </div>
+            </div>
+            
+            {% if course.syllabus %}
+            <div class="mb-4">
+                <h3>Contenido del Curso</h3>
+                <div class="course-syllabus">
+                    {{ course.syllabus | safe }}
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="text-center mt-5">
+                <a href="{{ url_for('main.courses') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver a Cursos
+                </a>
+                <a href="{{ url_for('main.contact') }}" class="btn btn-primary ms-2">
+                    <i class="bi bi-envelope"></i> Contactar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,366 @@
+:root {
+    --primary-color: #00d4aa;
+    --secondary-color: #00b894;
+    --accent-color: #00cec9;
+    --dark-bg: #2d3436;
+    --darker-bg: #1a1a1a;
+    --success-color: #00d4aa;
+    --warning-color: #fdcb6e;
+    --danger-color: #e17055;
+    --dark-color: #2d3436;
+    --light-color: #ddd;
+    --text-light: #b2bec3;
+    --text-dark: #2d3436;
+}
+
+/* Estilos globales */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    color: var(--text-light);
+    background-color: var(--darker-bg);
+}
+
+/* Navegación */
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.navbar-nav .nav-link {
+    font-weight: 500;
+    margin: 0 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Hero section */
+.hero-section {
+    background: linear-gradient(135deg, var(--darker-bg) 0%, var(--dark-bg) 50%, var(--primary-color) 100%);
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 20% 50%, var(--primary-color)22 0%, transparent 70%),
+                radial-gradient(circle at 80% 20%, var(--accent-color)22 0%, transparent 70%),
+                radial-gradient(circle at 40% 80%, var(--secondary-color)22 0%, transparent 70%);
+    opacity: 0.1;
+    z-index: 1;
+}
+
+.hero-section .container {
+    position: relative;
+    z-index: 2;
+}
+
+.min-vh-75 {
+    min-height: 75vh;
+}
+
+/* Cards */
+.card {
+    border: none;
+    border-radius: 0.75rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: var(--dark-bg);
+    color: var(--text-light);
+    border: 1px solid rgba(0, 212, 170, 0.2);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 212, 170, 0.3), 0 10px 10px -5px rgba(0, 212, 170, 0.1);
+    border-color: var(--primary-color);
+}
+
+.card-img-top {
+    border-radius: 0.75rem 0.75rem 0 0;
+    height: 200px;
+    object-fit: cover;
+}
+
+/* Botones */
+.btn {
+    font-weight: 600;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+    transform: translateY(-2px);
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+/* Badges */
+.badge {
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+}
+
+/* Formularios */
+.form-control {
+    border-radius: 0.5rem;
+    border: 2px solid #e5e7eb;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-control {
+    background-color: var(--dark-bg);
+    border-color: rgba(0, 212, 170, 0.3);
+    color: var(--text-light);
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(0, 212, 170, 0.25);
+    background-color: var(--dark-bg);
+    color: var(--text-light);
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--text-light);
+    margin-bottom: 0.5rem;
+}
+
+/* Tablas */
+.table {
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.table thead th {
+    background-color: #f8fafc;
+    border-bottom: 2px solid #e5e7eb;
+    font-weight: 600;
+    color: #374151;
+}
+
+/* Alertas */
+.alert {
+    border-radius: 0.5rem;
+    border: none;
+    font-weight: 500;
+}
+
+.alert-success {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.alert-warning {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.alert-danger {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.alert-info {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+/* Footer */
+footer {
+    background-color: #1f2937 !important;
+}
+
+footer a {
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+footer a:hover {
+    color: var(--primary-color) !important;
+}
+
+/* Modo oscuro */
+.dark-theme {
+    background-color: #111827;
+    color: #f9fafb;
+}
+
+.dark-theme .card {
+    background-color: #1f2937;
+    color: #f9fafb;
+}
+
+.dark-theme .navbar {
+    background-color: #111827 !important;
+}
+
+.dark-theme .form-control {
+    background-color: #1f2937;
+    border-color: #374151;
+    color: #f9fafb;
+}
+
+.dark-theme .form-control:focus {
+    background-color: #1f2937;
+    border-color: var(--primary-color);
+    color: #f9fafb;
+}
+
+.dark-theme .table {
+    background-color: #1f2937;
+    color: #f9fafb;
+}
+
+.dark-theme .table thead th {
+    background-color: #374151;
+    color: #f9fafb;
+}
+
+/* Animaciones */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-section {
+        min-height: 60vh;
+        padding: 2rem 0;
+    }
+    
+    .display-4 {
+        font-size: 2rem;
+    }
+    
+    .card-img-top {
+        height: 150px;
+    }
+}
+
+/* Utilidades */
+.text-gradient {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.shadow-custom {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.border-gradient {
+    border: 2px solid;
+    border-image: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) 1;
+}
+
+/* Redes Sociales */
+.social-links {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.social-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    color: white;
+    border-radius: 50%;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 1.25rem;
+}
+
+.social-link:hover {
+    transform: translateY(-3px) scale(1.1);
+    box-shadow: 0 10px 20px rgba(0, 212, 170, 0.4);
+    color: white;
+}
+
+.social-link.linkedin {
+    background: linear-gradient(135deg, #0077b5, var(--primary-color));
+}
+
+.social-link.github {
+    background: linear-gradient(135deg, #333, var(--dark-bg));
+}
+
+.social-link.twitter {
+    background: linear-gradient(135deg, #1da1f2, var(--accent-color));
+}
+
+.social-link.youtube {
+    background: linear-gradient(135deg, #ff0000, var(--danger-color));
+}
+
+.social-link.instagram {
+    background: linear-gradient(135deg, #e4405f, #ff6b35, var(--warning-color));
+}
+
+/* Footer oscuro */
+footer {
+    background-color: var(--darker-bg);
+    border-top: 1px solid rgba(0, 212, 170, 0.2);
+}
+
+/* Navbar oscura */
+.navbar-dark {
+    background-color: var(--dark-bg) !important;
+}
+
+/* Texto en elementos oscuros */
+.bg-dark {
+    background-color: var(--dark-bg) !important;
+}
+
+.text-muted {
+    color: var(--text-light) !important;
+}
