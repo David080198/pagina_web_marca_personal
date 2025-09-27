@@ -6,8 +6,8 @@
 <div class="container mt-5 pt-4">
     <div class="row">
         <div class="col-lg-10 mx-auto">
-            {% if project.featured_image %}
-            <img src="{{ project.featured_image }}" class="img-fluid rounded mb-4" alt="{{ project.title }}">
+            {% if project.image_url %}
+            <img src="{{ project.image_url }}" class="img-fluid rounded mb-4" alt="{{ project.title }}">
             {% endif %}
             
             <h1 class="mb-4">{{ project.title }}</h1>

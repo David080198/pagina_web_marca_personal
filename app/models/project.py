@@ -6,13 +6,12 @@ class Project(db.Model):
     title = db.Column(db.String(200), nullable=False)
     slug = db.Column(db.String(200), unique=True, nullable=False)
     description = db.Column(db.Text, nullable=False)
-    short_description = db.Column(db.String(500))
+    content = db.Column(db.Text)  # Contenido detallado del proyecto
     category = db.Column(db.String(50), nullable=False)  # 'research', 'automation'
     technologies = db.Column(db.String(500))  # Lista separada por comas
     github_url = db.Column(db.String(255))
     demo_url = db.Column(db.String(255))
-    featured_image = db.Column(db.String(255))
-    images = db.Column(db.Text)  # JSON con array de imágenes
+    image_url = db.Column(db.String(255))  # Cambiado de featured_image a image_url
     published = db.Column(db.Boolean, default=False)
     featured = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

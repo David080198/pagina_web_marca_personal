@@ -26,7 +26,7 @@
 </section>
 
 <!-- About Section -->
-<section class="py-5">
+<section class="py-5 section-light">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 mx-auto text-center">
@@ -41,15 +41,15 @@
 
 <!-- Featured Projects -->
 {% if featured_projects %}
-<section class="py-5 bg-light">
+<section class="py-5 section-base">
     <div class="container">
         <h2 class="text-center mb-5">Proyectos Destacados</h2>
         <div class="row">
             {% for project in featured_projects %}
             <div class="col-lg-4 mb-4">
                 <div class="card h-100 shadow-sm">
-                    {% if project.featured_image %}
-                    <img src="{{ project.featured_image }}" class="card-img-top" alt="{{ project.title }}">
+                    {% if project.image_url %}
+                    <img src="{{ project.image_url }}" class="card-img-top" alt="{{ project.title }}">
                     {% endif %}
                     <div class="card-body">
                         <h5 class="card-title">{{ project.title }}</h5>
@@ -75,15 +75,15 @@
 
 <!-- Featured Courses -->
 {% if featured_courses %}
-<section class="py-5">
+<section class="py-5 section-darker">
     <div class="container">
         <h2 class="text-center mb-5">Cursos Destacados</h2>
         <div class="row">
             {% for course in featured_courses %}
             <div class="col-lg-4 mb-4">
                 <div class="card h-100 shadow-sm">
-                    {% if course.featured_image %}
-                    <img src="{{ course.featured_image }}" class="card-img-top" alt="{{ course.title }}">
+                    {% if course.image_url %}
+                    <img src="{{ course.image_url }}" class="card-img-top" alt="{{ course.title }}">
                     {% endif %}
                     <div class="card-body">
                         <h5 class="card-title">{{ course.title }}</h5>
@@ -115,7 +115,7 @@
 
 <!-- Recent Blog Posts -->
 {% if recent_posts %}
-<section class="py-5 bg-light">
+<section class="py-5 section-light">
     <div class="container">
         <h2 class="text-center mb-5">Últimas Publicaciones</h2>
         <div class="row">
@@ -143,7 +143,7 @@
 {% endif %}
 
 <!-- CTA Section -->
-<section class="py-5 bg-primary text-white">
+<section class="py-5 section-darkest text-white" style="background: linear-gradient(135deg, var(--bg-darkest) 0%, var(--primary-color) 100%);">
     <div class="container text-center">
         <h2 class="mb-4">¿Interesado en colaborar?</h2>
         <p class="lead mb-4">Estoy disponible para proyectos de investigación, consultoría y desarrollo de soluciones en IA.</p>

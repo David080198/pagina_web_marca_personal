@@ -7,7 +7,8 @@ class BlogPost(db.Model):
     slug = db.Column(db.String(200), unique=True, nullable=False)
     content = db.Column(db.Text, nullable=False)
     summary = db.Column(db.Text)
-    featured_image = db.Column(db.String(255))
+    tags = db.Column(db.String(500))  # Tags separados por comas
+    image_url = db.Column(db.String(255))  # Cambiado de featured_image a image_url
     published = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

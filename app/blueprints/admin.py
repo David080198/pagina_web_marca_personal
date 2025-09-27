@@ -6,12 +6,24 @@ from app.models.project import Project
 from app.models.site_config import SiteConfig
 from app.models.contact import ContactMessage
 from app.extensions import db
+from app.utils.file_upload import save_uploaded_file, delete_uploaded_file
 import os
 from werkzeug.utils import secure_filename
 import json
+import re
 from datetime import datetime
 
 admin_bp = Blueprint('admin', __name__)
+
+def slugify(text):
+    """Convierte un texto en un slug válido para URLs"""
+    # Convertir a minúsculas
+    text = text.lower()
+    # Reemplazar espacios y caracteres especiales con guiones
+    text = re.sub(r'[^\w\s-]', '', text)
+    text = re.sub(r'[-\s]+', '-', text)
+    # Eliminar guiones al inicio y final
+    return text.strip('-')
 
 def admin_required(f):
     """Decorador para requerir permisos de administrador"""
@@ -36,13 +48,18 @@ def dashboard():
     
     recent_messages = ContactMessage.query.order_by(ContactMessage.created_at.desc()).limit(5).all()
     
+    # Obtener estadísticas de analytics
+    from app.utils.analytics import get_analytics_summary
+    analytics = get_analytics_summary()
+    
     return render_template('admin/dashboard.html',
                          total_posts=total_posts,
                          published_posts=published_posts,
                          total_courses=total_courses,
                          total_projects=total_projects,
                          unread_messages=unread_messages,
-                         recent_messages=recent_messages)
+                         recent_messages=recent_messages,
+                         analytics=analytics)
 
 # Configuración del sitio
 @admin_bp.route('/config', methods=['GET', 'POST'])
@@ -67,6 +84,13 @@ def site_config():
         config.linkedin_url = request.form.get('linkedin_url')
         config.github_url = request.form.get('github_url')
         config.twitter_url = request.form.get('twitter_url')
+        config.youtube_url = request.form.get('youtube_url')
+        config.instagram_url = request.form.get('instagram_url')
+        config.facebook_url = request.form.get('facebook_url')
+        config.tiktok_url = request.form.get('tiktok_url')
+        config.discord_url = request.form.get('discord_url')
+        config.telegram_url = request.form.get('telegram_url')
+        config.whatsapp_url = request.form.get('whatsapp_url')
         
         db.session.commit()
         flash('Configuración actualizada correctamente', 'success')
@@ -82,6 +106,22 @@ def blog_list():
     posts = BlogPost.query.order_by(BlogPost.created_at.desc()).all()
     return render_template('admin/blog_list.html', posts=posts)
 
+def generate_unique_slug(base_slug, model_class, exclude_id=None):
+    """Genera un slug único agregando un número si es necesario"""
+    slug = base_slug
+    counter = 1
+    
+    while True:
+        query = model_class.query.filter_by(slug=slug)
+        if exclude_id:
+            query = query.filter(model_class.id != exclude_id)
+        
+        if not query.first():
+            return slug
+        
+        slug = f"{base_slug}-{counter}"
+        counter += 1
+
 @admin_bp.route('/blog/new', methods=['GET', 'POST'])
 @login_required
 @admin_required
@@ -91,20 +131,54 @@ def blog_new():
         slug = request.form.get('slug')
         content = request.form.get('content')
         summary = request.form.get('summary')
-        published = bool(request.form.get('published'))
+        tags = request.form.get('tags')
+        published = 'published' in request.form
         
-        post = BlogPost(
-            title=title,
-            slug=slug,
-            content=content,
-            summary=summary,
-            published=published
-        )
+        # Manejar imagen
+        image_url = request.form.get('image_url')
+        image_file = request.files.get('image_file')
         
-        db.session.add(post)
-        db.session.commit()
-        flash('Post creado correctamente', 'success')
-        return redirect(url_for('admin.blog_list'))
+        # Validar que el slug no esté vacío
+        if not slug:
+            flash('El slug es requerido', 'error')
+            return render_template('admin/blog_edit.html', post=None)
+        
+        # Generar slug único
+        unique_slug = generate_unique_slug(slug, BlogPost)
+        
+        try:
+            # Procesar imagen si se subió un archivo
+            if image_file and image_file.filename:
+                try:
+                    image_url = save_uploaded_file(image_file, 'uploads/blog')
+                except ValueError as e:
+                    flash(f'Error con la imagen: {str(e)}', 'error')
+                    return render_template('admin/blog_edit.html', post=None)
+            
+            post = BlogPost(
+                title=title,
+                slug=unique_slug,
+                content=content,
+                summary=summary,
+                tags=tags,
+                image_url=image_url,
+                published=published
+            )
+            
+            db.session.add(post)
+            db.session.commit()
+            
+            if unique_slug != slug:
+                flash(f'Post creado correctamente. El slug se cambió a "{unique_slug}" para evitar duplicados.', 'warning')
+            else:
+                flash('Post creado correctamente', 'success')
+            
+            return redirect(url_for('admin.blog_list'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash('Error al crear el post. Inténtalo de nuevo.', 'error')
+            return render_template('admin/blog_edit.html', post=None)
     
     return render_template('admin/blog_edit.html', post=None)
 
@@ -115,16 +189,62 @@ def blog_edit(post_id):
     post = BlogPost.query.get_or_404(post_id)
     
     if request.method == 'POST':
-        post.title = request.form.get('title')
-        post.slug = request.form.get('slug')
-        post.content = request.form.get('content')
-        post.summary = request.form.get('summary')
-        post.published = bool(request.form.get('published'))
-        post.updated_at = datetime.utcnow()
+        title = request.form.get('title')
+        slug = request.form.get('slug')
+        content = request.form.get('content')
+        summary = request.form.get('summary')
+        tags = request.form.get('tags')
+        published = 'published' in request.form
         
-        db.session.commit()
-        flash('Post actualizado correctamente', 'success')
-        return redirect(url_for('admin.blog_list'))
+        # Manejar imagen
+        image_url = request.form.get('image_url')
+        image_file = request.files.get('image_file')
+        
+        # Validar que el slug no esté vacío
+        if not slug:
+            flash('El slug es requerido', 'error')
+            return render_template('admin/blog_edit.html', post=post)
+        
+        # Generar slug único (excluyendo el post actual)
+        unique_slug = generate_unique_slug(slug, BlogPost, exclude_id=post_id)
+        
+        try:
+            # Procesar imagen si se subió un archivo
+            if image_file and image_file.filename:
+                try:
+                    # Eliminar imagen anterior si existe y es local
+                    old_image = post.image_url
+                    if old_image and old_image.startswith('/static/uploads/'):
+                        delete_uploaded_file(old_image)
+                    
+                    # Guardar nueva imagen
+                    image_url = save_uploaded_file(image_file, 'uploads/blog')
+                except ValueError as e:
+                    flash(f'Error con la imagen: {str(e)}', 'error')
+                    return render_template('admin/blog_edit.html', post=post)
+            
+            post.title = title
+            post.slug = unique_slug
+            post.content = content
+            post.summary = summary
+            post.tags = tags
+            post.image_url = image_url
+            post.published = published
+            post.updated_at = datetime.utcnow()
+            
+            db.session.commit()
+            
+            if unique_slug != slug:
+                flash(f'Post actualizado correctamente. El slug se cambió a "{unique_slug}" para evitar duplicados.', 'warning')
+            else:
+                flash('Post actualizado correctamente', 'success')
+            
+            return redirect(url_for('admin.blog_list'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash('Error al actualizar el post. Inténtalo de nuevo.', 'error')
+            return render_template('admin/blog_edit.html', post=post)
     
     return render_template('admin/blog_edit.html', post=post)
 
@@ -152,31 +272,67 @@ def course_list():
 def course_new():
     if request.method == 'POST':
         title = request.form.get('title')
-        slug = request.form.get('slug')
         description = request.form.get('description')
-        short_description = request.form.get('short_description')
+        content = request.form.get('content')
         price = float(request.form.get('price', 0))
-        duration = request.form.get('duration')
+        duration = int(request.form.get('duration', 0))
         level = request.form.get('level')
-        published = bool(request.form.get('published'))
-        featured = bool(request.form.get('featured'))
+        language = request.form.get('language')
+        video_url = request.form.get('video_url')
+        published = 'published' in request.form
+        featured = 'featured' in request.form
         
-        course = Course(
-            title=title,
-            slug=slug,
-            description=description,
-            short_description=short_description,
-            price=price,
-            duration=duration,
-            level=level,
-            published=published,
-            featured=featured
-        )
+        # Manejar imagen
+        image_url = request.form.get('image_url')
+        image_file = request.files.get('image_file')
         
-        db.session.add(course)
-        db.session.commit()
-        flash('Curso creado correctamente', 'success')
-        return redirect(url_for('admin.course_list'))
+        # Validar que el título no esté vacío
+        if not title:
+            flash('El título es requerido', 'error')
+            return render_template('admin/course_edit.html', course=None)
+        
+        # Generar slug automáticamente desde el título
+        base_slug = slugify(title)
+        unique_slug = generate_unique_slug(base_slug, Course)
+        
+        try:
+            # Procesar imagen si se subió un archivo
+            if image_file and image_file.filename:
+                try:
+                    image_url = save_uploaded_file(image_file, 'uploads/courses')
+                except ValueError as e:
+                    flash(f'Error con la imagen: {str(e)}', 'error')
+                    return render_template('admin/course_edit.html', course=None)
+            
+            course = Course(
+                title=title,
+                slug=unique_slug,
+                description=description,
+                content=content,
+                price=price,
+                duration=duration,
+                level=level,
+                language=language,
+                image_url=image_url,
+                video_url=video_url,
+                published=published,
+                featured=featured
+            )
+            
+            db.session.add(course)
+            db.session.commit()
+            
+            if unique_slug != base_slug:
+                flash(f'Curso creado correctamente. El slug se cambió a "{unique_slug}" para evitar duplicados.', 'warning')
+            else:
+                flash('Curso creado correctamente', 'success')
+            
+            return redirect(url_for('admin.course_list'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash('Error al crear el curso. Inténtalo de nuevo.', 'error')
+            return render_template('admin/course_edit.html', course=None)
     
     return render_template('admin/course_edit.html', course=None)
 
@@ -187,22 +343,71 @@ def course_edit(course_id):
     course = Course.query.get_or_404(course_id)
     
     if request.method == 'POST':
-        course.title = request.form.get('title')
-        course.slug = request.form.get('slug')
-        course.description = request.form.get('description')
-        course.short_description = request.form.get('short_description')
-        course.price = float(request.form.get('price', 0))
-        course.duration = request.form.get('duration')
-        course.level = request.form.get('level')
-        course.published = bool(request.form.get('published'))
-        course.featured = bool(request.form.get('featured'))
-        course.updated_at = datetime.utcnow()
+        title = request.form.get('title')
         
-        db.session.commit()
-        flash('Curso actualizado correctamente', 'success')
-        return redirect(url_for('admin.course_list'))
+        # Manejar imagen
+        image_url = request.form.get('image_url')
+        image_file = request.files.get('image_file')
+        
+        # Validar que el título no esté vacío
+        if not title:
+            flash('El título es requerido', 'error')
+            return render_template('admin/course_edit.html', course=course)
+        
+        try:
+            # Procesar imagen si se subió un archivo
+            if image_file and image_file.filename:
+                try:
+                    # Eliminar imagen anterior si existe y es local
+                    old_image = course.image_url
+                    if old_image and old_image.startswith('/static/uploads/'):
+                        delete_uploaded_file(old_image)
+                    
+                    # Guardar nueva imagen
+                    image_url = save_uploaded_file(image_file, 'uploads/courses')
+                except ValueError as e:
+                    flash(f'Error con la imagen: {str(e)}', 'error')
+                    return render_template('admin/course_edit.html', course=course)
+            
+            # Solo regenerar slug si el título ha cambiado
+            if title != course.title:
+                base_slug = slugify(title)
+                unique_slug = generate_unique_slug(base_slug, Course, exclude_id=course_id)
+                course.slug = unique_slug
+            
+            course.title = title
+            course.description = request.form.get('description')
+            course.content = request.form.get('content')
+            course.price = float(request.form.get('price', 0))
+            course.duration = int(request.form.get('duration', 0))
+            course.level = request.form.get('level')
+            course.language = request.form.get('language')
+            course.image_url = image_url
+            course.video_url = request.form.get('video_url')
+            course.published = 'published' in request.form
+            course.featured = 'featured' in request.form
+            course.updated_at = datetime.utcnow()
+            
+            db.session.commit()
+            flash('Curso actualizado correctamente', 'success')
+            return redirect(url_for('admin.course_list'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash('Error al actualizar el curso. Inténtalo de nuevo.', 'error')
+            return render_template('admin/course_edit.html', course=course)
     
     return render_template('admin/course_edit.html', course=course)
+
+@admin_bp.route('/courses/<int:course_id>/delete', methods=['POST'])
+@login_required
+@admin_required
+def course_delete(course_id):
+    course = Course.query.get_or_404(course_id)
+    db.session.delete(course)
+    db.session.commit()
+    flash('Curso eliminado correctamente', 'success')
+    return redirect(url_for('admin.course_list'))
 
 # Gestión de proyectos
 @admin_bp.route('/projects')
@@ -218,35 +423,139 @@ def project_list():
 def project_new():
     if request.method == 'POST':
         title = request.form.get('title')
-        slug = request.form.get('slug')
         description = request.form.get('description')
-        short_description = request.form.get('short_description')
+        content = request.form.get('content')
         category = request.form.get('category')
         technologies = request.form.get('technologies')
         github_url = request.form.get('github_url')
         demo_url = request.form.get('demo_url')
-        published = bool(request.form.get('published'))
-        featured = bool(request.form.get('featured'))
+        published = 'published' in request.form
+        featured = 'featured' in request.form
         
-        project = Project(
-            title=title,
-            slug=slug,
-            description=description,
-            short_description=short_description,
-            category=category,
-            technologies=technologies,
-            github_url=github_url,
-            demo_url=demo_url,
-            published=published,
-            featured=featured
-        )
+        # Manejar imagen
+        image_url = request.form.get('image_url')
+        image_file = request.files.get('image_file')
         
-        db.session.add(project)
-        db.session.commit()
-        flash('Proyecto creado correctamente', 'success')
-        return redirect(url_for('admin.project_list'))
+        # Validar que el título no esté vacío
+        if not title:
+            flash('El título es requerido', 'error')
+            return render_template('admin/project_edit.html', project=None)
+        
+        # Generar slug automáticamente desde el título
+        base_slug = slugify(title)
+        unique_slug = generate_unique_slug(base_slug, Project)
+        
+        try:
+            # Procesar imagen si se subió un archivo
+            if image_file and image_file.filename:
+                try:
+                    image_url = save_uploaded_file(image_file, 'uploads/projects')
+                except ValueError as e:
+                    flash(f'Error con la imagen: {str(e)}', 'error')
+                    return render_template('admin/project_edit.html', project=None)
+            
+            project = Project(
+                title=title,
+                slug=unique_slug,
+                description=description,
+                content=content,
+                category=category,
+                technologies=technologies,
+                github_url=github_url,
+                demo_url=demo_url,
+                image_url=image_url,
+                published=published,
+                featured=featured
+            )
+            
+            db.session.add(project)
+            db.session.commit()
+            
+            if unique_slug != base_slug:
+                flash(f'Proyecto creado correctamente. El slug se cambió a "{unique_slug}" para evitar duplicados.', 'warning')
+            else:
+                flash('Proyecto creado correctamente', 'success')
+            
+            return redirect(url_for('admin.project_list'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash('Error al crear el proyecto. Inténtalo de nuevo.', 'error')
+            return render_template('admin/project_edit.html', project=None)
     
     return render_template('admin/project_edit.html', project=None)
+
+@admin_bp.route('/projects/<int:project_id>/edit', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def project_edit(project_id):
+    project = Project.query.get_or_404(project_id)
+    
+    if request.method == 'POST':
+        title = request.form.get('title')
+        
+        # Manejar imagen
+        image_url = request.form.get('image_url')
+        image_file = request.files.get('image_file')
+        
+        # Validar que el título no esté vacío
+        if not title:
+            flash('El título es requerido', 'error')
+            return render_template('admin/project_edit.html', project=project)
+        
+        try:
+            # Procesar imagen si se subió un archivo
+            if image_file and image_file.filename:
+                try:
+                    # Eliminar imagen anterior si existe y es local
+                    old_image = project.image_url
+                    if old_image and old_image.startswith('/static/uploads/'):
+                        delete_uploaded_file(old_image)
+                    
+                    # Guardar nueva imagen
+                    image_url = save_uploaded_file(image_file, 'uploads/projects')
+                except ValueError as e:
+                    flash(f'Error con la imagen: {str(e)}', 'error')
+                    return render_template('admin/project_edit.html', project=project)
+            
+            # Solo regenerar slug si el título ha cambiado
+            if title != project.title:
+                base_slug = slugify(title)
+                unique_slug = generate_unique_slug(base_slug, Project, exclude_id=project_id)
+                project.slug = unique_slug
+            
+            project.title = title
+            project.description = request.form.get('description')
+            project.content = request.form.get('content')
+            project.category = request.form.get('category')
+            project.technologies = request.form.get('technologies')
+            project.github_url = request.form.get('github_url')
+            project.demo_url = request.form.get('demo_url')
+            project.image_url = image_url
+            project.published = 'published' in request.form
+            project.featured = 'featured' in request.form
+            project.updated_at = datetime.utcnow()
+            
+            db.session.commit()
+            flash('Proyecto actualizado correctamente', 'success')
+            return redirect(url_for('admin.project_list'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash('Error al actualizar el proyecto. Inténtalo de nuevo.', 'error')
+            return render_template('admin/project_edit.html', project=project)
+    
+    return render_template('admin/project_edit.html', project=project)
+
+@admin_bp.route('/projects/<int:project_id>/delete', methods=['POST'])
+@login_required
+@admin_required
+def project_delete(project_id):
+    project = Project.query.get_or_404(project_id)
+    db.session.delete(project)
+    db.session.commit()
+    flash('Proyecto eliminado correctamente', 'success')
+    return redirect(url_for('admin.project_list'))
 
 # Messages
 @admin_bp.route('/messages')

@@ -123,6 +123,31 @@
                             <i class="fab fa-instagram"></i>
                         </a>
                         {% endif %}
+                        {% if config and config.facebook_url %}
+                        <a href="{{ config.facebook_url }}" class="social-link facebook" target="_blank">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        {% endif %}
+                        {% if config and config.tiktok_url %}
+                        <a href="{{ config.tiktok_url }}" class="social-link tiktok" target="_blank">
+                            <i class="fab fa-tiktok"></i>
+                        </a>
+                        {% endif %}
+                        {% if config and config.discord_url %}
+                        <a href="{{ config.discord_url }}" class="social-link discord" target="_blank">
+                            <i class="fab fa-discord"></i>
+                        </a>
+                        {% endif %}
+                        {% if config and config.telegram_url %}
+                        <a href="{{ config.telegram_url }}" class="social-link telegram" target="_blank">
+                            <i class="fab fa-telegram-plane"></i>
+                        </a>
+                        {% endif %}
+                        {% if config and config.whatsapp_url %}
+                        <a href="{{ config.whatsapp_url }}" class="social-link whatsapp" target="_blank">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                        {% endif %}
                         <!-- Enlaces por defecto si no hay configuración -->
                         {% if not config %}
                         <a href="https://linkedin.com/in/tu-perfil" class="social-link linkedin" target="_blank">

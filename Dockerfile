@@ -16,8 +16,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copiar código de la aplicación
 COPY . .
 
-# Crear directorio para uploads
-RUN mkdir -p uploads
+# Crear directorios para uploads
+RUN mkdir -p app/static/uploads/blog app/static/uploads/courses app/static/uploads/projects
 
 # Variables de entorno
 ENV FLASK_APP=app.py

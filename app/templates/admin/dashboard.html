@@ -75,6 +75,166 @@
         </div>
     </div>
     
+    <!-- Analytics Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="mb-3">
+                <i class="fas fa-chart-line text-primary"></i> Estadísticas de Visitas
+            </h3>
+        </div>
+    </div>
+    
+    <!-- Analytics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-gradient-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ analytics.today_visitors }}</h4>
+                            <p class="mb-0">Visitantes Hoy</p>
+                        </div>
+                        <div>
+                            <i class="fas fa-users fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-gradient-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ analytics.today_views }}</h4>
+                            <p class="mb-0">Vistas Hoy</p>
+                        </div>
+                        <div>
+                            <i class="fas fa-eye fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-gradient-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ analytics.total_visitors }}</h4>
+                            <p class="mb-0">Visitantes Totales</p>
+                        </div>
+                        <div>
+                            <i class="fas fa-globe fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-gradient-secondary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ analytics.total_views }}</h4>
+                            <p class="mb-0">Vistas Totales</p>
+                        </div>
+                        <div>
+                            <i class="fas fa-chart-bar fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Analytics Details -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-fire text-primary"></i> Páginas Más Visitadas (7 días)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if analytics.top_pages %}
+                        <div class="list-group list-group-flush">
+                            {% for page, views in analytics.top_pages %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                <span>
+                                    <i class="fas fa-link text-muted me-2"></i>
+                                    {{ page if page != '/' else 'Inicio' }}
+                                </span>
+                                <span class="badge bg-primary rounded-pill">{{ views }} vistas</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center">No hay datos disponibles</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="row">
+                <div class="col-12 mb-3">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-browser text-success"></i> Navegadores (30 días)
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% if analytics.browsers %}
+                                {% for browser, count in analytics.browsers %}
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-capitalize">
+                                        <i class="fab fa-{{ browser if browser != 'other' else 'internet-explorer' }} me-2"></i>
+                                        {{ browser.title() }}
+                                    </span>
+                                    <span class="badge bg-success">{{ count }}</span>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="text-muted text-center">No hay datos disponibles</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-mobile-alt text-info"></i> Dispositivos (30 días)
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% if analytics.devices %}
+                                {% for device, count in analytics.devices %}
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-capitalize">
+                                        <i class="fas fa-{{ 'mobile-alt' if device == 'mobile' else 'tablet-alt' if device == 'tablet' else 'desktop' }} me-2"></i>
+                                        {{ device.title() }}
+                                    </span>
+                                    <span class="badge bg-info">{{ count }}</span>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="text-muted text-center">No hay datos disponibles</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Quick Actions -->
     <div class="row mb-4">
         <div class="col-12">

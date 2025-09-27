@@ -35,6 +35,10 @@ def create_app():
     migrate.init_app(app, db)
     mail.init_app(app)
     
+    # Inicializar analytics
+    from app.utils.analytics import init_analytics
+    init_analytics(app)
+    
     # Configuración de Flask-Login
     login_manager.login_view = 'auth.login'
     login_manager.login_message = 'Por favor inicia sesión para acceder a esta página.'
@@ -63,6 +67,7 @@ def create_app():
         # Crear usuario admin por defecto
         from app.models.user import User
         from app.models.site_config import SiteConfig
+        from app.models.analytics import PageView, VisitorStats
         from werkzeug.security import generate_password_hash
         
         admin_user = User.query.filter_by(username='admin').first()

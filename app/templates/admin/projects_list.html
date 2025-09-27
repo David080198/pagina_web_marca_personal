@@ -32,15 +32,15 @@
                             </td>
                             <td>{{ project.technologies[:50] }}{{ '...' if project.technologies|length > 50 else '' }}</td>
                             <td>
-                                {% if project.published %}
-                                    <span class="badge bg-success">Publicado</span>
+                                {% if project.active %}
+                                    <span class="badge bg-success">Activo</span>
                                 {% else %}
-                                    <span class="badge bg-warning">Borrador</span>
+                                    <span class="badge bg-warning">Inactivo</span>
                                 {% endif %}
                             </td>
                             <td>{{ project.created_at.strftime('%d/%m/%Y') }}</td>
                             <td>
-                                <a href="{{ url_for('admin.project_edit', project_id=project.id) }}" class="btn btn-sm btn-primary">
+                                <a href="{{ url_for('admin.project_edit', id=project.id) }}" class="btn btn-sm btn-primary">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <a href="{{ url_for('main.project_detail', slug=project.slug) }}" class="btn btn-sm btn-info" target="_blank">
@@ -72,7 +72,7 @@
 function deleteProject(id) {
     if (confirm('¿Estás seguro de que quieres eliminar este proyecto?')) {
         fetch(`/admin/projects/${id}/delete`, {
-            method: 'POST',
+            method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
             }

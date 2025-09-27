@@ -2,8 +2,14 @@
     --primary-color: #00d4aa;
     --secondary-color: #00b894;
     --accent-color: #00cec9;
-    --dark-bg: #2d3436;
-    --darker-bg: #1a1a1a;
+    
+    /* Paleta de grises oscuros suaves */
+    --bg-lightest: #3a3f47;    /* Más claro */
+    --bg-lighter: #2f3540;     /* Ligeramente claro */
+    --bg-base: #282c34;        /* Base */
+    --bg-darker: #21252b;      /* Más oscuro */
+    --bg-darkest: #1a1d23;     /* El más oscuro */
+    
     --success-color: #00d4aa;
     --warning-color: #fdcb6e;
     --danger-color: #e17055;
@@ -18,7 +24,7 @@ body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     line-height: 1.6;
     color: var(--text-light);
-    background-color: var(--darker-bg);
+    background-color: var(--bg-base);
 }
 
 /* Navegación */
@@ -39,7 +45,7 @@ body {
 
 /* Hero section */
 .hero-section {
-    background: linear-gradient(135deg, var(--darker-bg) 0%, var(--dark-bg) 50%, var(--primary-color) 100%);
+    background: linear-gradient(135deg, var(--bg-darkest) 0%, var(--bg-darker) 40%, var(--primary-color) 100%);
     min-height: 80vh;
     display: flex;
     align-items: center;
@@ -75,7 +81,7 @@ body {
     border: none;
     border-radius: 0.75rem;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    background-color: var(--dark-bg);
+    background-color: var(--bg-lighter);
     color: var(--text-light);
     border: 1px solid rgba(0, 212, 170, 0.2);
 }
@@ -139,7 +145,7 @@ body {
 }
 
 .form-control {
-    background-color: var(--dark-bg);
+    background-color: var(--bg-darker);
     border-color: rgba(0, 212, 170, 0.3);
     color: var(--text-light);
 }
@@ -147,7 +153,7 @@ body {
 .form-control:focus {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 0.2rem rgba(0, 212, 170, 0.25);
-    background-color: var(--dark-bg);
+    background-color: var(--bg-darker);
     color: var(--text-light);
 }
 
@@ -345,22 +351,112 @@ footer a:hover {
     background: linear-gradient(135deg, #e4405f, #ff6b35, var(--warning-color));
 }
 
+.social-link.facebook {
+    background: linear-gradient(135deg, #1877f2, #42a5f5);
+}
+
+.social-link.tiktok {
+    background: linear-gradient(135deg, #000000, #ff0050);
+}
+
+.social-link.discord {
+    background: linear-gradient(135deg, #7289da, #5865f2);
+}
+
+.social-link.telegram {
+    background: linear-gradient(135deg, #0088cc, #26a5e4);
+}
+
+.social-link.whatsapp {
+    background: linear-gradient(135deg, #25d366, #128c7e);
+}
+
+/* Secciones alternadas con transiciones suaves */
+.section-light {
+    background-color: var(--bg-lightest);
+    transition: background-color 0.3s ease;
+}
+
+.section-base {
+    background-color: var(--bg-base);
+    transition: background-color 0.3s ease;
+}
+
+.section-darker {
+    background-color: var(--bg-darker);
+    transition: background-color 0.3s ease;
+}
+
+.section-darkest {
+    background-color: var(--bg-darkest);
+    transition: background-color 0.3s ease;
+}
+
+/* Transiciones suaves entre secciones */
+section {
+    transition: background-color 0.5s ease;
+}
+
 /* Footer oscuro */
 footer {
-    background-color: var(--darker-bg);
+    background-color: var(--bg-darkest);
     border-top: 1px solid rgba(0, 212, 170, 0.2);
 }
 
 /* Navbar oscura */
 .navbar-dark {
-    background-color: var(--dark-bg) !important;
+    background-color: var(--bg-darker) !important;
 }
 
 /* Texto en elementos oscuros */
 .bg-dark {
-    background-color: var(--dark-bg) !important;
+    background-color: var(--bg-darker) !important;
 }
 
 .text-muted {
     color: var(--text-light) !important;
+}
+
+/* Analytics Dashboard Styles */
+.bg-gradient-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+}
+
+.bg-gradient-success {
+    background: linear-gradient(135deg, #28a745, #20c997);
+}
+
+.bg-gradient-info {
+    background: linear-gradient(135deg, #17a2b8, #138496);
+}
+
+.bg-gradient-secondary {
+    background: linear-gradient(135deg, #6c757d, #495057);
+}
+
+.analytics-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.analytics-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 212, 170, 0.15);
+}
+
+.list-group-item {
+    background-color: transparent;
+    border: 1px solid rgba(0, 212, 170, 0.1);
+    color: var(--text-light);
+}
+
+.badge {
+    font-size: 0.75rem;
+}
+
+/* Iconos para analytics */
+.fas.fa-chart-line,
+.fas.fa-fire,
+.fas.fa-browser,
+.fas.fa-mobile-alt {
+    color: var(--primary-color);
 }

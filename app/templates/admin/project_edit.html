@@ -10,7 +10,7 @@
 
 <div class="card">
     <div class="card-body">
-        <form method="POST">
+        <form method="POST" enctype="multipart/form-data">
             <div class="row">
                 <div class="col-md-8">
                     <div class="mb-3">
@@ -72,9 +72,27 @@
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label for="image_url" class="form-label">URL de Imagen</label>
+                        <label for="image_file" class="form-label">Imagen del Proyecto</label>
+                        <input type="file" class="form-control" id="image_file" name="image_file" 
+                               accept="image/*">
+                        <div class="form-text">Formatos soportados: JPG, PNG, WebP (máx. 5MB)</div>
+                        {% if project and project.image_url %}
+                        <div class="mt-2">
+                            <small class="text-muted">Imagen actual:</small><br>
+                            <img src="{{ project.image_url }}" alt="Imagen actual" class="img-thumbnail" style="max-height: 100px;">
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <label for="image_url" class="form-label">O usar URL de imagen externa</label>
                         <input type="url" class="form-control" id="image_url" name="image_url" 
                                value="{{ project.image_url if project else '' }}" placeholder="https://ejemplo.com/imagen.jpg">
+                        <div class="form-text">Si cargas un archivo, se usará en lugar de la URL</div>
                     </div>
                 </div>
             </div>
@@ -88,10 +106,10 @@
             </div>
             
             <div class="form-check mb-3">
-                <input class="form-check-input" type="checkbox" id="active" name="active" 
-                       {{ 'checked' if project and project.active else '' }}>
-                <label class="form-check-label" for="active">
-                    Proyecto activo
+                <input class="form-check-input" type="checkbox" id="published" name="published" 
+                       {{ 'checked' if project and project.published else '' }}>
+                <label class="form-check-label" for="published">
+                    Proyecto publicado
                 </label>
             </div>
             
@@ -103,7 +121,7 @@
                     <i class="fas fa-times"></i> Cancelar
                 </a>
                 {% if project %}
-                <a href="{{ url_for('main.project_detail', id=project.id) }}" class="btn btn-info" target="_blank">
+                <a href="{{ url_for('main.project_detail', slug=project.slug) }}" class="btn btn-info" target="_blank">
                     <i class="fas fa-eye"></i> Vista Previa
                 </a>
                 {% endif %}
@@ -111,4 +129,29 @@
         </form>
     </div>
 </div>
+
+<script>
+// Preview de imagen seleccionada
+document.getElementById('image_file').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Crear o actualizar la vista previa
+            let preview = document.getElementById('image_preview');
+            if (!preview) {
+                preview = document.createElement('div');
+                preview.id = 'image_preview';
+                preview.className = 'mt-2';
+                e.target.parentNode.appendChild(preview);
+            }
+            preview.innerHTML = `
+                <small class="text-muted">Vista previa:</small><br>
+                <img src="${e.target.result}" alt="Vista previa" class="img-thumbnail" style="max-height: 100px;">
+            `;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+</script>
 {% endblock %}

@@ -15,8 +15,8 @@
         {% for post in posts.items %}
         <div class="col-lg-4 col-md-6 mb-4">
             <div class="card h-100 shadow-sm">
-                {% if post.featured_image %}
-                <img src="{{ post.featured_image }}" class="card-img-top" alt="{{ post.title }}">
+                {% if post.image_url %}
+                <img src="{{ post.image_url }}" class="card-img-top" alt="{{ post.title }}">
                 {% endif %}
                 <div class="card-body">
                     <h5 class="card-title">{{ post.title }}</h5>
