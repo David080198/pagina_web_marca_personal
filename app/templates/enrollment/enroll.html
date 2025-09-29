@@ -1,0 +1,757 @@
+{% extends "base.html" %}
+
+{% block title %}Inscribirse al Curso: {{ course.title }}{% endblock %}
+
+{% block head %}
+{{ super() }}
+<meta name="csrf-token" content="{{ csrf_token() }}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Información del Curso -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-graduation-cap me-2"></i>
+                        Inscripción al Curso
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            {% if course.image_path %}
+                                <img src="{{ url_for('static', filename='uploads/blog/' + course.image_path) }}" 
+                                     class="img-fluid rounded" alt="{{ course.title }}">
+                            {% else %}
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                     style="height: 200px;">
+                                    <i class="fas fa-book fa-3x text-muted"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <h5>{{ course.title }}</h5>
+                            <p class="text-muted">{{ course.content[:200] }}...</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                {% if course.level %}
+                                <span class="badge bg-info">{{ course.level.title() }}</span>
+                                {% endif %}
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    Publicado: {{ course.created_at.strftime('%d/%m/%Y') }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario de Inscripción -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-plus me-2"></i>
+                        Información de Inscripción
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+
+                        <!-- Mostrar errores del formulario para debug -->
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <h6>Errores en el formulario:</h6>
+                            {% for field, errors in form.errors.items() %}
+                                <strong>{{ field }}:</strong>
+                                {% for error in errors %}
+                                    {{ error }}
+                                {% endfor %}<br>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div class="row">
+                            <!-- Información del Usuario -->
+                            <div class="col-md-6">
+                                <h6 class="text-muted mb-3">Tu Información</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Nombre Completo</label>
+                                    <input type="text" class="form-control" 
+                                           value="{{ current_user.full_name or (current_user.first_name + ' ' + current_user.last_name) if current_user.first_name else current_user.username }}" 
+                                           readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" 
+                                           value="{{ current_user.email }}" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    {{ form.phone.label(class="form-label") }}
+                                    {{ form.phone(class="form-control", placeholder="Teléfono de contacto (opcional)") }}
+                                    {% if form.phone.errors %}
+                                        <div class="text-danger small">
+                                            {% for error in form.phone.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Información Adicional -->
+                            <div class="col-md-6">
+                                <h6 class="text-muted mb-3">Información Adicional</h6>
+                                <div class="mb-3">
+                                    {{ form.student_notes.label(class="form-label") }}
+                                    {{ form.student_notes(class="form-control", rows="3", 
+                                                         placeholder="¿Tienes alguna pregunta sobre el curso o expectativas específicas?") }}
+                                    {% if form.student_notes.errors %}
+                                        <div class="text-danger small">
+                                            {% for error in form.student_notes.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Información de Pago por Transferencia Bancaria -->
+                        <hr class="my-4">
+                        <h6 class="text-primary mb-3">
+                            <i class="fas fa-university me-2"></i>
+                            Pago por Transferencia Bancaria
+                        </h6>
+                        
+                        <!-- Cuentas Bancarias Disponibles - CONTENIDO PERMANENTE -->
+                        <div class="row mb-4" id="bank-accounts-static-section">
+                            <div class="col-12">
+                                <div class="alert alert-info" id="bank-accounts-alert">
+                                    <h6 class="mb-3">
+                                        <i class="fas fa-university me-2"></i>
+                                        Cuentas Bancarias Disponibles
+                                    </h6>
+                                    <div class="row" id="bank-cards-container">
+                                        <div class="col-md-6">
+                                            <div class="card mb-3 static-bank-card" id="banco-nacional-card">
+                                                <div class="card-body">
+                                                    <h6 class="card-title text-primary">Banco Nacional</h6>
+                                                    <p class="card-text mb-1"><strong>Tipo:</strong> Cuenta Corriente</p>
+                                                    <p class="card-text mb-1"><strong>Número:</strong> <span class="bank-number">1234-5678-9012</span></p>
+                                                    <p class="card-text mb-1"><strong>Titular:</strong> David Soto</p>
+                                                    <p class="card-text mb-0"><strong>Código:</strong> BN001234</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card mb-3 static-bank-card" id="banco-internacional-card">
+                                                <div class="card-body">
+                                                    <h6 class="card-title text-primary">Banco Internacional</h6>
+                                                    <p class="card-text mb-1"><strong>Tipo:</strong> Cuenta de Ahorros</p>
+                                                    <p class="card-text mb-1"><strong>Número:</strong> <span class="bank-number">9876-5432-1098</span></p>
+                                                    <p class="card-text mb-1"><strong>Titular:</strong> David Soto</p>
+                                                    <p class="card-text mb-0"><strong>Código:</strong> BI005678</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Datos de la Transferencia -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h6 class="text-muted mb-3">Datos de la Transferencia</h6>
+                                <div class="mb-3">
+                                    {{ form.transfer_sender_name.label(class="form-label") }}
+                                    {{ form.transfer_sender_name(class="form-control", placeholder="Nombre completo como aparece en tu cuenta bancaria") }}
+                                    {% if form.transfer_sender_name.errors %}
+                                        <div class="text-danger small">
+                                            {% for error in form.transfer_sender_name.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="mb-3">
+                                    {{ form.bank_account_used.label(class="form-label") }}
+                                    {{ form.bank_account_used(class="form-control") }}
+                                    {% if form.bank_account_used.errors %}
+                                        <div class="text-danger small">
+                                            {% for error in form.bank_account_used.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            {{ form.transfer_reference.label(class="form-label") }}
+                                            {{ form.transfer_reference(class="form-control", placeholder="Ej: REF123456") }}
+                                            {% if form.transfer_reference.errors %}
+                                                <div class="text-danger small">
+                                                    {% for error in form.transfer_reference.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            {{ form.transfer_amount.label(class="form-label") }}
+                                            <div class="input-group">
+                                                <span class="input-group-text">$</span>
+                                                {{ form.transfer_amount(class="form-control", placeholder="222.00") }}
+                                                <span class="input-group-text">MXN</span>
+                                            </div>
+                                            {% if form.transfer_amount.errors %}
+                                                <div class="text-danger small">
+                                                    {% for error in form.transfer_amount.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted mb-3">Subir Comprobante</h6>
+                                <div class="mb-3">
+                                    {{ form.payment_receipt.label(class="form-label") }}
+                                    {{ form.payment_receipt(class="form-control") }}
+                                    {% if form.payment_receipt.errors %}
+                                        <div class="text-danger small">
+                                            {% for error in form.payment_receipt.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">
+                                        <small class="text-muted">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Sube el comprobante de tu transferencia bancaria (JPG, PNG o PDF, máx. 5MB)
+                                        </small>
+                                    </div>
+                                </div>
+                                
+                                <!-- Instrucciones de Pago - CONTENIDO COMPLETAMENTE INMUTABLE -->
+                                <div class="alert alert-warning payment-instructions-immutable" 
+                                     id="payment-instructions-static"
+                                     data-original-content="true" 
+                                     style="display: block !important; visibility: visible !important; opacity: 1 !important;">
+                                    <h6 class="mb-2" style="display: block !important;">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        <span class="instructions-title">Instrucciones:</span>
+                                    </h6>
+                                    <ol class="mb-0 small instructions-list-immutable" 
+                                        id="instructions-list"
+                                        style="display: block !important; visibility: visible !important;">
+                                        <li class="instruction-item" data-text="transferencia">Realiza la transferencia a cualquiera de las cuentas mostradas</li>
+                                        <li class="instruction-item" data-text="campos">Llena todos los campos con la información exacta</li>
+                                        <li class="instruction-item" data-text="comprobante">Sube el comprobante bancario legible</li>
+                                        <li class="instruction-item" data-text="notificacion">Te notificaremos cuando sea aprobado (24-48 hrs)</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Términos y Condiciones - INFORMACIÓN COMPLETAMENTE INMUTABLE -->
+                        <div class="alert alert-warning important-info-immutable" 
+                             id="important-info-static"
+                             data-original-content="true"
+                             style="display: block !important; visibility: visible !important; opacity: 1 !important; position: relative !important;">
+                            <h6 class="important-info-title" style="display: block !important;">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <span>Información Importante</span>
+                            </h6>
+                            <ul class="mb-0 important-info-list-immutable" 
+                                id="important-info-list"
+                                style="display: block !important; visibility: visible !important;">
+                                <li class="info-item" data-text="precio">Precio del curso: <strong>${{ "%.2f"|format(course.price) }} MXN</strong></li>
+                                <li class="info-item" data-text="activacion">El acceso se activará una vez que el administrador apruebe tu pago</li>
+                                <li class="info-item" data-text="tiempo">El proceso de aprobación toma 24-48 horas</li>
+                                <li class="info-item" data-text="confirmacion">Recibirás confirmación por email una vez aprobado</li>
+                                <li class="info-item" data-text="comprobante">Asegúrate de subir un comprobante de pago legible</li>
+                            </ul>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('main.course_detail', slug=course.slug) }}" 
+                               class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Volver al Curso
+                            </a>
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-university me-2"></i>
+                                Enviar Inscripción con Comprobante
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border: none;
+}
+
+.card-header {
+    border-bottom: 2px solid rgba(255,255,255,0.1);
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+}
+
+.alert-info {
+    background: linear-gradient(45deg, #d1ecf1, #bee5eb);
+    border: 1px solid #bee5eb;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+}
+
+.payment-section {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.card-input-group {
+    position: relative;
+}
+
+.card-input-group .form-control {
+    padding-left: 45px;
+}
+
+.card-input-group .card-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #007bff;
+}
+
+/* PROTECCIÓN ULTRA REFORZADA PARA CONTENIDO ESTÁTICO - INMUTABLE */
+#bank-accounts-static-section,
+#bank-accounts-alert,
+#bank-cards-container,
+#banco-nacional-card,
+#banco-internacional-card,
+#payment-instructions-static,
+#instructions-list,
+#important-info-static,
+#important-info-list {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    height: auto !important;
+    width: auto !important;
+    transform: none !important;
+}
+
+/* Clases inmutables con máxima protección */
+.payment-instructions-immutable,
+.important-info-immutable {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    background: #fff3cd !important;
+    border: 1px solid #ffecb5 !important;
+    color: #856404 !important;
+    padding: 0.75rem 1.25rem !important;
+    margin-bottom: 1rem !important;
+    border-radius: 0.375rem !important;
+}
+
+.instructions-list-immutable,
+.important-info-list-immutable {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    list-style-type: decimal !important;
+    margin: 0 !important;
+    padding-left: 1.5rem !important;
+}
+
+.instruction-item,
+.info-item {
+    display: list-item !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    margin-bottom: 0.25rem !important;
+    font-size: 0.875rem !important;
+}
+
+.instructions-title {
+    display: inline !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    font-weight: bold !important;
+}
+
+.important-info-title {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    font-weight: bold !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.static-bank-card {
+    border: 2px solid #007bff !important;
+    background: white !important;
+}
+
+.bank-number {
+    color: #007bff !important;
+    font-weight: bold !important;
+    font-family: monospace !important;
+}
+
+/* Protección adicional contra cualquier modificación dinámica */
+#bank-accounts-static-section *,
+#payment-instructions-static *,
+#important-info-static * {
+    display: inherit !important;
+    visibility: inherit !important;
+    opacity: inherit !important;
+}
+
+/* Reglas específicas para elementos que tienden a desaparecer */
+.payment-instructions-immutable *,
+.important-info-immutable * {
+    display: inherit !important;
+    visibility: inherit !important;
+    opacity: inherit !important;
+}
+
+/* Protección contra hide, fade, y otras manipulaciones */
+.payment-instructions-immutable,
+.important-info-immutable,
+.instructions-list-immutable,
+.important-info-list-immutable,
+.instruction-item,
+.info-item {
+    animation: none !important;
+    transition: none !important;
+}
+
+/* BACKUP VISUAL usando CSS content - Si el contenido HTML desaparece, esto lo mostrará */
+#payment-instructions-static::before {
+    content: "⚠️ Instrucciones: " !important;
+    display: block !important;
+    font-weight: bold !important;
+    color: #856404 !important;
+    margin-bottom: 0.5rem !important;
+}
+
+#payment-instructions-static::after {
+    content: "1. Realiza la transferencia a cualquiera de las cuentas mostradas \A 2. Llena todos los campos con la información exacta \A 3. Sube el comprobante bancario legible \A 4. Te notificaremos cuando sea aprobado (24-48 hrs)" !important;
+    white-space: pre-line !important;
+    display: block !important;
+    font-size: 0.875rem !important;
+    color: #856404 !important;
+    line-height: 1.4 !important;
+}
+
+#important-info-static::before {
+    content: "⚠️ Información Importante:" !important;
+    display: block !important;
+    font-weight: bold !important;
+    color: #856404 !important;
+    margin-bottom: 0.5rem !important;
+}
+
+#important-info-static::after {
+    content: "• Precio del curso: $222.00 MXN \A • El acceso se activará una vez que el administrador apruebe tu pago \A • El proceso de aprobación toma 24-48 horas \A • Recibirás confirmación por email una vez aprobado \A • Asegúrate de subir un comprobante de pago legible" !important;
+    white-space: pre-line !important;
+    display: block !important;
+    font-size: 0.875rem !important;
+    color: #856404 !important;
+    line-height: 1.4 !important;
+}
+
+/* Cuando hay contenido normal, ocultar el backup */
+#payment-instructions-static:not(:empty) h6 ~ ::before,
+#payment-instructions-static:not(:empty) h6 ~ ::after,
+#important-info-static:not(:empty) h6 ~ ::before,
+#important-info-static:not(:empty) h6 ~ ::after {
+    display: none !important;
+}
+</style>
+
+<script>
+// PROTECCIÓN ULTRA REFORZADA DEL CONTENIDO ESTÁTICO - INMUTABLE
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🛡️ Página de inscripción cargada - activando protección ULTRA del contenido estático');
+    
+    // Contenido de backup hardcoded que NUNCA puede desaparecer
+    const IMMUTABLE_CONTENT = {
+        'payment-instructions-static': `
+            <h6 class="mb-2" style="display: block !important;">
+                <i class="fas fa-exclamation-triangle me-1"></i>
+                <span class="instructions-title">Instrucciones:</span>
+            </h6>
+            <ol class="mb-0 small instructions-list-immutable" style="display: block !important; visibility: visible !important;">
+                <li class="instruction-item">Realiza la transferencia a cualquiera de las cuentas mostradas</li>
+                <li class="instruction-item">Llena todos los campos con la información exacta</li>
+                <li class="instruction-item">Sube el comprobante bancario legible</li>
+                <li class="instruction-item">Te notificaremos cuando sea aprobado (24-48 hrs)</li>
+            </ol>
+        `,
+        'important-info-static': `
+            <h6 class="important-info-title" style="display: block !important;">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <span>Información Importante</span>
+            </h6>
+            <ul class="mb-0 important-info-list-immutable" style="display: block !important; visibility: visible !important;">
+                <li class="info-item">Precio del curso: <strong>$222.00 MXN</strong></li>
+                <li class="info-item">El acceso se activará una vez que el administrador apruebe tu pago</li>
+                <li class="info-item">El proceso de aprobación toma 24-48 horas</li>
+                <li class="info-item">Recibirás confirmación por email una vez aprobado</li>
+                <li class="info-item">Asegúrate de subir un comprobante de pago legible</li>
+            </ul>
+        `
+    };
+    
+    // IDs de elementos críticos que NUNCA deben desaparecer
+    const CRITICAL_ELEMENTS = [
+        'bank-accounts-static-section',
+        'payment-instructions-static',
+        'important-info-static'
+    ];
+    
+    const ALL_STATIC_ELEMENTS = [
+        'bank-accounts-static-section',
+        'bank-accounts-alert', 
+        'bank-cards-container',
+        'banco-nacional-card',
+        'banco-internacional-card',
+        'payment-instructions-static',
+        'instructions-list',
+        'important-info-static',
+        'important-info-list'
+    ];
+    
+    // Función ultra protectora que restaura contenido perdido
+    function ultraProtectStaticContent() {
+        // Verificar y restaurar elementos críticos
+        CRITICAL_ELEMENTS.forEach(elementId => {
+            let element = document.getElementById(elementId);
+            
+            // Si el elemento no existe, lo recreamos
+            if (!element) {
+                console.warn(`🚨 Elemento crítico perdido: ${elementId} - RECREANDO`);
+                recreateElement(elementId);
+                element = document.getElementById(elementId);
+            }
+            
+            if (element) {
+                // Aplicar estilos inmutables
+                const forceStyles = {
+                    'display': 'block',
+                    'visibility': 'visible',
+                    'opacity': '1',
+                    'position': 'relative',
+                    'height': 'auto',
+                    'width': 'auto',
+                    'transform': 'none'
+                };
+                
+                Object.keys(forceStyles).forEach(prop => {
+                    element.style.setProperty(prop, forceStyles[prop], 'important');
+                });
+                
+                // Verificar que el contenido interno esté presente
+                if (IMMUTABLE_CONTENT[elementId] && element.innerHTML.trim().length < 50) {
+                    console.warn(`🚨 Contenido interno perdido en ${elementId} - RESTAURANDO`);
+                    element.innerHTML = IMMUTABLE_CONTENT[elementId];
+                }
+                
+                // Marcar como protegido
+                element.setAttribute('data-protected', 'ultra');
+                element.classList.add('ultra-protected');
+            }
+        });
+        
+        // Proteger todos los elementos estáticos
+        ALL_STATIC_ELEMENTS.forEach(elementId => {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.style.setProperty('display', 'block', 'important');
+                element.style.setProperty('visibility', 'visible', 'important');
+                element.style.setProperty('opacity', '1', 'important');
+            }
+        });
+    }
+    
+    // Función para recrear elementos perdidos
+    function recreateElement(elementId) {
+        const containers = {
+            'payment-instructions-static': '.col-md-6:last-child',
+            'important-info-static': 'form'
+        };
+        
+        const container = document.querySelector(containers[elementId]);
+        if (container && IMMUTABLE_CONTENT[elementId]) {
+            const newElement = document.createElement('div');
+            newElement.id = elementId;
+            newElement.className = `alert alert-warning ${elementId.includes('payment') ? 'payment-instructions-immutable' : 'important-info-immutable'}`;
+            newElement.setAttribute('data-original-content', 'true');
+            newElement.setAttribute('data-recreated', 'true');
+            newElement.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
+            newElement.innerHTML = IMMUTABLE_CONTENT[elementId];
+            
+            container.appendChild(newElement);
+            console.log(`✅ Elemento ${elementId} recreado exitosamente`);
+        }
+    }
+    
+    // Protección inmediata
+    ultraProtectStaticContent();
+    
+    // Verificación cada 500ms (más frecuente)
+    setInterval(ultraProtectStaticContent, 500);
+    
+    // Observer súper sensible para detectar cualquier cambio
+    const ultraObserver = new MutationObserver(function(mutations) {
+        let needsProtection = false;
+        
+        mutations.forEach(function(mutation) {
+            // Detectar eliminación de nodos
+            if (mutation.type === 'childList' && mutation.removedNodes.length > 0) {
+                mutation.removedNodes.forEach(node => {
+                    if (node.nodeType === 1 && CRITICAL_ELEMENTS.includes(node.id)) {
+                        console.error(`🚨 ELEMENTO CRÍTICO ELIMINADO: ${node.id}`);
+                        needsProtection = true;
+                    }
+                });
+            }
+            
+            // Detectar cambios de atributos
+            if (mutation.type === 'attributes' && mutation.target.id && CRITICAL_ELEMENTS.includes(mutation.target.id)) {
+                needsProtection = true;
+            }
+        });
+        
+        if (needsProtection) {
+            setTimeout(ultraProtectStaticContent, 50);
+        }
+    });
+    
+    // Observar TODO el documento con máxima sensibilidad
+    ultraObserver.observe(document.body, {
+        attributes: true,
+        childList: true,
+        subtree: true,
+        attributeOldValue: true,
+        characterData: true,
+        characterDataOldValue: true
+    });
+    
+    // Interceptar métodos de eliminación
+    const originalRemove = Element.prototype.remove;
+    Element.prototype.remove = function() {
+        if (this.id && CRITICAL_ELEMENTS.includes(this.id)) {
+            console.error(`🚫 BLOQUEO: Intento de eliminar elemento crítico ${this.id}`);
+            return;
+        }
+        return originalRemove.call(this);
+    };
+    
+    // Interceptar innerHTML
+    const originalInnerHTMLSetter = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML').set;
+    Object.defineProperty(Element.prototype, 'innerHTML', {
+        set: function(value) {
+            if (this.id && CRITICAL_ELEMENTS.includes(this.id) && value.trim().length < 50) {
+                console.warn(`🚫 BLOQUEO: Intento de vaciar contenido de ${this.id}`);
+                return;
+            }
+            originalInnerHTMLSetter.call(this, value);
+        },
+        get: Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML').get
+    });
+    
+    console.log('🛡️ PROTECCIÓN ULTRA activada - Contenido estático es ahora INMUTABLE');
+});
+
+// Función de verificación ULTRA para asegurar que el contenido esté siempre visible
+function ultraVerifyStaticContent() {
+    const criticalElements = ['payment-instructions-static', 'important-info-static'];
+    let allVisible = true;
+    
+    criticalElements.forEach(id => {
+        const element = document.getElementById(id);
+        if (!element) {
+            console.error(`❌ CRÍTICO: Elemento ${id} completamente perdido`);
+            allVisible = false;
+        } else {
+            const computedStyle = window.getComputedStyle(element);
+            const isVisible = computedStyle.display !== 'none' && 
+                             computedStyle.visibility !== 'hidden' && 
+                             computedStyle.opacity !== '0';
+            
+            if (!isVisible) {
+                console.error(`❌ CRÍTICO: Elemento ${id} oculto - display:${computedStyle.display}, visibility:${computedStyle.visibility}, opacity:${computedStyle.opacity}`);
+                allVisible = false;
+                
+                // Forzar visibilidad inmediata
+                element.style.setProperty('display', 'block', 'important');
+                element.style.setProperty('visibility', 'visible', 'important');
+                element.style.setProperty('opacity', '1', 'important');
+            }
+            
+            // Verificar contenido interno
+            if (element.innerHTML.trim().length < 50) {
+                console.error(`❌ CRÍTICO: Contenido interno de ${id} vacío o muy corto`);
+                allVisible = false;
+            }
+        }
+    });
+    
+    if (allVisible) {
+        console.log('✅ Todos los elementos críticos están visibles y con contenido');
+    }
+    
+    return allVisible;
+}
+
+// Verificación cada 2 segundos
+setInterval(ultraVerifyStaticContent, 2000);
+
+// Verificación extra al cargar completamente
+window.addEventListener('load', function() {
+    setTimeout(ultraVerifyStaticContent, 1000);
+    setTimeout(ultraVerifyStaticContent, 3000);
+    setTimeout(ultraVerifyStaticContent, 5000);
+});
+</script>
+
+{% endblock %}

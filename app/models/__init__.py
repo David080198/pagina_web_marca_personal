@@ -5,5 +5,7 @@ from .course import Course
 from .project import Project
 from .site_config import SiteConfig
 from .contact import ContactMessage
+from .enrollment import CourseEnrollment, Payment
+from .favorite import Favorite
 
-__all__ = ['User', 'BlogPost', 'Course', 'Project', 'SiteConfig', 'ContactMessage']
+__all__ = ['User', 'BlogPost', 'Course', 'Project', 'SiteConfig', 'ContactMessage', 'CourseEnrollment', 'Payment', 'Favorite']

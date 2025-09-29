@@ -13,7 +13,7 @@ def create_app():
     app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
     
     # Importar extensiones localmente para evitar imports circulares
-    from app.extensions import db, login_manager, migrate, mail
+    from app.extensions import db, login_manager, migrate, mail, csrf
     
     # Configuración
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
@@ -34,6 +34,11 @@ def create_app():
     login_manager.init_app(app)
     migrate.init_app(app, db)
     mail.init_app(app)
+    csrf.init_app(app)
+    
+    # Configurar rutas exentas de CSRF
+    csrf.exempt('admin.approve_payment')
+    csrf.exempt('admin.reject_payment')
     
     # Inicializar analytics
     from app.utils.analytics import init_analytics
@@ -53,12 +58,18 @@ def create_app():
     from app.blueprints.main import main_bp
     from app.blueprints.auth import auth_bp
     from app.blueprints.admin import admin_bp
+    from app.blueprints.user import user_bp
     from app.blueprints.api import api_bp
+    from app.blueprints.enrollment import enrollment_bp
+    from app.blueprints.payment_admin import payment_admin_bp
     
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(admin_bp, url_prefix='/admin')
+    app.register_blueprint(user_bp)  # Ya tiene url_prefix='/user' definido
     app.register_blueprint(api_bp, url_prefix='/api')
+    app.register_blueprint(enrollment_bp)  # Ya tiene url_prefix='/enrollment' definido
+    app.register_blueprint(payment_admin_bp)  # Ya tiene url_prefix='/admin/payments' definido
     
     # Crear tablas si no existen
     with app.app_context():
@@ -68,6 +79,7 @@ def create_app():
         from app.models.user import User
         from app.models.site_config import SiteConfig
         from app.models.analytics import PageView, VisitorStats
+        from app.models.enrollment import CourseEnrollment, Payment  # Importar modelos de enrollment
         from werkzeug.security import generate_password_hash
         
         admin_user = User.query.filter_by(username='admin').first()
@@ -75,9 +87,14 @@ def create_app():
             admin_user = User(
                 username='admin',
                 email=os.environ.get('ADMIN_EMAIL', 'admin@codexsoto.com'),
-                password_hash=generate_password_hash(os.environ.get('ADMIN_PASSWORD', 'admin123')),
-                is_admin=True
+                first_name='David',
+                last_name='Soto',
+                bio='Administrador del sitio CodexSoto',
+                role='admin',
+                is_admin=True,
+                email_verified=True
             )
+            admin_user.set_password(os.environ.get('ADMIN_PASSWORD', 'admin123'))
             db.session.add(admin_user)
         
         # Crear configuración por defecto del sitio

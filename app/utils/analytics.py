@@ -24,10 +24,15 @@ def init_analytics(app):
                 # Analizar user agent para obtener dispositivo y navegador
                 device, browser = parse_user_agent(user_agent)
                 
+                # Obtener información del usuario si está autenticado
+                from flask_login import current_user
+                user_id = current_user.id if current_user.is_authenticated else None
+                
                 # Crear registro de vista de página
                 page_view = PageView(
                     ip_address=ip_address,
                     user_agent=user_agent,
+                    user_id=user_id,
                     page=page,
                     referrer=referrer,
                     device=device,

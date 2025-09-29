@@ -1,0 +1,363 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Gestión de Pagos - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="text-primary mb-1">
+                        <i class="fas fa-credit-card me-2"></i>
+                        Gestión de Pagos
+                    </h2>
+                    <p class="text-muted mb-0">
+                        Administra todos los pagos y comprobantes de inscripciones
+                    </p>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-info fs-6">
+                        {{ payments.total }} pagos registrados
+                    </span>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <div class="btn-group" role="group" aria-label="Filtros de estado">
+                                <a href="{{ url_for('payment_admin.all_payments', status='all') }}" 
+                                   class="btn btn-outline-primary {% if status_filter == 'all' %}active{% endif %}">
+                                    Todos
+                                </a>
+                                <a href="{{ url_for('payment_admin.all_payments', status='pending') }}" 
+                                   class="btn btn-outline-warning {% if status_filter == 'pending' %}active{% endif %}">
+                                    Pendientes
+                                </a>
+                                <a href="{{ url_for('payment_admin.all_payments', status='approved') }}" 
+                                   class="btn btn-outline-success {% if status_filter == 'approved' %}active{% endif %}">
+                                    Aprobados
+                                </a>
+                                <a href="{{ url_for('payment_admin.all_payments', status='rejected') }}" 
+                                   class="btn btn-outline-danger {% if status_filter == 'rejected' %}active{% endif %}">
+                                    Rechazados
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <a href="{{ url_for('payment_admin.payment_dashboard') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-chart-line me-2"></i>
+                                Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista de Pagos -->
+            {% if payments.items %}
+            <div class="card">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Usuario</th>
+                                    <th>Curso</th>
+                                    <th>Método</th>
+                                    <th>Monto</th>
+                                    <th>Estado</th>
+                                    <th>Fecha</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in payments.items %}
+                                <tr>
+                                    <td>
+                                        <strong>#{{ payment.id }}</strong>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if payment.enrollment.user.avatar_url %}
+                                            <img src="{{ payment.enrollment.user.avatar_url }}" 
+                                                 alt="Avatar" 
+                                                 class="rounded-circle me-2" 
+                                                 style="width: 32px; height: 32px; object-fit: cover;">
+                                            {% else %}
+                                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-2"
+                                                 style="width: 32px; height: 32px;">
+                                                <i class="fas fa-user text-white small"></i>
+                                            </div>
+                                            {% endif %}
+                                            <div>
+                                                <div class="fw-semibold">{{ payment.enrollment.user.full_name }}</div>
+                                                <small class="text-muted">{{ payment.enrollment.user.email }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <div class="fw-semibold">{{ payment.enrollment.course.title }}</div>
+                                            <small class="text-muted">${{ "%.2f"|format(payment.enrollment.course.price) }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark">
+                                            {% if payment.payment_method == 'bank_transfer' %}
+                                                <i class="fas fa-university me-1"></i>Transferencia
+                                            {% elif payment.payment_method == 'paypal' %}
+                                                <i class="fab fa-paypal me-1"></i>PayPal
+                                            {% elif payment.payment_method == 'credit_card' %}
+                                                <i class="fas fa-credit-card me-1"></i>Tarjeta
+                                            {% else %}
+                                                {{ payment.payment_method }}
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <strong class="text-success">${{ "%.2f"|format(payment.amount) }}</strong>
+                                    </td>
+                                    <td>
+                                        {% if payment.status.value == 'pending' %}
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-clock me-1"></i>Pendiente
+                                        </span>
+                                        {% elif payment.status.value == 'approved' %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check me-1"></i>Aprobado
+                                        </span>
+                                        {% elif payment.status.value == 'rejected' %}
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-times me-1"></i>Rechazado
+                                        </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div>{{ payment.submitted_at.strftime('%d/%m/%Y') }}</div>
+                                        <small class="text-muted">{{ payment.submitted_at.strftime('%H:%M') }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{{ url_for('payment_admin.review_payment', payment_id=payment.id) }}" 
+                                               class="btn btn-outline-primary" 
+                                               title="Revisar pago">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            
+                                            {% if payment.status.value == 'pending' %}
+                                            <button type="button" 
+                                                    class="btn btn-outline-success"
+                                                    onclick="approvePayment({{ payment.id }})"
+                                                    title="Aprobar pago">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button type="button" 
+                                                    class="btn btn-outline-danger"
+                                                    onclick="rejectPayment({{ payment.id }})"
+                                                    title="Rechazar pago">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paginación -->
+            {% if payments.pages > 1 %}
+            <nav aria-label="Paginación de pagos" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if payments.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('payment_admin.all_payments', page=payments.prev_num, status=status_filter) }}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page_num in payments.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != payments.page %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('payment_admin.all_payments', page=page_num, status=status_filter) }}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                            {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                            {% endif %}
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">…</span>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if payments.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('payment_admin.all_payments', page=payments.next_num, status=status_filter) }}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+            {% else %}
+            <!-- Estado vacío -->
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-receipt fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted">No hay pagos registrados</h4>
+                    <p class="text-muted">
+                        {% if status_filter == 'all' %}
+                        No se han registrado pagos en el sistema.
+                        {% else %}
+                        No hay pagos con el estado "{{ status_filter }}".
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación para aprobar -->
+<div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="approveModalLabel">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    Aprobar Pago
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas aprobar este pago?</p>
+                <p class="text-muted small">El usuario recibirá acceso inmediato al curso.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="confirmApprove">
+                    <i class="fas fa-check me-2"></i>Aprobar Pago
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación para rechazar -->
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rejectModalLabel">
+                    <i class="fas fa-times-circle text-danger me-2"></i>
+                    Rechazar Pago
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas rechazar este pago?</p>
+                <div class="mb-3">
+                    <label for="rejection_reason" class="form-label">Motivo del rechazo:</label>
+                    <textarea class="form-control" id="rejection_reason" rows="3" 
+                              placeholder="Describe el motivo del rechazo..."></textarea>
+                </div>
+                <p class="text-muted small">Se notificará al usuario sobre el rechazo.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmReject">
+                    <i class="fas fa-times me-2"></i>Rechazar Pago
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let paymentToProcess = null;
+
+function approvePayment(paymentId) {
+    paymentToProcess = paymentId;
+    const modal = new bootstrap.Modal(document.getElementById('approveModal'));
+    modal.show();
+}
+
+function rejectPayment(paymentId) {
+    paymentToProcess = paymentId;
+    const modal = new bootstrap.Modal(document.getElementById('rejectModal'));
+    modal.show();
+}
+
+document.getElementById('confirmApprove').addEventListener('click', function() {
+    if (paymentToProcess) {
+        fetch(`{{ url_for('payment_admin.approve_payment', payment_id=0) }}`.replace('0', paymentToProcess), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error al aprobar el pago: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al procesar la solicitud');
+        });
+    }
+});
+
+document.getElementById('confirmReject').addEventListener('click', function() {
+    if (paymentToProcess) {
+        const reason = document.getElementById('rejection_reason').value;
+        
+        fetch(`{{ url_for('payment_admin.reject_payment', payment_id=0) }}`.replace('0', paymentToProcess), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                reason: reason
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error al rechazar el pago: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al procesar la solicitud');
+        });
+    }
+});
+</script>
+{% endblock %}

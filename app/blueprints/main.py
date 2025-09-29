@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask_login import current_user
 from flask_mail import Message
 from app.models.blog import BlogPost
 from app.models.course import Course
@@ -54,9 +55,23 @@ def course_detail(slug):
     config = SiteConfig.query.first()
     course = Course.query.filter_by(slug=slug, published=True).first_or_404()
     
+    # Verificar inscripción existente si el usuario está autenticado
+    existing_enrollment = None
+    if hasattr(current_user, 'is_authenticated') and current_user.is_authenticated:
+        try:
+            from app.models.enrollment import CourseEnrollment
+            existing_enrollment = CourseEnrollment.query.filter_by(
+                user_id=current_user.id,
+                course_id=course.id
+            ).first()
+        except ImportError:
+            # Si no existe el modelo de inscripción, continuar sin error
+            pass
+    
     return render_template('course_detail.html', 
                          config=config,
-                         course=course)
+                         course=course,
+                         existing_enrollment=existing_enrollment)
 
 @main_bp.route('/blog')
 def blog():
@@ -77,6 +92,15 @@ def blog_post(slug):
     return render_template('blog_post.html', 
                          config=config,
                          post=post)
+
+@main_bp.route('/proyectos')
+def projects():
+    config = SiteConfig.query.first()
+    all_projects = Project.query.filter_by(published=True).all()
+    
+    return render_template('projects.html', 
+                         config=config,
+                         projects=all_projects)
 
 @main_bp.route('/contacto', methods=['GET', 'POST'])
 def contact():

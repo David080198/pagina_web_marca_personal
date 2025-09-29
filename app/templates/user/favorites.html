@@ -1,0 +1,495 @@
+{% extends "base.html" %}
+
+{% block title %}Mis Favoritos{% endblock %}
+
+{% block head %}
+{{ super() }}
+<meta name="csrf-token" content="{{ csrf_token() }}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-primary">
+                    <i class="fas fa-heart me-2"></i>
+                    Mis Favoritos
+                </h2>
+                <div class="text-muted">
+                    <i class="fas fa-bookmark me-1"></i>
+                    {{ favorites.total }} elementos guardados
+                </div>
+            </div>
+
+            {% if favorites.items %}
+                <!-- Filtros -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="btn-group" role="group">
+                            <a href="{{ url_for('user.favorites') }}" 
+                               class="btn {{ 'btn-primary' if not category_filter or category_filter == 'all' else 'btn-outline-primary' }}">
+                                <i class="fas fa-th-large me-1"></i>
+                                Todos
+                            </a>
+                            <a href="{{ url_for('user.favorites', category='blog') }}" 
+                               class="btn {{ 'btn-primary' if category_filter == 'blog' else 'btn-outline-primary' }}">
+                                <i class="fas fa-blog me-1"></i>
+                                Blog
+                            </a>
+                            <a href="{{ url_for('user.favorites', category='cursos') }}" 
+                               class="btn {{ 'btn-primary' if category_filter == 'cursos' else 'btn-outline-primary' }}">
+                                <i class="fas fa-graduation-cap me-1"></i>
+                                Cursos
+                            </a>
+                            <a href="{{ url_for('user.favorites', category='proyectos') }}" 
+                               class="btn {{ 'btn-primary' if category_filter == 'proyectos' else 'btn-outline-primary' }}">
+                                <i class="fas fa-code me-1"></i>
+                                Proyectos
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-sort me-1"></i>
+                                Ordenar por
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ url_for('user.favorites', sort='newest') }}">
+                                    <i class="fas fa-clock me-2"></i>Más recientes
+                                </a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('user.favorites', sort='oldest') }}">
+                                    <i class="fas fa-clock me-2"></i>Más antiguos
+                                </a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('user.favorites', sort='title') }}">
+                                    <i class="fas fa-sort-alpha-down me-2"></i>Por título
+                                </a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grid de Favoritos -->
+                <div class="row">
+                    {% for favorite in favorites.items %}
+                    {% set content = favorite.get_content_object() %}
+                    {% if content %}
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="favorite-card">
+                            <div class="card h-100 shadow-sm">
+                                <!-- Imagen -->
+                                <div class="card-img-container">
+                                    {% if content.image_path %}
+                                        <img src="{{ url_for('static', filename='uploads/' + favorite.content_type + '/' + content.image_path) }}" 
+                                             class="card-img-top" alt="{{ content.title }}">
+                                    {% elif content.image_url %}
+                                        <img src="{{ content.image_url }}" class="card-img-top" alt="{{ content.title }}">
+                                    {% else %}
+                                        <div class="card-img-placeholder">
+                                            {% if favorite.content_type == 'blog' %}
+                                                <i class="fas fa-blog fa-3x text-muted"></i>
+                                            {% elif favorite.content_type == 'cursos' %}
+                                                <i class="fas fa-graduation-cap fa-3x text-muted"></i>
+                                            {% elif favorite.content_type == 'proyectos' %}
+                                                <i class="fas fa-code fa-3x text-muted"></i>
+                                            {% else %}
+                                                <i class="fas fa-file-alt fa-3x text-muted"></i>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <!-- Badge de categoría -->
+                                    <div class="category-badge">
+                                        {% if favorite.content_type == 'blog' %}
+                                            <span class="badge bg-info">
+                                                <i class="fas fa-blog me-1"></i>Blog
+                                            </span>
+                                        {% elif favorite.content_type == 'cursos' %}
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-graduation-cap me-1"></i>Curso
+                                            </span>
+                                        {% elif favorite.content_type == 'proyectos' %}
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-code me-1"></i>Proyecto
+                                            </span>
+                                        {% endif %}
+                                    </div>
+
+                                    <!-- Botón de eliminar favorito -->
+                                    <div class="favorite-remove">
+                                        <button class="btn btn-danger btn-sm" 
+                                                onclick="removeFavorite({{ favorite.id }})"
+                                                title="Quitar de favoritos">
+                                            <i class="fas fa-heart-broken"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Contenido -->
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title">{{ content.title }}</h5>
+                                    <p class="card-text text-muted">
+                                        {{ content.content[:120] if content.content else (content.description[:120] if content.description else 'Sin descripción disponible') }}...
+                                    </p>
+                                    
+                                    <!-- Metadatos -->
+                                    <div class="card-meta mt-auto">
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar me-1"></i>
+                                            Guardado el {{ favorite.created_at.strftime('%d/%m/%Y') }}
+                                        </small>
+                                        {% if content.created_at %}
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-clock me-1"></i>
+                                            Publicado el {{ content.created_at.strftime('%d/%m/%Y') }}
+                                        </small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Footer con acciones -->
+                                <div class="card-footer bg-transparent">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        {% if favorite.content_type == 'blog' %}
+                                            <a href="{{ url_for('main.blog_post', slug=content.slug) }}" 
+                                               class="btn btn-primary btn-sm">
+                                                <i class="fas fa-eye me-1"></i>Leer
+                                            </a>
+                                        {% elif favorite.content_type == 'cursos' %}
+                                            <a href="{{ url_for('main.course_detail', slug=content.slug) }}" 
+                                               class="btn btn-success btn-sm">
+                                                <i class="fas fa-play me-1"></i>Ver Curso
+                                            </a>
+                                        {% elif favorite.content_type == 'proyectos' %}
+                                            <a href="{{ url_for('main.project_detail', slug=content.slug) }}" 
+                                               class="btn btn-warning btn-sm">
+                                                <i class="fas fa-code me-1"></i>Ver Proyecto
+                                            </a>
+                                        {% endif %}
+
+                                        <button class="btn btn-outline-secondary btn-sm" 
+                                                onclick="shareFavorite('{{ content.title }}', '{{ request.url_root }}{{ favorite.get_content_url() }}')">
+                                            <i class="fas fa-share-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+
+                <!-- Paginación -->
+                {% if favorites.pages > 1 %}
+                <nav aria-label="Paginación de favoritos" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if favorites.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('user.favorites', page=favorites.prev_num, category=category_filter, sort=sort_by) }}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% for page_num in favorites.iter_pages() %}
+                            {% if page_num %}
+                                {% if page_num != favorites.page %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('user.favorites', page=page_num, category=category_filter, sort=sort_by) }}">
+                                            {{ page_num }}
+                                        </a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ page_num }}</span>
+                                    </li>
+                                {% endif %}
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">…</span>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if favorites.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('user.favorites', page=favorites.next_num, category=category_filter, sort=sort_by) }}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+
+            {% else %}
+                <!-- Estado vacío -->
+                <div class="empty-state text-center py-5">
+                    <div class="empty-icon mb-4">
+                        <i class="fas fa-heart fa-4x text-muted"></i>
+                    </div>
+                    <h4 class="text-muted mb-3">No tienes favoritos aún</h4>
+                    <p class="text-muted mb-4">
+                        Explora nuestro contenido y guarda tus artículos, cursos y proyectos favoritos
+                    </p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="{{ url_for('main.blog') }}" class="btn btn-info">
+                            <i class="fas fa-blog me-2"></i>
+                            Explorar Blog
+                        </a>
+                        <a href="{{ url_for('main.courses') }}" class="btn btn-success">
+                            <i class="fas fa-graduation-cap me-2"></i>
+                            Ver Cursos
+                        </a>
+                        <a href="{{ url_for('main.projects') }}" class="btn btn-warning">
+                            <i class="fas fa-code me-2"></i>
+                            Ver Proyectos
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación -->
+<div class="modal fade" id="removeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-heart-broken text-danger me-2"></i>
+                    Quitar de Favoritos
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas quitar este elemento de tus favoritos?</p>
+                <p class="text-muted small">Podrás agregarlo nuevamente más tarde si lo deseas.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmRemove">
+                    <i class="fas fa-heart-broken me-1"></i>
+                    Quitar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let favoriteToRemove = null;
+
+function removeFavorite(favoriteId) {
+    favoriteToRemove = favoriteId;
+    const modal = new bootstrap.Modal(document.getElementById('removeModal'));
+    modal.show();
+}
+
+document.getElementById('confirmRemove').addEventListener('click', function() {
+    if (favoriteToRemove) {
+        fetch(`{{ url_for('user.remove_favorite', favorite_id=0) }}`.replace('0', favoriteToRemove), {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error al quitar el favorito: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('Error de conexión');
+        });
+        
+        bootstrap.Modal.getInstance(document.getElementById('removeModal')).hide();
+    }
+});
+
+function shareFavorite(title, url) {
+    if (navigator.share) {
+        navigator.share({
+            title: title,
+            url: url
+        });
+    } else {
+        // Fallback: copiar al portapapeles
+        navigator.clipboard.writeText(url).then(() => {
+            // Mostrar notificación
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            toast.innerHTML = '<i class="fas fa-check-circle me-2"></i>Enlace copiado al portapapeles';
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        });
+    }
+}
+</script>
+
+<style>
+.favorite-card {
+    transition: all 0.3s ease;
+}
+
+.favorite-card:hover {
+    transform: translateY(-5px);
+}
+
+.favorite-card .card {
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.favorite-card:hover .card {
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.card-img-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.card-img-top {
+    height: 200px;
+    object-fit: cover;
+    transition: all 0.3s ease;
+}
+
+.favorite-card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+.card-img-placeholder {
+    height: 200px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.category-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+}
+
+.favorite-remove {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.favorite-card:hover .favorite-remove {
+    opacity: 1;
+}
+
+.card-title {
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 0.75rem;
+}
+
+.card-text {
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.card-meta {
+    border-top: 1px solid #f8f9fa;
+    padding-top: 0.75rem;
+}
+
+.empty-state {
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.empty-icon {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+.toast-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #28a745;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 15px rgba(40,167,69,0.3);
+    z-index: 1000;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.btn-group .btn {
+    border-radius: 0;
+}
+
+.btn-group .btn:first-child {
+    border-top-left-radius: 0.375rem;
+    border-bottom-left-radius: 0.375rem;
+}
+
+.btn-group .btn:last-child {
+    border-top-right-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+}
+
+@media (max-width: 768px) {
+    .btn-group {
+        width: 100%;
+    }
+    
+    .btn-group .btn {
+        flex: 1;
+        font-size: 0.875rem;
+    }
+    
+    .favorite-remove {
+        opacity: 1;
+    }
+    
+    .card-img-top {
+        height: 180px;
+    }
+}
+</style>
+{% endblock %}

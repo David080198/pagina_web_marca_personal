@@ -1,0 +1,450 @@
+{% extends "base.html" %}
+
+{% block title %}Mis Inscripciones{% endblock %}
+
+{% block head %}
+{{ super() }}
+<meta name="csrf-token" content="{{ csrf_token() }}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-primary">
+                    <i class="fas fa-graduation-cap me-2"></i>
+                    Mis Inscripciones
+                </h2>
+                <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-search me-2"></i>
+                    Explorar Cursos
+                </a>
+            </div>
+
+            {% if enrollments %}
+                <!-- Estadísticas Rápidas -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-card bg-primary text-white">
+                            <div class="stat-icon">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h4>{{ enrollments | length }}</h4>
+                                <p>Total Inscripciones</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card bg-success text-white">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h4>{{ enrollments | selectattr('status', 'equalto', EnrollmentStatus.ACTIVE) | list | length }}</h4>
+                                <p>Activos</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card bg-warning text-white">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h4>{{ enrollments | selectattr('status', 'equalto', EnrollmentStatus.PENDING_PAYMENT) | list | length + enrollments | selectattr('status', 'equalto', EnrollmentStatus.PAYMENT_PENDING_APPROVAL) | list | length }}</h4>
+                                <p>Pendientes</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card bg-info text-white">
+                            <div class="stat-icon">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h4>{{ enrollments | selectattr('status', 'equalto', EnrollmentStatus.COMPLETED) | list | length }}</h4>
+                                <p>Completados</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de Inscripciones -->
+                <div class="row">
+                    {% for enrollment in enrollments %}
+                    <div class="col-lg-6 mb-4">
+                        <div class="enrollment-card">
+                            <div class="card h-100">
+                                <!-- Header con Estado -->
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <div class="enrollment-status">
+                                        {% if enrollment.status == EnrollmentStatus.ACTIVE %}
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check-circle me-1"></i>
+                                                Activo
+                                            </span>
+                                        {% elif enrollment.status == EnrollmentStatus.PENDING_PAYMENT %}
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-clock me-1"></i>
+                                                Pendiente de Pago
+                                            </span>
+                                        {% elif enrollment.status == EnrollmentStatus.PAYMENT_PENDING_APPROVAL %}
+                                            <span class="badge bg-info">
+                                                <i class="fas fa-search-dollar me-1"></i>
+                                                Validando Pago
+                                            </span>
+                                        {% elif enrollment.status == EnrollmentStatus.COMPLETED %}
+                                            <span class="badge bg-secondary">
+                                                <i class="fas fa-trophy me-1"></i>
+                                                Completado
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-times-circle me-1"></i>
+                                                {{ enrollment.get_status_display() }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    <small class="text-muted">ID: #{{ enrollment.id }}</small>
+                                </div>
+
+                                <div class="card-body">
+                                    <!-- Información del Curso -->
+                                    <div class="course-info">
+                                        <div class="row">
+                                            <div class="col-4">
+                                                {% if enrollment.course.image_path %}
+                                                    <img src="{{ url_for('static', filename='uploads/blog/' + enrollment.course.image_path) }}" 
+                                                         class="img-fluid rounded course-thumbnail" 
+                                                         alt="{{ enrollment.course.title }}">
+                                                {% else %}
+                                                    <div class="course-thumbnail-placeholder">
+                                                        <i class="fas fa-book fa-2x text-muted"></i>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-8">
+                                                <h6 class="course-title">{{ enrollment.course.title }}</h6>
+                                                <p class="course-excerpt text-muted small">
+                                                    {{ enrollment.course.content[:100] }}...
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Fechas Importantes -->
+                                    <div class="enrollment-dates mt-3">
+                                        <div class="row text-sm">
+                                            <div class="col-6">
+                                                <strong>Inscrito:</strong><br>
+                                                <small class="text-muted">
+                                                    {{ enrollment.enrolled_at.strftime('%d/%m/%Y') }}
+                                                </small>
+                                            </div>
+                                            <div class="col-6">
+                                                {% if enrollment.activated_at %}
+                                                    <strong>Activado:</strong><br>
+                                                    <small class="text-success">
+                                                        {{ enrollment.activated_at.strftime('%d/%m/%Y') }}
+                                                    </small>
+                                                {% elif enrollment.payment and enrollment.payment.submitted_at %}
+                                                    <strong>Pago Enviado:</strong><br>
+                                                    <small class="text-info">
+                                                        {{ enrollment.payment.submitted_at.strftime('%d/%m/%Y') }}
+                                                    </small>
+                                                {% else %}
+                                                    <strong>Estado:</strong><br>
+                                                    <small class="text-warning">Sin pago</small>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Información de Pago -->
+                                    {% if enrollment.payment %}
+                                    <div class="payment-info mt-3 p-2 bg-light rounded">
+                                        <div class="row align-items-center">
+                                            <div class="col-8">
+                                                <small>
+                                                    <strong>Método:</strong>
+                                                    {% if enrollment.payment.payment_method == PaymentMethod.BANK_TRANSFER %}
+                                                        <i class="fas fa-university text-primary"></i> Transferencia
+                                                    {% elif enrollment.payment.payment_method == PaymentMethod.PAYPAL %}
+                                                        <i class="fab fa-paypal text-info"></i> PayPal
+                                                    {% elif enrollment.payment.payment_method == PaymentMethod.CREDIT_CARD %}
+                                                        <i class="fas fa-credit-card text-success"></i> Tarjeta
+                                                    {% endif %}
+                                                </small>
+                                                {% if enrollment.payment.transaction_reference %}
+                                                    <br><small class="text-muted">Ref: {{ enrollment.payment.transaction_reference }}</small>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-4 text-end">
+                                                {% if enrollment.payment.status == PaymentStatus.APPROVED %}
+                                                    <i class="fas fa-check-circle text-success" title="Pago Aprobado"></i>
+                                                {% elif enrollment.payment.status == PaymentStatus.PENDING_APPROVAL %}
+                                                    <i class="fas fa-clock text-warning" title="Pago en Revisión"></i>
+                                                {% elif enrollment.payment.status == PaymentStatus.REJECTED %}
+                                                    <i class="fas fa-times-circle text-danger" title="Pago Rechazado"></i>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Acciones -->
+                                <div class="card-footer bg-transparent">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <!-- Botón principal según estado -->
+                                        {% if enrollment.status == EnrollmentStatus.ACTIVE %}
+                                            <a href="{{ url_for('main.course_detail', slug=enrollment.course.slug) }}" 
+                                               class="btn btn-success btn-sm">
+                                                <i class="fas fa-play me-1"></i>
+                                                Acceder al Curso
+                                            </a>
+                                        {% elif enrollment.status == EnrollmentStatus.PENDING_PAYMENT %}
+                                            <a href="{{ url_for('enrollment.payment_instructions', enrollment_id=enrollment.id) }}" 
+                                               class="btn btn-warning btn-sm">
+                                                <i class="fas fa-university me-1"></i>
+                                                Ver Instrucciones
+                                            </a>
+                                        {% elif enrollment.status == EnrollmentStatus.PAYMENT_PENDING_APPROVAL %}
+                                            <span class="btn btn-info btn-sm disabled">
+                                                <i class="fas fa-search-dollar me-1"></i>
+                                                Validando Pago
+                                            </span>
+                                        {% else %}
+                                            <a href="{{ url_for('main.course_detail', slug=enrollment.course.slug) }}" 
+                                               class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-eye me-1"></i>
+                                                Ver Curso
+                                            </a>
+                                        {% endif %}
+
+                                        <!-- Acciones adicionales -->
+                                        <div class="btn-group">
+                                            <a href="{{ url_for('enrollment.enrollment_status', enrollment_id=enrollment.id) }}" 
+                                               class="btn btn-outline-secondary btn-sm" title="Ver Detalles">
+                                                <i class="fas fa-info-circle"></i>
+                                            </a>
+                                            {% if enrollment.status == EnrollmentStatus.PENDING_PAYMENT %}
+                                                <button type="button" class="btn btn-outline-danger btn-sm" 
+                                                        onclick="cancelEnrollment({{ enrollment.id }})" title="Cancelar">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+            {% else %}
+                <!-- Estado Vacío -->
+                <div class="empty-state text-center py-5">
+                    <div class="empty-icon mb-4">
+                        <i class="fas fa-graduation-cap fa-4x text-muted"></i>
+                    </div>
+                    <h4 class="text-muted mb-3">No tienes inscripciones aún</h4>
+                    <p class="text-muted mb-4">
+                        Explora nuestros cursos disponibles y comienza tu aprendizaje
+                    </p>
+                    <a href="{{ url_for('main.index') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-search me-2"></i>
+                        Explorar Cursos
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmación para Cancelar -->
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                    Cancelar Inscripción
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas cancelar esta inscripción?</p>
+                <p class="text-muted small">Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    No, Mantener
+                </button>
+                <form id="cancelForm" method="POST" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-1"></i>
+                        Sí, Cancelar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function cancelEnrollment(enrollmentId) {
+    const form = document.getElementById('cancelForm');
+    form.action = `{{ url_for('enrollment.cancel_enrollment', enrollment_id=0) }}`.replace('0', enrollmentId);
+    
+    const modal = new bootstrap.Modal(document.getElementById('cancelModal'));
+    modal.show();
+}
+
+// Auto-refresh para estados pendientes
+document.addEventListener('DOMContentLoaded', function() {
+    const pendingEnrollments = document.querySelectorAll('[data-status="payment_pending_approval"]');
+    
+    if (pendingEnrollments.length > 0) {
+        // Refresh cada 30 segundos si hay pagos pendientes
+        setInterval(() => {
+            window.location.reload();
+        }, 30000);
+    }
+});
+</script>
+
+<style>
+.stat-card {
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.stat-icon {
+    font-size: 2rem;
+    margin-right: 15px;
+    opacity: 0.8;
+}
+
+.stat-content h4 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.stat-content p {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.enrollment-card {
+    transition: all 0.3s ease;
+}
+
+.enrollment-card:hover {
+    transform: translateY(-5px);
+}
+
+.enrollment-card .card {
+    border: none;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.enrollment-card:hover .card {
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.course-thumbnail {
+    width: 100%;
+    height: 80px;
+    object-fit: cover;
+}
+
+.course-thumbnail-placeholder {
+    width: 100%;
+    height: 80px;
+    background: #f8f9fa;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.course-title {
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 8px;
+}
+
+.course-excerpt {
+    line-height: 1.4;
+}
+
+.payment-info {
+    border-left: 3px solid #17a2b8;
+}
+
+.empty-state {
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.empty-icon {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+.badge {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+}
+
+.btn-sm {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.75rem;
+}
+
+@media (max-width: 768px) {
+    .stat-card {
+        margin-bottom: 15px;
+    }
+    
+    .stat-content h4 {
+        font-size: 1.5rem;
+    }
+    
+    .course-info .row {
+        align-items: center;
+    }
+    
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .d-flex.justify-content-between .btn-group {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}

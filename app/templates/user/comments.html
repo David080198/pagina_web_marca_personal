@@ -1,0 +1,455 @@
+{% extends "base.html" %}
+
+{% block title %}Mis Comentarios{% endblock %}
+
+{% block head %}
+{{ super() }}
+<meta name="csrf-token" content="{{ csrf_token() }}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-primary">
+                    <i class="fas fa-comments me-2"></i>
+                    Mis Comentarios
+                </h2>
+                <div class="text-muted">
+                    <i class="fas fa-comment-dots me-1"></i>
+                    {{ comments.total }} comentarios
+                </div>
+            </div>
+
+            {% if comments.items %}
+                <!-- Filtros -->
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <div class="btn-group" role="group">
+                            <a href="{{ url_for('user.comments') }}" 
+                               class="btn {{ 'btn-primary' if not status_filter or status_filter == 'all' else 'btn-outline-primary' }}">
+                                <i class="fas fa-th-large me-1"></i>
+                                Todos
+                            </a>
+                            <a href="{{ url_for('user.comments', status='approved') }}" 
+                               class="btn {{ 'btn-primary' if status_filter == 'approved' else 'btn-outline-primary' }}">
+                                <i class="fas fa-check-circle me-1"></i>
+                                Aprobados
+                            </a>
+                            <a href="{{ url_for('user.comments', status='pending') }}" 
+                               class="btn {{ 'btn-primary' if status_filter == 'pending' else 'btn-outline-primary' }}">
+                                <i class="fas fa-clock me-1"></i>
+                                Pendientes
+                            </a>
+                            <a href="{{ url_for('user.comments', status='rejected') }}" 
+                               class="btn {{ 'btn-primary' if status_filter == 'rejected' else 'btn-outline-primary' }}">
+                                <i class="fas fa-times-circle me-1"></i>
+                                Rechazados
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-sort me-1"></i>
+                                Ordenar por
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ url_for('user.comments', sort='newest') }}">
+                                    <i class="fas fa-clock me-2"></i>Más recientes
+                                </a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('user.comments', sort='oldest') }}">
+                                    <i class="fas fa-clock me-2"></i>Más antiguos
+                                </a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de Comentarios -->
+                <div class="comments-list">
+                    {% for comment in comments.items %}
+                        {% set content = comment.get_content_object() %}
+                        <div class="comment-card mb-4">
+                            <div class="card">
+                                <!-- Header del comentario -->
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <div class="comment-status">
+                                        {% if comment.is_approved %}
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check-circle me-1"></i>
+                                                Aprobado
+                                            </span>
+                                        {% elif comment.is_approved == False %}
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-times-circle me-1"></i>
+                                                Rechazado
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-clock me-1"></i>
+                                                Pendiente
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        {{ comment.created_at.strftime('%d/%m/%Y %H:%M') }}
+                                    </small>
+                                </div>
+
+                                <div class="card-body">
+                                    <!-- Contenido al que se comentó -->
+                                    {% if content %}
+                                    <div class="commented-content mb-3">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-2">
+                                                {% if content.image_path %}
+                                                    <img src="{{ url_for('static', filename='uploads/' + comment.content_type + '/' + content.image_path) }}" 
+                                                         class="img-fluid rounded" alt="{{ content.title }}" style="max-height: 60px;">
+                                                {% elif content.image_url %}
+                                                    <img src="{{ content.image_url }}" 
+                                                         class="img-fluid rounded" alt="{{ content.title }}" style="max-height: 60px;">
+                                                {% else %}
+                                                    <div class="content-icon text-center">
+                                                        {% if comment.content_type == 'blog' %}
+                                                            <i class="fas fa-blog fa-2x text-info"></i>
+                                                        {% elif comment.content_type == 'cursos' %}
+                                                            <i class="fas fa-graduation-cap fa-2x text-success"></i>
+                                                        {% elif comment.content_type == 'proyectos' %}
+                                                            <i class="fas fa-code fa-2x text-warning"></i>
+                                                        {% endif %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-10">
+                                                <h6 class="mb-1">
+                                                    <a href="{{ comment.get_content_url() }}" class="text-decoration-none">
+                                                        {{ content.title }}
+                                                    </a>
+                                                </h6>
+                                                <small class="text-muted">
+                                                    <span class="badge bg-light text-dark">
+                                                        {% if comment.content_type == 'blog' %}
+                                                            <i class="fas fa-blog me-1"></i>Blog
+                                                        {% elif comment.content_type == 'cursos' %}
+                                                            <i class="fas fa-graduation-cap me-1"></i>Curso
+                                                        {% elif comment.content_type == 'proyectos' %}
+                                                            <i class="fas fa-code me-1"></i>Proyecto
+                                                        {% endif %}
+                                                    </span>
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- El comentario -->
+                                    <div class="comment-content">
+                                        <blockquote class="blockquote">
+                                            <p class="mb-0">{{ comment.content }}</p>
+                                        </blockquote>
+                                    </div>
+
+                                    <!-- Respuesta del admin (si existe) -->
+                                    {% if comment.admin_reply %}
+                                    <div class="admin-reply mt-3 p-3 bg-light rounded">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="fas fa-user-shield text-primary me-2"></i>
+                                            <strong class="text-primary">Respuesta del Administrador</strong>
+                                            {% if comment.replied_at %}
+                                                <small class="text-muted ms-auto">
+                                                    {{ comment.replied_at.strftime('%d/%m/%Y %H:%M') }}
+                                                </small>
+                                            {% endif %}
+                                        </div>
+                                        <p class="mb-0">{{ comment.admin_reply }}</p>
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Footer con acciones -->
+                                <div class="card-footer bg-transparent">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="comment-actions">
+                                            {% if content %}
+                                                <a href="{{ comment.get_content_url() }}#comment-{{ comment.id }}" 
+                                                   class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-external-link-alt me-1"></i>
+                                                    Ver en contexto
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="comment-meta">
+                                            {% if comment.is_approved == False and comment.admin_reply %}
+                                                <button class="btn btn-outline-info btn-sm" 
+                                                        data-bs-toggle="tooltip" 
+                                                        title="Ver razón del rechazo">
+                                                    <i class="fas fa-info-circle"></i>
+                                                </button>
+                                            {% endif %}
+                                            
+                                            <button class="btn btn-outline-danger btn-sm" 
+                                                    onclick="deleteComment({{ comment.id }})"
+                                                    title="Eliminar comentario">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Paginación -->
+                {% if comments.pages > 1 %}
+                <nav aria-label="Paginación de comentarios" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if comments.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('user.comments', page=comments.prev_num, status=status_filter, sort=sort_by) }}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% for page_num in comments.iter_pages() %}
+                            {% if page_num %}
+                                {% if page_num != comments.page %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('user.comments', page=page_num, status=status_filter, sort=sort_by) }}">
+                                            {{ page_num }}
+                                        </a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ page_num }}</span>
+                                    </li>
+                                {% endif %}
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">…</span>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if comments.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('user.comments', page=comments.next_num, status=status_filter, sort=sort_by) }}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+
+            {% else %}
+                <!-- Estado vacío -->
+                <div class="empty-state text-center py-5">
+                    <div class="empty-icon mb-4">
+                        <i class="fas fa-comments fa-4x text-muted"></i>
+                    </div>
+                    <h4 class="text-muted mb-3">No tienes comentarios aún</h4>
+                    <p class="text-muted mb-4">
+                        Participa en las conversaciones comentando en nuestros artículos, cursos y proyectos
+                    </p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="{{ url_for('main.blog') }}" class="btn btn-info">
+                            <i class="fas fa-blog me-2"></i>
+                            Explorar Blog
+                        </a>
+                        <a href="{{ url_for('main.courses') }}" class="btn btn-success">
+                            <i class="fas fa-graduation-cap me-2"></i>
+                            Ver Cursos
+                        </a>
+                        <a href="{{ url_for('main.projects') }}" class="btn btn-warning">
+                            <i class="fas fa-code me-2"></i>
+                            Ver Proyectos
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación para eliminar -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-trash text-danger me-2"></i>
+                    Eliminar Comentario
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar este comentario?</p>
+                <p class="text-muted small">Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">
+                    <i class="fas fa-trash me-1"></i>
+                    Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let commentToDelete = null;
+
+function deleteComment(commentId) {
+    commentToDelete = commentId;
+    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    modal.show();
+}
+
+document.getElementById('confirmDelete').addEventListener('click', function() {
+    if (commentToDelete) {
+        fetch(`{{ url_for('user.delete_comment', comment_id=0) }}`.replace('0', commentToDelete), {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error al eliminar el comentario: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('Error de conexión');
+        });
+        
+        bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+    }
+});
+
+// Inicializar tooltips
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl);
+});
+</script>
+
+<style>
+.comment-card {
+    transition: all 0.3s ease;
+}
+
+.comment-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.card {
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.commented-content {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+}
+
+.comment-content blockquote {
+    border-left: 4px solid #e9ecef;
+    padding-left: 15px;
+    margin-left: 0;
+}
+
+.admin-reply {
+    border-left: 4px solid #28a745;
+}
+
+.content-icon {
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.badge {
+    font-size: 0.75rem;
+}
+
+.empty-state {
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.empty-icon {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+.btn-group .btn {
+    border-radius: 0;
+}
+
+.btn-group .btn:first-child {
+    border-top-left-radius: 0.375rem;
+    border-bottom-left-radius: 0.375rem;
+}
+
+.btn-group .btn:last-child {
+    border-top-right-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+}
+
+@media (max-width: 768px) {
+    .btn-group {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+    
+    .btn-group .btn {
+        flex: 1;
+        font-size: 0.875rem;
+    }
+    
+    .commented-content .row {
+        align-items: start;
+    }
+    
+    .commented-content .col-md-2 {
+        margin-bottom: 10px;
+    }
+    
+    .comment-actions,
+    .comment-meta {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    
+    .card-footer .d-flex {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}

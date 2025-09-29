@@ -56,11 +56,53 @@
                         <a class="nav-link" href="{{ url_for('main.contact') }}">Contacto</a>
                     </li>
                     {% if current_user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <img src="{{ current_user.get_avatar_url(30) }}" alt="{{ current_user.display_name }}" class="rounded-circle me-2" width="30" height="30">
+                            {{ current_user.first_name or current_user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><h6 class="dropdown-header">{{ current_user.display_name }}</h6></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('user.dashboard') }}">
+                                <i class="fas fa-tachometer-alt me-2"></i>Mi Dashboard
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('user.profile') }}">
+                                <i class="fas fa-user me-2"></i>Mi Perfil
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('user.favorites') }}">
+                                <i class="fas fa-heart me-2"></i>Favoritos
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('user.comments') }}">
+                                <i class="fas fa-comments me-2"></i>Mis Comentarios
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('enrollment.my_enrollments') }}">
+                                <i class="fas fa-graduation-cap me-2"></i>Mis Inscripciones
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            {% if current_user.is_admin %}
+                            <li><a class="dropdown-item" href="{{ url_for('admin.dashboard') }}">
+                                <i class="fas fa-cog me-2"></i>Panel Admin
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('payment_admin.payment_dashboard') }}">
+                                <i class="fas fa-credit-card me-2"></i>Gestión de Pagos
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            {% endif %}
+                            <li><a class="dropdown-item" href="{{ url_for('user.edit_profile') }}">
+                                <i class="fas fa-edit me-2"></i>Editar Perfil
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">
+                                <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                            </a></li>
+                        </ul>
+                    </li>
+                    {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('admin.dashboard') }}">Admin</a>
+                        <a class="nav-link" href="{{ url_for('auth.login') }}">Iniciar Sesión</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('auth.logout') }}">Salir</a>
+                        <a class="nav-link btn btn-primary text-white ms-2" href="{{ url_for('auth.register') }}">Registrarse</a>
                     </li>
                     {% endif %}
                 </ul>

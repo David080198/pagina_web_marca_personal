@@ -1,0 +1,339 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Detalle de Pago #{{ payment.id }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-credit-card me-2"></i>
+                        Pago #{{ payment.id }}
+                    </h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="{{ url_for('admin.payments') }}">Pagos</a>
+                            </li>
+                            <li class="breadcrumb-item active">Pago #{{ payment.id }}</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div>
+                    {% if payment.status.value == 'pending_approval' %}
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#approveModal">
+                            <i class="fas fa-check me-1"></i>
+                            Aprobar
+                        </button>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                            <i class="fas fa-times me-1"></i>
+                            Rechazar
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Información del Pago -->
+                <div class="col-lg-8">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Información del Pago
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <td><strong>ID de Pago:</strong></td>
+                                            <td>#{{ payment.id }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Monto:</strong></td>
+                                            <td class="text-success">
+                                                <strong>${{ "%.2f"|format(payment.amount) }} {{ payment.currency }}</strong>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Método de Pago:</strong></td>
+                                            <td>
+                                                <i class="fas fa-university text-primary me-1"></i>
+                                                Transferencia Bancaria
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Estado:</strong></td>
+                                            <td>
+                                                {% if payment.status.value == 'pending_approval' %}
+                                                    <span class="badge bg-warning">
+                                                        <i class="fas fa-clock me-1"></i>
+                                                        Pendiente de Aprobación
+                                                    </span>
+                                                {% elif payment.status.value == 'approved' %}
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-check me-1"></i>
+                                                        Aprobado
+                                                    </span>
+                                                {% elif payment.status.value == 'rejected' %}
+                                                    <span class="badge bg-danger">
+                                                        <i class="fas fa-times me-1"></i>
+                                                        Rechazado
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <td><strong>Fecha de Envío:</strong></td>
+                                            <td>{{ payment.submitted_at.strftime('%d/%m/%Y %H:%M') if payment.submitted_at else 'N/A' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Fecha de Proceso:</strong></td>
+                                            <td>{{ payment.processed_at.strftime('%d/%m/%Y %H:%M') if payment.processed_at else 'N/A' }}</td>
+                                        </tr>
+                                        {% if payment.transaction_reference %}
+                                        <tr>
+                                            <td><strong>Referencia de Transacción:</strong></td>
+                                            <td><code>{{ payment.transaction_reference }}</code></td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if payment.bank_account_used %}
+                                        <tr>
+                                            <td><strong>Cuenta Bancaria Utilizada:</strong></td>
+                                            <td>
+                                                {% if payment.bank_account_used == 'banco_nacional' %}
+                                                    <i class="fas fa-university text-primary me-1"></i>
+                                                    Banco Nacional - 1234-5678-9012
+                                                {% elif payment.bank_account_used == 'banco_internacional' %}
+                                                    <i class="fas fa-university text-success me-1"></i>
+                                                    Banco Internacional - 9876-5432-1098
+                                                {% else %}
+                                                    {{ payment.bank_account_used }}
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if payment.payment_notes %}
+                                        <tr>
+                                            <td><strong>Detalles del Pago:</strong></td>
+                                            <td>{{ payment.payment_notes }}</td>
+                                        </tr>
+                                        {% endif %}
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Información del Usuario y Curso -->
+                            <hr>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="text-muted mb-3">Información del Usuario</h6>
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <td><strong>Usuario:</strong></td>
+                                            <td>{{ payment.enrollment.user.username }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Email:</strong></td>
+                                            <td>{{ payment.enrollment.user.email }}</td>
+                                        </tr>
+                                        {% if payment.enrollment.phone %}
+                                        <tr>
+                                            <td><strong>Teléfono:</strong></td>
+                                            <td>{{ payment.enrollment.phone }}</td>
+                                        </tr>
+                                        {% endif %}
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-muted mb-3">Información del Curso</h6>
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <td><strong>Curso:</strong></td>
+                                            <td>{{ payment.enrollment.course.title }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Precio Original:</strong></td>
+                                            <td>${{ "%.2f"|format(payment.enrollment.course.price) }} MXN</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Precio Pagado:</strong></td>
+                                            <td>${{ "%.2f"|format(payment.enrollment.enrolled_price) }} MXN</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Notas del Estudiante -->
+                            {% if payment.enrollment.student_notes %}
+                            <hr>
+                            <h6 class="text-muted mb-3">Comentarios del Estudiante</h6>
+                            <div class="alert alert-light">
+                                {{ payment.enrollment.student_notes }}
+                            </div>
+                            {% endif %}
+
+                            <!-- Notas Administrativas -->
+                            {% if payment.admin_notes %}
+                            <hr>
+                            <h6 class="text-muted mb-3">Notas Administrativas</h6>
+                            <div class="alert alert-info">
+                                {{ payment.admin_notes }}
+                            </div>
+                            {% endif %}
+
+                            <!-- Razón de Rechazo -->
+                            {% if payment.rejection_reason %}
+                            <hr>
+                            <h6 class="text-muted mb-3">Razón de Rechazo</h6>
+                            <div class="alert alert-danger">
+                                {{ payment.rejection_reason }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comprobante de Pago -->
+                <div class="col-lg-4">
+                    {% if payment.proof_of_payment_path %}
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-university me-2"></i>
+                                Comprobante de Transferencia
+                            </h5>
+                        </div>
+                        <div class="card-body text-center">
+                            {% set file_ext = payment.proof_of_payment_path.split('.')[-1].lower() %}
+                            {% if file_ext in ['jpg', 'jpeg', 'png', 'gif'] %}
+                                <img src="{{ url_for('static', filename='uploads/payment_receipts/' + payment.proof_of_payment_path) }}" 
+                                     class="img-fluid rounded shadow" 
+                                     alt="Comprobante de pago"
+                                     style="max-height: 400px;">
+                                <div class="mt-3">
+                                    <a href="{{ url_for('static', filename='uploads/payment_receipts/' + payment.proof_of_payment_path) }}" 
+                                       target="_blank" class="btn btn-outline-primary">
+                                        <i class="fas fa-external-link-alt me-1"></i>
+                                        Ver en Tamaño Completo
+                                    </a>
+                                </div>
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <i class="fas fa-file-pdf fa-4x text-danger mb-3"></i>
+                                    <h6>Archivo PDF</h6>
+                                    <a href="{{ url_for('static', filename='uploads/payment_receipts/' + payment.proof_of_payment_path) }}" 
+                                       target="_blank" class="btn btn-outline-primary">
+                                        <i class="fas fa-download me-1"></i>
+                                        Descargar PDF
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-file-times fa-3x text-muted mb-3"></i>
+                            <h6>Sin Comprobante</h6>
+                            <p class="text-muted">No se ha subido comprobante de pago.</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Aprobación -->
+<div class="modal fade" id="approveModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('admin.approve_payment', payment_id=payment.id) }}">
+                {{ csrf_token() }}
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Aprobar Pago
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que quieres aprobar este pago?</p>
+                    <p><strong>Usuario:</strong> {{ payment.enrollment.user.username }}</p>
+                    <p><strong>Curso:</strong> {{ payment.enrollment.course.title }}</p>
+                    <p><strong>Monto:</strong> ${{ "%.2f"|format(payment.amount) }} {{ payment.currency }}</p>
+                    
+                    <div class="mb-3">
+                        <label for="admin_notes" class="form-label">Notas administrativas (opcional)</label>
+                        <textarea class="form-control" id="admin_notes" name="admin_notes" rows="3" 
+                                  placeholder="Agregar notas sobre la aprobación..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check me-1"></i>
+                        Aprobar Pago
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Rechazo -->
+<div class="modal fade" id="rejectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('admin.reject_payment', payment_id=payment.id) }}">
+                {{ csrf_token() }}
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-times text-danger me-2"></i>
+                        Rechazar Pago
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que quieres rechazar este pago?</p>
+                    <p><strong>Usuario:</strong> {{ payment.enrollment.user.username }}</p>
+                    <p><strong>Curso:</strong> {{ payment.enrollment.course.title }}</p>
+                    <p><strong>Monto:</strong> ${{ "%.2f"|format(payment.amount) }} {{ payment.currency }}</p>
+                    
+                    <div class="mb-3">
+                        <label for="rejection_reason" class="form-label">Razón del rechazo *</label>
+                        <textarea class="form-control" id="rejection_reason" name="rejection_reason" rows="3" 
+                                  placeholder="Explica por qué se rechaza este pago..." required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="admin_notes_reject" class="form-label">Notas administrativas (opcional)</label>
+                        <textarea class="form-control" id="admin_notes_reject" name="admin_notes" rows="2" 
+                                  placeholder="Notas internas adicionales..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-times me-1"></i>
+                        Rechazar Pago
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}Mi Dashboard - CodexSoto{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header del dashboard -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-gradient-primary text-white">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <img src="{{ current_user.get_avatar_url(80) }}" 
+                                 alt="{{ current_user.display_name }}" 
+                                 class="rounded-circle border border-white">
+                        </div>
+                        <div class="col">
+                            <h2 class="mb-1">¡Hola, {{ current_user.first_name or current_user.username }}!</h2>
+                            <p class="mb-0 opacity-75">Bienvenido a tu dashboard personal</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <div class="text-primary mb-2">
+                        <i class="fas fa-heart fa-2x"></i>
+                    </div>
+                    <h3 class="card-title">{{ favorites_count }}</h3>
+                    <p class="card-text text-muted">Favoritos</p>
+                    <a href="{{ url_for('user.favorites') }}" class="btn btn-outline-primary btn-sm">Ver todos</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <div class="text-success mb-2">
+                        <i class="fas fa-comments fa-2x"></i>
+                    </div>
+                    <h3 class="card-title">{{ comments_count }}</h3>
+                    <p class="card-text text-muted">Comentarios</p>
+                    <a href="{{ url_for('user.comments') }}" class="btn btn-outline-success btn-sm">Ver todos</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <div class="text-info mb-2">
+                        <i class="fas fa-user-check fa-2x"></i>
+                    </div>
+                    <h3 class="card-title">
+                        {% if current_user.is_premium() %}Premium{% else %}Básico{% endif %}
+                    </h3>
+                    <p class="card-text text-muted">Plan actual</p>
+                    {% if not current_user.is_premium() %}
+                    <a href="#" class="btn btn-outline-info btn-sm">Actualizar</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <div class="text-warning mb-2">
+                        <i class="fas fa-calendar fa-2x"></i>
+                    </div>
+                    <h5 class="card-title">{{ current_user.created_at.strftime('%b %Y') }}</h5>
+                    <p class="card-text text-muted">Miembro desde</p>
+                    <small class="text-muted">{{ current_user.created_at.strftime('%d/%m/%Y') }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Contenido principal -->
+    <div class="row">
+        <!-- Favoritos recientes -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-heart text-danger me-2"></i>Favoritos Recientes
+                    </h5>
+                    <a href="{{ url_for('user.favorites') }}" class="btn btn-sm btn-outline-primary">Ver todos</a>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_favorites %}
+                    <div class="list-group list-group-flush">
+                        {% for favorite in recent_favorites %}
+                        {% set content = favorite.get_content_object() %}
+                        {% if content %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ content.title }}</h6>
+                                    <p class="mb-1 text-muted small">
+                                        <span class="badge bg-light text-dark me-1">
+                                            {% if favorite.content_type == 'blog' %}Blog
+                                            {% elif favorite.content_type == 'course' %}Curso
+                                            {% elif favorite.content_type == 'project' %}Proyecto
+                                            {% endif %}
+                                        </span>
+                                        {{ favorite.created_at.strftime('%d/%m/%Y') }}
+                                    </p>
+                                </div>
+                                <a href="{{ favorite._get_content_url(content) }}" class="btn btn-sm btn-outline-primary">Ver</a>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="p-4 text-center text-muted">
+                        <i class="fas fa-heart-broken fa-3x mb-3 opacity-50"></i>
+                        <p>Aún no tienes favoritos</p>
+                        <a href="{{ url_for('main.blog') }}" class="btn btn-primary btn-sm">Explorar contenido</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Comentarios recientes -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-comments text-success me-2"></i>Comentarios Recientes
+                    </h5>
+                    <a href="{{ url_for('user.comments') }}" class="btn btn-sm btn-outline-success">Ver todos</a>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_comments %}
+                    <div class="list-group list-group-flush">
+                        {% for comment in recent_comments %}
+                        {% set content = comment.get_content_object() %}
+                        {% if content %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ content.title }}</h6>
+                                    <p class="mb-1 small">{{ comment.content[:80] }}{% if comment.content|length > 80 %}...{% endif %}</p>
+                                    <p class="mb-0 text-muted small">
+                                        <span class="badge bg-light text-dark me-1">
+                                            {% if comment.content_type == 'blog' %}Blog
+                                            {% elif comment.content_type == 'course' %}Curso
+                                            {% elif comment.content_type == 'project' %}Proyecto
+                                            {% endif %}
+                                        </span>
+                                        {{ comment.created_at.strftime('%d/%m/%Y') }}
+                                    </p>
+                                </div>
+                                <a href="{{ comment._get_content_url(content) }}" class="btn btn-sm btn-outline-success">Ver</a>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="p-4 text-center text-muted">
+                        <i class="fas fa-comment-slash fa-3x mb-3 opacity-50"></i>
+                        <p>Aún no has comentado</p>
+                        <a href="{{ url_for('main.blog') }}" class="btn btn-success btn-sm">Participar en discusiones</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Acciones rápidas -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt text-warning me-2"></i>Acciones Rápidas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3 mb-3">
+                            <a href="{{ url_for('user.edit_profile') }}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-user-edit d-block mb-2 fa-2x"></i>
+                                Editar Perfil
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{{ url_for('user.change_password') }}" class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-key d-block mb-2 fa-2x"></i>
+                                Cambiar Contraseña
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{{ url_for('main.courses') }}" class="btn btn-outline-info w-100">
+                                <i class="fas fa-graduation-cap d-block mb-2 fa-2x"></i>
+                                Explorar Cursos
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{{ url_for('user.profile') }}" class="btn btn-outline-success w-100">
+                                <i class="fas fa-eye d-block mb-2 fa-2x"></i>
+                                Ver Mi Perfil
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

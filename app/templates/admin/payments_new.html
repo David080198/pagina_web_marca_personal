@@ -1,0 +1,225 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Gestión de Pagos{% endblock %}
+
+{% block head %}
+{{ super() }}
+<script>
+// CSRF no requerido para estas rutas - versión 3.0
+console.log('Payment management script loaded - v3.0');
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-credit-card"></i> Gestión de Pagos</h2>
+                <div class="btn-group" role="group">
+                    <a href="{{ url_for('admin.payments', status='pending') }}" 
+                       class="btn {{ 'btn-primary' if request.args.get('status') == 'pending' or not request.args.get('status') else 'btn-outline-primary' }}">
+                        <i class="fas fa-clock"></i> Pendientes
+                        <span class="badge badge-light ms-1">{{ payments_count.pending }}</span>
+                    </a>
+                    <a href="{{ url_for('admin.payments', status='approved') }}" 
+                       class="btn {{ 'btn-success' if request.args.get('status') == 'approved' else 'btn-outline-success' }}">
+                        <i class="fas fa-check"></i> Aprobados
+                        <span class="badge badge-light ms-1">{{ payments_count.approved }}</span>
+                    </a>
+                    <a href="{{ url_for('admin.payments', status='rejected') }}" 
+                       class="btn {{ 'btn-danger' if request.args.get('status') == 'rejected' else 'btn-outline-danger' }}">
+                        <i class="fas fa-times"></i> Rechazados
+                        <span class="badge badge-light ms-1">{{ payments_count.rejected }}</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Lista de Pagos -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        {% if request.args.get('status') == 'approved' %}
+                            <i class="fas fa-check text-success"></i> Pagos Aprobados
+                        {% elif request.args.get('status') == 'rejected' %}
+                            <i class="fas fa-times text-danger"></i> Pagos Rechazados
+                        {% else %}
+                            <i class="fas fa-clock text-warning"></i> Pagos Pendientes
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if payments %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Usuario</th>
+                                        <th>Curso</th>
+                                        <th>Método</th>
+                                        <th>Monto</th>
+                                        <th>Estado</th>
+                                        <th>Fecha</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for payment in payments %}
+                                    <tr>
+                                        <td>
+                                            <strong>#{{ payment.id }}</strong>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm me-2">
+                                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                                        {{ payment.enrollment.user.first_name[0] if payment.enrollment.user.first_name else payment.enrollment.user.username[0] }}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <strong>{{ payment.enrollment.user.get_full_name() }}</strong><br>
+                                                    <small class="text-muted">{{ payment.enrollment.user.email }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <strong>{{ payment.enrollment.course.title }}</strong><br>
+                                            <small class="text-muted">${{ "%.2f"|format(payment.enrollment.course.price) }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">{{ payment.get_method_display() }}</span>
+                                        </td>
+                                        <td>
+                                            {% if payment.transfer_amount %}
+                                                <strong>${{ "%.2f"|format(payment.transfer_amount) }}</strong>
+                                            {% else %}
+                                                <span class="text-muted">No especificado</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if payment.status.value == 'pending_approval' %}
+                                                <span class="badge bg-warning">{{ payment.get_status_display() }}</span>
+                                            {% elif payment.status.value == 'approved' %}
+                                                <span class="badge bg-success">{{ payment.get_status_display() }}</span>
+                                            {% elif payment.status.value == 'rejected' %}
+                                                <span class="badge bg-danger">{{ payment.get_status_display() }}</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ payment.get_status_display() }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <small>
+                                                {{ payment.created_at.strftime('%d/%m/%Y %H:%M') }}<br>
+                                                {% if payment.processed_at %}
+                                                    <span class="text-muted">Procesado: {{ payment.processed_at.strftime('%d/%m/%Y %H:%M') }}</span>
+                                                {% endif %}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group-vertical btn-group-sm" role="group">
+                                                <a href="{{ url_for('admin.payment_detail', payment_id=payment.id) }}" 
+                                                   class="btn btn-outline-info btn-sm mb-1">
+                                                    <i class="fas fa-eye"></i> Ver
+                                                </a>
+                                                
+                                                {% if payment.status.value == 'pending_approval' %}
+                                                    <button type="button" 
+                                                            class="btn btn-success btn-sm mb-1" 
+                                                            onclick="approvePaymentV3({{ payment.id }})"
+                                                            title="Aprobar Pago">
+                                                        <i class="fas fa-check"></i> Aprobar
+                                                    </button>
+                                                    <button type="button" 
+                                                            class="btn btn-danger btn-sm" 
+                                                            onclick="rejectPaymentV3({{ payment.id }})"
+                                                            title="Rechazar Pago">
+                                                        <i class="fas fa-times"></i> Rechazar
+                                                    </button>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No hay pagos 
+                                {% if request.args.get('status') == 'approved' %}
+                                    aprobados
+                                {% elif request.args.get('status') == 'rejected' %}
+                                    rechazados
+                                {% else %}
+                                    pendientes
+                                {% endif %}
+                            </h5>
+                            <p class="text-muted">Los pagos aparecerán aquí cuando los usuarios realicen inscripciones.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+// Payment Management Functions v3.0 - COMPLETAMENTE NUEVO
+console.log('=== LOADING PAYMENT FUNCTIONS V3.0 ===');
+
+function approvePaymentV3(paymentId) {
+    console.log('=== APPROVE PAYMENT V3.0 ===');
+    console.log('Payment ID:', paymentId);
+    
+    if (confirm('¿Estás seguro de que quieres aprobar este pago?')) {
+        console.log('User confirmed approval');
+        
+        // Crear formulario dinámico sin CSRF
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/admin/payments/' + paymentId + '/approve';
+        form.style.display = 'none';
+        
+        console.log('Form action:', form.action);
+        
+        // Agregar al DOM y enviar
+        document.body.appendChild(form);
+        console.log('Submitting approval form...');
+        form.submit();
+    } else {
+        console.log('User cancelled approval');
+    }
+}
+
+function rejectPaymentV3(paymentId) {
+    console.log('=== REJECT PAYMENT V3.0 ===');
+    
+    const reason = prompt('¿Por qué rechazas este pago? (opcional)');
+    if (reason !== null) {
+        console.log('Rejection reason:', reason);
+        
+        // Crear formulario dinámico sin CSRF
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/admin/payments/' + paymentId + '/reject';
+        form.style.display = 'none';
+        
+        // Agregar razón de rechazo
+        const reasonInput = document.createElement('input');
+        reasonInput.type = 'hidden';
+        reasonInput.name = 'rejection_reason';
+        reasonInput.value = reason;
+        form.appendChild(reasonInput);
+        
+        // Agregar al DOM y enviar
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+console.log('=== PAYMENT FUNCTIONS V3.0 LOADED SUCCESSFULLY ===');
+</script>
+{% endblock %}

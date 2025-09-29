@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard de Pagos - Administración{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-5 pt-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-primary">
+                    <i class="fas fa-credit-card me-2"></i>
+                    Dashboard de Pagos
+                </h2>
+                <div class="btn-group">
+                    <a href="{{ url_for('payment_admin.pending_payments') }}" class="btn btn-warning">
+                        <i class="fas fa-clock me-2"></i>
+                        Pagos Pendientes ({{ stats.pending_payments }})
+                    </a>
+                    <a href="{{ url_for('payment_admin.all_payments') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-list me-2"></i>
+                        Todos los Pagos
+                    </a>
+                </div>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="stat-card bg-warning text-white">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>{{ stats.pending_payments }}</h3>
+                            <p>Pagos Pendientes</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card bg-success text-white">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>{{ stats.approved_payments }}</h3>
+                            <p>Pagos Aprobados</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card bg-danger text-white">
+                        <div class="stat-icon">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>{{ stats.rejected_payments }}</h3>
+                            <p>Pagos Rechazados</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card bg-info text-white">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>{{ stats.total_payments }}</h3>
+                            <p>Total Pagos</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Pagos Pendientes de Aprobación -->
+                <div class="col-lg-8 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-warning text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-hourglass-half me-2"></i>
+                                Pagos Pendientes de Aprobación
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% if recent_pending %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Usuario</th>
+                                                <th>Curso</th>
+                                                <th>Método</th>
+                                                <th>Fecha</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for payment in recent_pending %}
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <img src="{{ payment.enrollment.user.get_avatar_url(30) }}" 
+                                                             class="rounded-circle me-2" width="30" height="30" 
+                                                             alt="{{ payment.enrollment.user.display_name }}">
+                                                        {{ payment.enrollment.user.display_name }}
+                                                    </div>
+                                                </td>
+                                                <td>{{ payment.enrollment.course.title[:30] }}...</td>
+                                                <td>
+                                                    {% if payment.payment_method.value == 'bank_transfer' %}
+                                                        <i class="fas fa-university text-primary"></i> Transferencia
+                                                    {% elif payment.payment_method.value == 'paypal' %}
+                                                        <i class="fab fa-paypal text-info"></i> PayPal
+                                                    {% elif payment.payment_method.value == 'credit_card' %}
+                                                        <i class="fas fa-credit-card text-success"></i> Tarjeta
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ payment.submitted_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                                                <td>
+                                                    <div class="btn-group btn-group-sm">
+                                                        <a href="{{ url_for('payment_admin.review_payment', payment_id=payment.id) }}" 
+                                                           class="btn btn-primary">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                        <button class="btn btn-success" 
+                                                                onclick="quickApprove({{ payment.id }})">
+                                                            <i class="fas fa-check"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="text-center mt-3">
+                                    <a href="{{ url_for('payment_admin.pending_payments') }}" class="btn btn-warning">
+                                        Ver Todos los Pendientes
+                                    </a>
+                                </div>
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                                    <h5>¡No hay pagos pendientes!</h5>
+                                    <p class="text-muted">Todos los pagos han sido procesados.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inscripciones Recientes -->
+                <div class="col-lg-4 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-user-graduate me-2"></i>
+                                Inscripciones Recientes
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% if recent_enrollments %}
+                                {% for enrollment in recent_enrollments %}
+                                <div class="d-flex align-items-center mb-3">
+                                    <img src="{{ enrollment.user.get_avatar_url(40) }}" 
+                                         class="rounded-circle me-3" width="40" height="40" 
+                                         alt="{{ enrollment.user.display_name }}">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">{{ enrollment.user.display_name }}</h6>
+                                        <small class="text-muted">{{ enrollment.course.title[:25] }}...</small>
+                                        <br>
+                                        <small class="text-success">
+                                            <i class="fas fa-check-circle me-1"></i>
+                                            {{ enrollment.activated_at.strftime('%d/%m/%Y') }}
+                                        </small>
+                                    </div>
+                                </div>
+                                {% if not loop.last %}<hr>{% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <p class="text-muted">No hay inscripciones recientes</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function quickApprove(paymentId) {
+    if (confirm('¿Estás seguro de que deseas aprobar este pago?')) {
+        fetch(`{{ url_for('payment_admin.api_quick_approve', payment_id=0) }}`.replace('0', paymentId), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('Error de conexión');
+        });
+    }
+}
+
+// Auto-refresh cada 30 segundos
+setInterval(() => {
+    fetch(`{{ url_for('payment_admin.api_payment_stats') }}`)
+        .then(response => response.json())
+        .then(data => {
+            // Actualizar contadores sin recargar la página
+            document.querySelector('.stat-card .stat-content h3').textContent = data.pending;
+        })
+        .catch(error => console.log('Error actualizando stats'));
+}, 30000);
+</script>
+
+<style>
+.stat-card {
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    margin-right: 20px;
+    opacity: 0.8;
+}
+
+.stat-content h3 {
+    margin: 0;
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
+.stat-content p {
+    margin: 0;
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+.card {
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+    border: none;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+}
+
+.btn-group-sm .btn {
+    padding: 0.25rem 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .stat-card {
+        margin-bottom: 15px;
+    }
+    
+    .stat-content h3 {
+        font-size: 2rem;
+    }
+}
+</style>
+{% endblock %}

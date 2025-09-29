@@ -1,0 +1,607 @@
+{% extends "base.html" %}
+
+{% block title %}Instrucciones de Pago - {{ enrollment.course.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <h2 class="text-primary">
+                    <i class="fas fa-university me-2"></i>
+                    Instrucciones de Pago
+                </h2>
+                <p class="text-muted">Curso: <strong>{{ enrollment.course.title }}</strong></p>
+                <h3 class="text-success">${{ "%.2f"|format(enrollment.enrolled_price) }} MXN</h3>
+            </div>
+
+            <!-- Instrucciones de Transferencia Bancaria - CONTENIDO ESTÁTICO -->
+            <div class="card mb-4" id="payment-instructions-static">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-university me-2"></i>
+                        Transferencia Bancaria
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Cuentas Bancarias ESTÁTICAS -->
+                    <div class="row mb-4" id="bank-accounts-section">
+                        <div class="col-md-6">
+                            <div class="card border-primary h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title text-primary">
+                                        <i class="fas fa-building me-2"></i>
+                                        Banco Nacional
+                                    </h5>
+                                    <table class="table table-borderless table-sm">
+                                        <tbody>
+                                            <tr>
+                                                <td><strong>Tipo:</strong></td>
+                                                <td>Cuenta Corriente</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Número:</strong></td>
+                                                <td class="text-primary"><strong>1234-5678-9012</strong></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Titular:</strong></td>
+                                                <td>David Soto</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Código:</strong></td>
+                                                <td>BN001234</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="copyToClipboard('1234-5678-9012')">
+                                        <i class="fas fa-copy me-1"></i>
+                                        Copiar Número
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-success h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title text-success">
+                                        <i class="fas fa-building me-2"></i>
+                                        Banco Internacional
+                                    </h5>
+                                    <table class="table table-borderless table-sm">
+                                        <tbody>
+                                            <tr>
+                                                <td><strong>Tipo:</strong></td>
+                                                <td>Cuenta de Ahorros</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Número:</strong></td>
+                                                <td class="text-success"><strong>9876-5432-1098</strong></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Titular:</strong></td>
+                                                <td>David Soto</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Código:</strong></td>
+                                                <td>BI005678</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <button type="button" class="btn btn-outline-success btn-sm" onclick="copyToClipboard('9876-5432-1098')">
+                                        <i class="fas fa-copy me-1"></i>
+                                        Copiar Número
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Instrucciones Paso a Paso ESTÁTICAS -->
+                    <div class="alert alert-info" id="payment-steps-section">
+                        <h5 class="mb-3">
+                            <i class="fas fa-list-ol me-2"></i>
+                            Pasos para Realizar el Pago
+                        </h5>
+                        <ol class="mb-0">
+                            <li class="mb-2">
+                                <strong>Realiza la transferencia</strong> a cualquiera de las cuentas bancarias mostradas arriba
+                            </li>
+                            <li class="mb-2">
+                                <strong>Monto exacto:</strong> ${{ "%.2f"|format(enrollment.enrolled_price if enrollment and enrollment.enrolled_price else 222.00) }} MXN
+                            </li>
+                            <li class="mb-2">
+                                <strong>Guarda el comprobante</strong> que te proporcione tu banco
+                            </li>
+                            <li class="mb-2">
+                                <strong>Anota la referencia</strong> o número de transacción
+                            </li>
+                            <li class="mb-0">
+                                <strong>Ya completaste el pago</strong> durante tu inscripción. ¡Solo espera la aprobación!
+                            </li>
+                        </ol>
+                    </div>
+
+                    <!-- Formulario para Subir Comprobante -->
+                    <div class="card border-info mb-4" id="upload-receipt-section">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-upload me-2"></i>
+                                Subir Comprobante de Pago
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" enctype="multipart/form-data" id="receipt-upload-form">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                
+                                <!-- Datos del Transferente -->
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="sender_name" class="form-label">
+                                            <i class="fas fa-user me-1"></i>
+                                            <strong>Nombre Completo del Transferente:</strong>
+                                        </label>
+                                        <input type="text" class="form-control" id="sender_name" name="sender_name" 
+                                               placeholder="Ej: Juan Pérez García" required>
+                                        <small class="form-text text-muted">Nombre de quien realizó la transferencia</small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="transfer_reference" class="form-label">
+                                            <i class="fas fa-hashtag me-1"></i>
+                                            <strong>Referencia/Número de Transacción:</strong>
+                                        </label>
+                                        <input type="text" class="form-control" id="transfer_reference" name="transfer_reference" 
+                                               placeholder="Ej: REF123456789" required>
+                                        <small class="form-text text-muted">Número que aparece en tu comprobante</small>
+                                    </div>
+                                </div>
+
+                                <!-- Banco y Monto -->
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="bank_used" class="form-label">
+                                            <i class="fas fa-university me-1"></i>
+                                            <strong>Banco al que Transferiste:</strong>
+                                        </label>
+                                        <select class="form-select" id="bank_used" name="bank_used" required>
+                                            <option value="">Selecciona el banco...</option>
+                                            <option value="Banco Nacional - 1234-5678-9012">Banco Nacional - 1234-5678-9012</option>
+                                            <option value="Banco Internacional - 9876-5432-1098">Banco Internacional - 9876-5432-1098</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="transfer_amount" class="form-label">
+                                            <i class="fas fa-dollar-sign me-1"></i>
+                                            <strong>Monto Transferido:</strong>
+                                        </label>
+                                        <input type="number" class="form-control" id="transfer_amount" name="transfer_amount" 
+                                               step="0.01" min="0" placeholder="222.00" value="222.00" required>
+                                        <small class="form-text text-muted">Monto exacto que transferiste</small>
+                                    </div>
+                                </div>
+
+                                <!-- Fecha de Transferencia -->
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="transfer_date" class="form-label">
+                                            <i class="fas fa-calendar me-1"></i>
+                                            <strong>Fecha de la Transferencia:</strong>
+                                        </label>
+                                        <input type="date" class="form-control" id="transfer_date" name="transfer_date" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="transfer_time" class="form-label">
+                                            <i class="fas fa-clock me-1"></i>
+                                            <strong>Hora Aproximada:</strong>
+                                        </label>
+                                        <input type="time" class="form-control" id="transfer_time" name="transfer_time">
+                                        <small class="form-text text-muted">Opcional - ayuda a verificar el pago</small>
+                                    </div>
+                                </div>
+
+                                <!-- Subir Comprobante -->
+                                <div class="mb-4">
+                                    <label for="payment_receipt" class="form-label">
+                                        <i class="fas fa-file-image me-1"></i>
+                                        <strong>Comprobante de Pago:</strong>
+                                    </label>
+                                    <input type="file" class="form-control" id="payment_receipt" name="payment_receipt" 
+                                           accept="image/*,.pdf" required>
+                                    <small class="form-text text-muted">
+                                        Sube una foto clara del comprobante o el PDF. Formatos aceptados: JPG, PNG, PDF (máx. 5MB)
+                                    </small>
+                                </div>
+
+                                <!-- Comentarios Adicionales -->
+                                <div class="mb-4">
+                                    <label for="additional_comments" class="form-label">
+                                        <i class="fas fa-comment me-1"></i>
+                                        <strong>Comentarios Adicionales (Opcional):</strong>
+                                    </label>
+                                    <textarea class="form-control" id="additional_comments" name="additional_comments" 
+                                              rows="3" placeholder="Cualquier información adicional que consideres importante..."></textarea>
+                                </div>
+
+                                <!-- Botón de Envío -->
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-success btn-lg">
+                                        <i class="fas fa-paper-plane me-2"></i>
+                                        Enviar Comprobante
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Estado Actual ESTÁTICO -->
+                    <div class="alert alert-warning text-center" id="payment-status-section">
+                        <h5>
+                            <i class="fas fa-hourglass-half me-2"></i>
+                            Estado: Pago en Revisión
+                        </h5>
+                        <p class="mb-0">
+                            Tu comprobante está siendo revisado. Te notificaremos por email cuando sea aprobado.
+                            <br>
+                            <small class="text-muted">Tiempo estimado: 24-48 horas</small>
+                        </p>
+                    </div>
+
+                    <!-- Información de Contacto ESTÁTICA -->
+                    <div class="alert alert-light" id="contact-info-section">
+                        <h6>
+                            <i class="fas fa-question-circle me-2"></i>
+                            ¿Tienes dudas?
+                        </h6>
+                        <p class="mb-0">
+                            Contáctanos: <strong>support@davidsoto.com</strong>
+                            <br>
+                            <small class="text-muted">Menciona tu ID de inscripción: #{{ enrollment.id if enrollment else '1' }}</small>
+                        </p>
+                    </div>
+
+                    <!-- Botones de Acción ESTÁTICOS -->
+                    <div class="text-center mt-4" id="action-buttons-section">
+                        <a href="{{ url_for('enrollment.my_enrollments') }}" class="btn btn-primary btn-lg me-2">
+                            <i class="fas fa-list me-2"></i>
+                            Ver Mis Inscripciones
+                        </a>
+                        <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-home me-2"></i>
+                            Ir al Inicio
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// JavaScript completamente estático para las instrucciones de pago
+function copyToClipboard(text) {
+    try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(function() {
+                showCopyMessage('¡Número copiado: ' + text + '!');
+            }).catch(function() {
+                fallbackCopy(text);
+            });
+        } else {
+            fallbackCopy(text);
+        }
+    } catch (err) {
+        fallbackCopy(text);
+    }
+}
+
+// Mostrar mensaje simple sin animaciones complejas
+function showCopyMessage(message) {
+    // Remover mensaje anterior si existe
+    const existing = document.querySelector('.copy-message');
+    if (existing) existing.remove();
+    
+    // Crear mensaje simple
+    const toast = document.createElement('div');
+    toast.className = 'copy-message';
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #28a745;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px;
+        z-index: 9999;
+        font-size: 14px;
+        font-weight: bold;
+    `;
+    toast.textContent = message;
+    
+    document.body.appendChild(toast);
+    
+    // Remover después de 2 segundos
+    setTimeout(() => {
+        if (toast && toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+        }
+    }, 2000);
+}
+
+// Método alternativo para navegadores sin clipboard API
+function fallbackCopy(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'absolute';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    
+    try {
+        document.execCommand('copy');
+        showCopyMessage('¡Número copiado: ' + text + '!');
+    } catch (err) {
+        alert('Número de cuenta: ' + text);
+    }
+    
+    document.body.removeChild(textarea);
+}
+
+// Funcionalidad del formulario de comprobante
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Instrucciones de pago cargadas - contenido permanentemente estático');
+    
+    // Configurar fecha actual por defecto
+    const dateInput = document.getElementById('transfer_date');
+    if (dateInput) {
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.value = today;
+    }
+    
+    // Vista previa de archivo
+    const fileInput = document.getElementById('payment_receipt');
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            handleFilePreview(e.target);
+        });
+    }
+    
+    // Validación del formulario
+    const form = document.getElementById('receipt-upload-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            if (!validateForm()) {
+                e.preventDefault();
+                return false;
+            }
+            
+            // Mostrar mensaje de envío
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
+                submitBtn.disabled = true;
+            }
+        });
+    }
+});
+
+// Vista previa del archivo seleccionado
+function handleFilePreview(input) {
+    const file = input.files[0];
+    let previewDiv = document.querySelector('.file-preview');
+    
+    // Crear div de vista previa si no existe
+    if (!previewDiv) {
+        previewDiv = document.createElement('div');
+        previewDiv.className = 'file-preview';
+        input.parentNode.appendChild(previewDiv);
+    }
+    
+    if (file) {
+        const fileSize = (file.size / 1024 / 1024).toFixed(2); // MB
+        
+        if (fileSize > 5) {
+            alert('El archivo es demasiado grande. Máximo 5MB permitido.');
+            input.value = '';
+            previewDiv.classList.remove('show');
+            return;
+        }
+        
+        previewDiv.innerHTML = `
+            <div class="mb-2">
+                <i class="fas fa-file-alt fa-2x text-info"></i>
+            </div>
+            <div><strong>Archivo seleccionado:</strong></div>
+            <div>${file.name}</div>
+            <div><small class="text-muted">Tamaño: ${fileSize} MB</small></div>
+        `;
+        
+        // Si es imagen, mostrar vista previa
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.style.maxWidth = '200px';
+                img.style.maxHeight = '200px';
+                img.style.marginTop = '10px';
+                img.style.borderRadius = '5px';
+                previewDiv.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        previewDiv.classList.add('show');
+    } else {
+        previewDiv.classList.remove('show');
+    }
+}
+
+// Validación del formulario
+function validateForm() {
+    const requiredFields = [
+        'sender_name',
+        'transfer_reference', 
+        'bank_used',
+        'transfer_amount',
+        'transfer_date',
+        'payment_receipt'
+    ];
+    
+    let isValid = true;
+    
+    requiredFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field && !field.value.trim()) {
+            field.classList.add('is-invalid');
+            isValid = false;
+        } else if (field) {
+            field.classList.remove('is-invalid');
+        }
+    });
+    
+    // Validar monto
+    const amountField = document.getElementById('transfer_amount');
+    if (amountField && parseFloat(amountField.value) <= 0) {
+        amountField.classList.add('is-invalid');
+        isValid = false;
+    }
+    
+    if (!isValid) {
+        showMessage('Por favor completa todos los campos obligatorios', 'error');
+    }
+    
+    return isValid;
+}
+
+// Mostrar mensajes al usuario
+function showMessage(message, type = 'info') {
+    const existingMsg = document.querySelector('.form-message');
+    if (existingMsg) existingMsg.remove();
+    
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `form-message alert alert-${type === 'error' ? 'danger' : 'info'}`;
+    msgDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 9999;
+        min-width: 300px;
+        text-align: center;
+    `;
+    msgDiv.textContent = message;
+    
+    document.body.appendChild(msgDiv);
+    
+    setTimeout(() => {
+        if (msgDiv && msgDiv.parentNode) {
+            msgDiv.parentNode.removeChild(msgDiv);
+        }
+    }, 4000);
+}
+</script>
+
+<style>
+/* CSS completamente estático para instrucciones de pago */
+.copy-message {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    background: #28a745 !important;
+    color: white !important;
+    padding: 10px 15px !important;
+    border-radius: 5px !important;
+    z-index: 9999 !important;
+    font-size: 14px !important;
+    font-weight: bold !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+}
+
+#payment-instructions-static {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border: none;
+}
+
+#payment-instructions-static .card-header {
+    border-bottom: 2px solid rgba(255,255,255,0.1);
+}
+
+/* Asegurar que las secciones permanezcan visibles */
+#bank-accounts-section,
+#payment-steps-section,
+#payment-status-section,
+#contact-info-section,
+#action-buttons-section {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Estilo fijo para las tarjetas de banco */
+.card.border-primary,
+.card.border-success {
+    border-width: 2px !important;
+    position: relative;
+}
+
+/* Botones estáticos */
+.btn {
+    transition: none !important;
+}
+
+.btn:hover {
+    transform: none !important;
+}
+
+/* Estilos para el formulario de comprobante */
+#upload-receipt-section {
+    border-width: 2px !important;
+}
+
+#upload-receipt-section .card-header {
+    background: linear-gradient(135deg, #17a2b8, #138496) !important;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #17a2b8;
+    box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    border: none;
+    padding: 12px 30px;
+    font-weight: bold;
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #218838, #1abc9c);
+}
+
+/* Vista previa del archivo */
+.file-preview {
+    margin-top: 10px;
+    padding: 10px;
+    border: 2px dashed #dee2e6;
+    border-radius: 5px;
+    text-align: center;
+    display: none;
+}
+
+.file-preview img {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 5px;
+}
+
+.file-preview.show {
+    display: block;
+}
+</style>
+{% endblock %}

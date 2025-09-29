@@ -1,10 +1,12 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app
 from flask_login import login_required, current_user
+from flask_wtf.csrf import exempt
 from app.models.blog import BlogPost
 from app.models.course import Course
 from app.models.project import Project
 from app.models.site_config import SiteConfig
 from app.models.contact import ContactMessage
+from app.models.enrollment import CourseEnrollment, Payment, PaymentStatus, EnrollmentStatus
 from app.extensions import db
 from app.utils.file_upload import save_uploaded_file, delete_uploaded_file
 import os
@@ -602,3 +604,120 @@ def message_delete(message_id):
     db.session.delete(message)
     db.session.commit()
     return jsonify({'success': True})
+
+# ====== MANEJO DE PAGOS ======
+
+@admin_bp.route('/payments')
+@login_required
+@admin_required
+def payments():
+    """Lista todos los pagos pendientes de aprobación"""
+    page = request.args.get('page', 1, type=int)
+    status_filter = request.args.get('status', 'pending')
+    
+    # Contar pagos por estado
+    payments_count = {
+        'pending': Payment.query.filter(Payment.status == PaymentStatus.PENDING_APPROVAL).count(),
+        'approved': Payment.query.filter(Payment.status == PaymentStatus.APPROVED).count(),
+        'rejected': Payment.query.filter(Payment.status == PaymentStatus.REJECTED).count()
+    }
+    
+    # Filtrar pagos según el estado
+    query = Payment.query.join(CourseEnrollment).join(Course)
+    
+    if status_filter == 'pending':
+        query = query.filter(Payment.status == PaymentStatus.PENDING_APPROVAL)
+    elif status_filter == 'approved':
+        query = query.filter(Payment.status == PaymentStatus.APPROVED)
+    elif status_filter == 'rejected':
+        query = query.filter(Payment.status == PaymentStatus.REJECTED)
+    
+    payments = query.order_by(Payment.submitted_at.desc()).paginate(
+        page=page, per_page=20, error_out=False
+    )
+    
+    return render_template('admin/payments_new.html', 
+                         payments=payments.items, 
+                         payments_count=payments_count,
+                         status_filter=status_filter)
+
+@admin_bp.route('/payments/<int:payment_id>')
+@login_required
+@admin_required
+def payment_detail(payment_id):
+    """Ver detalles de un pago específico"""
+    payment = Payment.query.get_or_404(payment_id)
+    return render_template('admin/payment_detail.html', payment=payment)
+
+@admin_bp.route('/payments/<int:payment_id>/approve', methods=['POST'])
+@login_required
+@admin_required
+def approve_payment(payment_id):
+    """Aprobar un pago"""
+    payment = Payment.query.get_or_404(payment_id)
+    admin_notes = request.form.get('admin_notes', '')
+    
+    # Log para debug
+    current_app.logger.info(f"Aprobando pago ID: {payment_id}, Estado actual: {payment.status}")
+    
+    try:
+        # Actualizar el estado del pago
+        old_status = payment.status
+        payment.status = PaymentStatus.APPROVED
+        payment.processed_at = datetime.utcnow()
+        payment.processed_by = current_user.id
+        payment.admin_notes = admin_notes
+        
+        # Activar la inscripción
+        enrollment = payment.enrollment
+        old_enrollment_status = enrollment.status
+        enrollment.status = EnrollmentStatus.ACTIVE
+        enrollment.activated_at = datetime.utcnow()
+        
+        db.session.commit()
+        
+        # Log para confirmar cambios
+        current_app.logger.info(f"Pago {payment_id} aprobado: {old_status} -> {payment.status}")
+        current_app.logger.info(f"Inscripción {enrollment.id} activada: {old_enrollment_status} -> {enrollment.status}")
+        
+        flash(f'Pago aprobado correctamente. El usuario {enrollment.user.username} ahora tiene acceso al curso.', 'success')
+        
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error al aprobar el pago: {str(e)}', 'error')
+    
+    # Redirigir de vuelta a la lista de pagos para ver el cambio
+    return redirect(url_for('admin.payments', status='approved'))
+
+@admin_bp.route('/payments/<int:payment_id>/reject', methods=['POST'])
+@exempt
+@login_required
+@admin_required
+def reject_payment(payment_id):
+    """Rechazar un pago"""
+    payment = Payment.query.get_or_404(payment_id)
+    rejection_reason = request.form.get('rejection_reason', '')
+    admin_notes = request.form.get('admin_notes', '')
+    
+    try:
+        # Actualizar el estado del pago
+        payment.status = PaymentStatus.REJECTED
+        payment.processed_at = datetime.utcnow()
+        payment.processed_by = current_user.id
+        payment.rejection_reason = rejection_reason
+        payment.admin_notes = admin_notes
+        
+        # Cancelar la inscripción
+        enrollment = payment.enrollment
+        enrollment.status = EnrollmentStatus.CANCELLED
+        
+        db.session.commit()
+        
+        flash(f'Pago rechazado. Se ha notificado al usuario {enrollment.user.username}.', 'warning')
+        
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error al rechazar el pago: {str(e)}', 'error')
+    
+    # Redirigir de vuelta a la lista de pagos rechazados
+    return redirect(url_for('admin.payments', status='rejected'))

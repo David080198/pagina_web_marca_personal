@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}Proyectos - {{ config.site_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center mb-5">
+                <h1 class="display-4 mb-3">Mis Proyectos</h1>
+                <p class="lead text-muted">Explora todos mis proyectos de investigación y automatización</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros de categoría -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="text-center">
+                <div class="btn-group" role="group" aria-label="Filtros de categoría">
+                    <button type="button" class="btn btn-outline-primary active" data-filter="all">
+                        Todos
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" data-filter="research">
+                        Investigación
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" data-filter="automation">
+                        Automatización
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" data-filter="web">
+                        Desarrollo Web
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grid de proyectos -->
+    <div class="row" id="projects-grid">
+        {% for project in projects %}
+        <div class="col-lg-4 col-md-6 mb-4 project-card" data-category="{{ project.category }}">
+            <div class="card h-100 border-0 shadow-sm hover-card">
+                {% if project.image_url %}
+                <img src="{{ project.image_url }}" class="card-img-top" alt="{{ project.title }}" style="height: 200px; object-fit: cover;">
+                {% else %}
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                    <i class="fas fa-project-diagram fa-3x text-muted"></i>
+                </div>
+                {% endif %}
+                
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ project.title }}</h5>
+                    <p class="card-text flex-grow-1">{{ project.description }}</p>
+                    
+                    <!-- Tecnologías -->
+                    {% if project.technologies %}
+                    <div class="mb-3">
+                        {% for tech in project.technologies.split(',') %}
+                        <span class="badge bg-secondary me-1">{{ tech.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Fecha -->
+                    <small class="text-muted mb-2">
+                        <i class="fas fa-calendar"></i>
+                        {{ project.created_at.strftime('%B %Y') }}
+                    </small>
+                    
+                    <!-- Enlaces -->
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('main.project_detail', slug=project.slug) }}" 
+                           class="btn btn-primary flex-grow-1">
+                            <i class="fas fa-eye me-1"></i>Ver Detalles
+                        </a>
+                        
+                        {% if project.github_url %}
+                        <a href="{{ project.github_url }}" 
+                           class="btn btn-outline-dark" 
+                           target="_blank" 
+                           rel="noopener noreferrer">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        {% endif %}
+                        
+                        {% if project.demo_url %}
+                        <a href="{{ project.demo_url }}" 
+                           class="btn btn-outline-success" 
+                           target="_blank" 
+                           rel="noopener noreferrer">
+                            <i class="fas fa-external-link-alt"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if not projects %}
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-folder-open fa-4x text-muted mb-3"></i>
+                <h3 class="text-muted">No hay proyectos disponibles</h3>
+                <p class="text-muted">Los proyectos aparecerán aquí cuando estén publicados.</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Script para filtros -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterButtons = document.querySelectorAll('[data-filter]');
+    const projectCards = document.querySelectorAll('.project-card');
+    
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const filter = this.getAttribute('data-filter');
+            
+            // Actualizar botones
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Filtrar proyectos
+            projectCards.forEach(card => {
+                const category = card.getAttribute('data-category');
+                if (filter === 'all' || category === filter) {
+                    card.style.display = 'block';
+                    card.classList.add('fade-in');
+                } else {
+                    card.style.display = 'none';
+                    card.classList.remove('fade-in');
+                }
+            });
+        });
+    });
+});
+</script>
+
+<style>
+.hover-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.hover-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.btn-group .btn {
+    border-radius: 0;
+}
+
+.btn-group .btn:first-child {
+    border-top-left-radius: 0.375rem;
+    border-bottom-left-radius: 0.375rem;
+}
+
+.btn-group .btn:last-child {
+    border-top-right-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+}
+</style>
+{% endblock %}

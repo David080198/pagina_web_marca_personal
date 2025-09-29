@@ -1,0 +1,360 @@
+{% extends "base.html" %}
+
+{% block title %}Subir Comprobante de Pago - {{ enrollment.course.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <h2 class="text-primary">
+                    <i class="fas fa-file-upload me-2"></i>
+                    Subir Comprobante de Pago
+                </h2>
+                <p class="text-muted">Curso: <strong>{{ enrollment.course.title }}</strong></p>
+            </div>
+
+            <!-- Información del Estado -->
+            <div class="alert alert-info mb-4">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h6><i class="fas fa-info-circle me-2"></i>Estado de tu Inscripción</h6>
+                        <p class="mb-0">
+                            <span class="badge bg-warning">{{ enrollment.get_status_display() }}</span>
+                            <small class="text-muted ms-2">
+                                Inscrito el {{ enrollment.enrolled_at.strftime('%d/%m/%Y a las %H:%M') }}
+                            </small>
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <small class="text-muted">ID: #{{ enrollment.id }}</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario de Pago -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-receipt me-2"></i>
+                        Detalles del Comprobante
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" id="paymentForm">
+                        {{ form.hidden_tag() }}
+                        {{ form.enrollment_id(value=enrollment.id) }}
+
+                        <div class="row">
+                            <!-- Método de Pago -->
+                            <div class="col-md-6 mb-3">
+                                {{ form.payment_method.label(class="form-label") }}
+                                {{ form.payment_method(class="form-select", id="paymentMethod") }}
+                                {% if form.payment_method.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.payment_method.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Referencia de Transacción (para transferencias) -->
+                            <div class="col-md-6 mb-3" id="transactionReferenceGroup">
+                                {{ form.transaction_reference.label(class="form-label") }}
+                                {{ form.transaction_reference(class="form-control", placeholder="Ej: TXN123456789") }}
+                                {% if form.transaction_reference.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.transaction_reference.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">
+                                    Número de referencia que aparece en tu comprobante
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Cuenta Utilizada -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3" id="bankAccountGroup">
+                                {{ form.bank_account_used.label(class="form-label") }}
+                                {{ form.bank_account_used(class="form-control", placeholder="Últimos 4 dígitos: XXXX-1234") }}
+                                {% if form.bank_account_used.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.bank_account_used.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">
+                                    Cuenta desde la cual realizaste el pago (opcional)
+                                </small>
+                            </div>
+
+                            <!-- Subir Comprobante -->
+                            <div class="col-md-6 mb-3">
+                                {{ form.proof_of_payment.label(class="form-label") }}
+                                <div class="upload-area" id="uploadArea">
+                                    {{ form.proof_of_payment(class="form-control", accept=".jpg,.jpeg,.png,.pdf", id="proofFile") }}
+                                    <div class="upload-placeholder" id="uploadPlaceholder">
+                                        <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                                        <p class="text-muted mb-0">Arrastra tu archivo aquí o haz clic para seleccionar</p>
+                                        <small class="text-muted">JPG, PNG o PDF - Máximo 5MB</small>
+                                    </div>
+                                    <div class="upload-preview" id="uploadPreview" style="display: none;">
+                                        <i class="fas fa-file-alt fa-2x text-success mb-2"></i>
+                                        <p class="mb-0" id="fileName"></p>
+                                        <small class="text-muted" id="fileSize"></small>
+                                    </div>
+                                </div>
+                                {% if form.proof_of_payment.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.proof_of_payment.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Notas Adicionales -->
+                        <div class="mb-4">
+                            {{ form.payment_notes.label(class="form-label") }}
+                            {{ form.payment_notes(class="form-control", rows="3", 
+                                                 placeholder="Información adicional sobre el pago, fecha, hora, etc.") }}
+                            {% if form.payment_notes.errors %}
+                                <div class="text-danger small">
+                                    {% for error in form.payment_notes.errors %}
+                                        {{ error }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Instrucciones Específicas por Método -->
+                        <div class="payment-instructions mb-4">
+                            <!-- Para Transferencia Bancaria -->
+                            <div class="instruction-card" id="bankTransferInstructions">
+                                <div class="alert alert-info">
+                                    <h6><i class="fas fa-university me-2"></i>Transferencia Bancaria</h6>
+                                    <ul class="mb-0 small">
+                                        <li>Asegúrate de incluir el número de referencia de la transacción</li>
+                                        <li>Sube una foto clara del comprobante bancario</li>
+                                        <li>El comprobante debe mostrar fecha, monto y número de transacción</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Para PayPal -->
+                            <div class="instruction-card" id="paypalInstructions" style="display: none;">
+                                <div class="alert alert-info">
+                                    <h6><i class="fab fa-paypal me-2"></i>PayPal</h6>
+                                    <ul class="mb-0 small">
+                                        <li>Sube una captura de pantalla de la transacción en PayPal</li>
+                                        <li>Asegúrate de que se vea el ID de transacción de PayPal</li>
+                                        <li>La captura debe mostrar el destinatario y el monto</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Para Tarjeta de Crédito -->
+                            <div class="instruction-card" id="creditCardInstructions" style="display: none;">
+                                <div class="alert alert-warning">
+                                    <h6><i class="fas fa-credit-card me-2"></i>Tarjeta de Crédito</h6>
+                                    <p class="mb-0 small">
+                                        <em>Este método estará disponible próximamente. Por favor utiliza transferencia bancaria o PayPal.</em>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('enrollment.my_enrollments') }}" 
+                               class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Volver a Mis Inscripciones
+                            </a>
+                            <button type="submit" class="btn btn-success btn-lg" id="submitBtn">
+                                <i class="fas fa-paper-plane me-2"></i>
+                                Enviar Comprobante
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Información de Proceso -->
+            <div class="alert alert-success mt-4">
+                <h6><i class="fas fa-clock me-2"></i>¿Qué sigue?</h6>
+                <ol class="mb-0">
+                    <li>Revisaremos tu comprobante en las próximas 24-48 horas</li>
+                    <li>Recibirás un email cuando el pago sea aprobado</li>
+                    <li>Se activará automáticamente tu acceso al curso</li>
+                    <li>Podrás comenzar inmediatamente con el contenido</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const paymentMethod = document.getElementById('paymentMethod');
+    const uploadArea = document.getElementById('uploadArea');
+    const proofFile = document.getElementById('proofFile');
+    const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+    const uploadPreview = document.getElementById('uploadPreview');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+
+    // Mostrar/ocultar instrucciones según método de pago
+    paymentMethod.addEventListener('change', function() {
+        const method = this.value;
+        
+        // Ocultar todas las instrucciones
+        document.querySelectorAll('.instruction-card').forEach(card => {
+            card.style.display = 'none';
+        });
+        
+        // Mostrar la instrucción correspondiente
+        if (method === 'bank_transfer') {
+            document.getElementById('bankTransferInstructions').style.display = 'block';
+            document.getElementById('transactionReferenceGroup').style.display = 'block';
+            document.getElementById('bankAccountGroup').style.display = 'block';
+        } else if (method === 'paypal') {
+            document.getElementById('paypalInstructions').style.display = 'block';
+            document.getElementById('transactionReferenceGroup').style.display = 'block';
+            document.getElementById('bankAccountGroup').style.display = 'none';
+        } else if (method === 'credit_card') {
+            document.getElementById('creditCardInstructions').style.display = 'block';
+            document.getElementById('transactionReferenceGroup').style.display = 'none';
+            document.getElementById('bankAccountGroup').style.display = 'none';
+        }
+    });
+
+    // Trigger inicial
+    paymentMethod.dispatchEvent(new Event('change'));
+
+    // Manejo de drag & drop para archivos
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.classList.add('drag-over');
+    });
+
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.classList.remove('drag-over');
+    });
+
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('drag-over');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            proofFile.files = files;
+            showFilePreview(files[0]);
+        }
+    });
+
+    // Mostrar preview cuando se selecciona archivo
+    proofFile.addEventListener('change', function() {
+        if (this.files.length > 0) {
+            showFilePreview(this.files[0]);
+        }
+    });
+
+    function showFilePreview(file) {
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+        
+        uploadPlaceholder.style.display = 'none';
+        uploadPreview.style.display = 'block';
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // Validación del formulario
+    document.getElementById('paymentForm').addEventListener('submit', function(e) {
+        const submitBtn = document.getElementById('submitBtn');
+        
+        if (!proofFile.files.length) {
+            e.preventDefault();
+            alert('Por favor selecciona un comprobante de pago');
+            return;
+        }
+        
+        // Deshabilitar botón para evitar doble envío
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
+    });
+});
+</script>
+
+<style>
+.upload-area {
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    padding: 30px;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    background: #f8f9fa;
+}
+
+.upload-area:hover {
+    border-color: #007bff;
+    background: #e3f2fd;
+}
+
+.upload-area.drag-over {
+    border-color: #28a745;
+    background: #d4edda;
+}
+
+.upload-area input[type="file"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.instruction-card .alert {
+    margin: 0;
+}
+
+.card {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border: none;
+}
+
+.btn-success {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    border: none;
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(40,167,69,0.3);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+}
+</style>
+{% endblock %}
