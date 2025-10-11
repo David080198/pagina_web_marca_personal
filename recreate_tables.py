@@ -18,8 +18,15 @@ def recreate_tables():
     print("=" * 50)
     
     try:
-        # Importar la aplicación
-        import app as app_module
+        # Importar la aplicación del archivo app.py
+        import sys
+        import importlib.util
+        
+        # Cargar el módulo app.py específicamente
+        spec = importlib.util.spec_from_file_location("app_module", "app.py")
+        app_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(app_module)
+        
         from app.extensions import db
         
         # Crear la aplicación
