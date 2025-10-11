@@ -74,46 +74,90 @@ def create_app():
     
     # Crear tablas si no existen
     with app.app_context():
-        db.create_all()
+        print("=== INICIALIZANDO BASE DE DATOS ===")
         
-        # Crear usuario admin por defecto
-        from app.models.user import User
-        from app.models.site_config import SiteConfig
-        from app.models.analytics import PageView, VisitorStats
-        from app.models.enrollment import CourseEnrollment, Payment  # Importar modelos de enrollment
-        from werkzeug.security import generate_password_hash
-        
-        admin_user = User.query.filter_by(username='admin').first()
-        if not admin_user:
-            admin_user = User(
-                username='admin',
-                email=os.environ.get('ADMIN_EMAIL', 'admin@codexsoto.com'),
-                first_name='David',
-                last_name='Soto',
-                bio='Administrador del sitio CodexSoto',
-                role='admin',
-                is_admin=True,
-                email_verified=True
-            )
-            admin_user.set_password(os.environ.get('ADMIN_PASSWORD', 'admin123'))
-            db.session.add(admin_user)
-        
-        # Crear configuración por defecto del sitio
-        site_config = SiteConfig.query.first()
-        if not site_config:
-            site_config = SiteConfig(
-                site_name='CodexSoto',
-                site_description='Investigación en IA, Automatizaciones y Cursos',
-                primary_color='#3b82f6',
-                secondary_color='#1e40af',
-                dark_mode=False,
-                hero_title='David Soto',
-                hero_subtitle='Especialista en Inteligencia Artificial y Automatizaciones',
-                about_text='Investigador y desarrollador especializado en IA, machine learning y automatización de procesos.'
-            )
-            db.session.add(site_config)
-        
-        db.session.commit()
+        try:
+            # Crear todas las tablas
+            print("Creando tablas de base de datos...")
+            db.create_all()
+            print("✅ Tablas creadas exitosamente")
+            
+            # Importar todos los modelos para asegurar que estén registrados
+            print("Importando modelos...")
+            from app.models.user import User
+            from app.models.site_config import SiteConfig
+            from app.models.blog import BlogPost
+            from app.models.course import Course
+            from app.models.project import Project
+            from app.models.contact import ContactMessage
+            from app.models.analytics import PageView, VisitorStats
+            from app.models.enrollment import CourseEnrollment, Payment
+            from app.models.comment import Comment
+            from app.models.favorite import Favorite
+            from werkzeug.security import generate_password_hash
+            print("✅ Modelos importados exitosamente")
+            
+            # Verificar si el usuario admin ya existe
+            print("Verificando usuario administrador...")
+            admin_user = User.query.filter_by(username='admin').first()
+            
+            if not admin_user:
+                print("Creando usuario administrador...")
+                admin_email = os.environ.get('ADMIN_EMAIL', 'admin@codexsoto.com')
+                admin_password = os.environ.get('ADMIN_PASSWORD', 'admin123')
+                
+                admin_user = User(
+                    username='admin',
+                    email=admin_email,
+                    first_name='David',
+                    last_name='Soto',
+                    bio='Administrador del sitio CodexSoto - Especialista en IA y Automatización',
+                    role='admin',
+                    is_admin=True,
+                    email_verified=True
+                )
+                admin_user.set_password(admin_password)
+                db.session.add(admin_user)
+                print(f"✅ Usuario administrador creado: {admin_email}")
+            else:
+                print(f"✅ Usuario administrador ya existe: {admin_user.email}")
+            
+            # Crear configuración por defecto del sitio
+            print("Verificando configuración del sitio...")
+            site_config = SiteConfig.query.first()
+            
+            if not site_config:
+                print("Creando configuración por defecto del sitio...")
+                site_config = SiteConfig(
+                    site_name='CodexSoto',
+                    site_description='Investigación en IA, Automatizaciones y Cursos',
+                    primary_color='#3b82f6',
+                    secondary_color='#1e40af',
+                    dark_mode=False,
+                    hero_title='David Soto',
+                    hero_subtitle='Especialista en Inteligencia Artificial y Automatizaciones',
+                    about_text='Investigador y desarrollador especializado en IA, machine learning y automatización de procesos.',
+                    contact_email=os.environ.get('ADMIN_EMAIL', 'admin@codexsoto.com'),
+                    linkedin_url='https://linkedin.com/in/david-soto',
+                    github_url='https://github.com/David080198',
+                    twitter_url='https://twitter.com/davidsoto_dev'
+                )
+                db.session.add(site_config)
+                print("✅ Configuración del sitio creada")
+            else:
+                print("✅ Configuración del sitio ya existe")
+            
+            # Confirmar todos los cambios
+            db.session.commit()
+            print("✅ Todos los cambios guardados en la base de datos")
+            print("=== INICIALIZACIÓN COMPLETADA ===")
+            
+        except Exception as e:
+            print(f"❌ ERROR durante la inicialización de la base de datos: {e}")
+            db.session.rollback()
+            print("⚠️  Continuando con la aplicación...")
+            import traceback
+            traceback.print_exc()
     
     return app
 
