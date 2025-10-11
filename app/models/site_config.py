@@ -15,13 +15,6 @@ class SiteConfig(db.Model):
     linkedin_url = db.Column(db.String(255))
     github_url = db.Column(db.String(255))
     twitter_url = db.Column(db.String(255))
-    youtube_url = db.Column(db.String(255))
-    instagram_url = db.Column(db.String(255))
-    facebook_url = db.Column(db.String(255))
-    tiktok_url = db.Column(db.String(255))
-    discord_url = db.Column(db.String(255))
-    telegram_url = db.Column(db.String(255))
-    whatsapp_url = db.Column(db.String(255))
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     def __repr__(self):
