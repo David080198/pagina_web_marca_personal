@@ -6,7 +6,7 @@ from app.models.course import Course
 from app.models.project import Project
 from app.models.site_config import SiteConfig
 from app.models.contact import ContactMessage
-from app.extensions import db, mail
+from app.extensions import db, mail, csrf
 
 main_bp = Blueprint('main', __name__)
 
@@ -106,36 +106,78 @@ def projects():
 def contact():
     config = SiteConfig.query.first()
     
+    print("=== DEBUG FORMULARIO CONTACTO ===")
+    print(f"Método de request: {request.method}")
+    
     if request.method == 'POST':
-        name = request.form.get('name')
-        email = request.form.get('email')
-        subject = request.form.get('subject', 'Contacto desde la web')
-        message = request.form.get('message')
+        print("--- DATOS RAW DEL FORMULARIO ---")
+        print(f"request.form: {dict(request.form)}")
+        
+        # Obtener datos del formulario directamente
+        name = request.form.get('name', '').strip()
+        email = request.form.get('email', '').strip()
+        subject = request.form.get('subject', 'Contacto desde la web').strip()
+        message = request.form.get('message', '').strip()
+        
+        print(f"Nombre capturado: '{name}'")
+        print(f"Email capturado: '{email}'")
+        print(f"Asunto capturado: '{subject}'")
+        print(f"Mensaje capturado: '{message}'")
+        
+        # Validación básica
+        if not name or not email or not message:
+            flash('Por favor completa todos los campos requeridos.', 'error')
+            print("--- VALIDACIÓN FALLIDA ---")
+            return render_template('contact.html', config=config)
+        
+        if len(message) < 10:
+            flash('El mensaje debe tener al menos 10 caracteres.', 'error')
+            print("--- MENSAJE MUY CORTO ---")
+            return render_template('contact.html', config=config)
         
         # Guardar mensaje en la base de datos
-        contact_message = ContactMessage(
-            name=name,
-            email=email,
-            subject=subject,
-            message=message
-        )
-        db.session.add(contact_message)
-        db.session.commit()
+        try:
+            contact_message = ContactMessage(
+                name=name,
+                email=email,
+                subject=subject or 'Contacto desde la web',
+                message=message
+            )
+            
+            db.session.add(contact_message)
+            db.session.commit()
+            print("--- MENSAJE GUARDADO EN BD EXITOSAMENTE ---")
+            print(f"ID del mensaje: {contact_message.id}")
+        except Exception as e:
+            print(f"--- ERROR AL GUARDAR EN BD ---")
+            print(f"Error: {e}")
+            db.session.rollback()
+            flash('Error al enviar el mensaje. Inténtalo de nuevo.', 'error')
+            return render_template('contact.html', config=config)
         
         # Enviar email (opcional)
         try:
+            recipient_email = config.contact_email or 'admin@codexsoto.com'
+            print(f"--- INTENTANDO ENVIAR EMAIL ---")
+            print(f"Destinatario: {recipient_email}")
+            
             msg = Message(
                 subject=f'[CodexSoto] {subject}',
-                recipients=[config.contact_email or 'admin@codexsoto.com'],
+                recipients=[recipient_email],
                 body=f'Nombre: {name}\nEmail: {email}\n\nMensaje:\n{message}'
             )
             mail.send(msg)
+            print("--- EMAIL ENVIADO EXITOSAMENTE ---")
         except Exception as e:
-            print(f"Error enviando email: {e}")
+            print(f"--- ERROR ENVIANDO EMAIL ---")
+            print(f"Error: {e}")
         
         flash('Mensaje enviado correctamente. Te contactaré pronto.', 'success')
+        print("--- REDIRIGIENDO DESPUÉS DE ÉXITO ---")
         return redirect(url_for('main.contact'))
     
+    print("--- RENDERIZANDO TEMPLATE ---")
+    print("=== FIN DEBUG ===")
     return render_template('contact.html', config=config)
 
 @main_bp.route('/proyecto/<slug>')

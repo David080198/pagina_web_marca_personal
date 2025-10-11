@@ -34,11 +34,7 @@ def create_app():
     login_manager.init_app(app)
     migrate.init_app(app, db)
     mail.init_app(app)
-    csrf.init_app(app)
-    
-    # Configurar rutas exentas de CSRF
-    csrf.exempt('admin.approve_payment')
-    csrf.exempt('admin.reject_payment')
+    # csrf.init_app(app)  # Comentado para evitar problemas con formularios públicos
     
     # Inicializar analytics
     from app.utils.analytics import init_analytics
@@ -55,6 +51,7 @@ def create_app():
         return User.query.get(int(user_id))
     
     # Registrar Blueprints
+    print("=== REGISTRANDO BLUEPRINTS ===")
     from app.blueprints.main import main_bp
     from app.blueprints.auth import auth_bp
     from app.blueprints.admin import admin_bp
@@ -63,13 +60,17 @@ def create_app():
     from app.blueprints.enrollment import enrollment_bp
     from app.blueprints.payment_admin import payment_admin_bp
     
+    print("Registrando main_bp...")
     app.register_blueprint(main_bp)
+    print("main_bp registrado")
+    
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(admin_bp, url_prefix='/admin')
     app.register_blueprint(user_bp)  # Ya tiene url_prefix='/user' definido
     app.register_blueprint(api_bp, url_prefix='/api')
     app.register_blueprint(enrollment_bp)  # Ya tiene url_prefix='/enrollment' definido
     app.register_blueprint(payment_admin_bp)  # Ya tiene url_prefix='/admin/payments' definido
+    print("Todos los blueprints registrados")
     
     # Crear tablas si no existen
     with app.app_context():
@@ -117,5 +118,18 @@ def create_app():
     return app
 
 if __name__ == '__main__':
-    app = create_app()
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    print("=== INICIANDO APLICACIÓN ===")
+    print("Creando app...")
+    try:
+        app = create_app()
+        print("App creada exitosamente")
+        print(f"Blueprints registrados: {[bp.name for bp in app.blueprints.values()]}")
+        print(f"Rutas disponibles:")
+        for rule in app.url_map.iter_rules():
+            print(f"  {rule.endpoint}: {rule.rule} [{', '.join(rule.methods)}]")
+        print("Iniciando servidor...")
+        app.run(debug=True, host='0.0.0.0', port=5000)
+    except Exception as e:
+        print(f"ERROR AL CREAR LA APP: {e}")
+        import traceback
+        traceback.print_exc()

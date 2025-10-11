@@ -1,6 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app
 from flask_login import login_required, current_user
-from flask_wtf.csrf import exempt
 from app.models.blog import BlogPost
 from app.models.course import Course
 from app.models.project import Project
@@ -690,7 +689,6 @@ def approve_payment(payment_id):
     return redirect(url_for('admin.payments', status='approved'))
 
 @admin_bp.route('/payments/<int:payment_id>/reject', methods=['POST'])
-@exempt
 @login_required
 @admin_required
 def reject_payment(payment_id):

@@ -9,8 +9,8 @@ services:
     environment:
       - DATABASE_URL=postgresql://codexsoto:password123@db:5432/codexsoto_db
       - SECRET_KEY=your-super-secret-key-change-in-production
-      - ADMIN_EMAIL=admin@codexsoto.com
-      - ADMIN_PASSWORD=admin123
+      - ADMIN_EMAIL=david@codexsoto.com
+      - ADMIN_PASSWORD=MiPasswordSeguro123!
       - FLASK_ENV=production
     depends_on:
       - db
