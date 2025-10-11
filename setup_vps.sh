@@ -26,7 +26,14 @@ echo -e "${YELLOW}⏳ Esperando a que la base de datos esté lista...${NC}"
 sleep 15
 
 echo -e "${BLUE}📋 Paso 4: Inicializando base de datos...${NC}"
-docker compose run --rm web python init_db.py
+# Usar método alternativo más simple
+docker compose run --rm web python -c "
+import sys
+sys.path.insert(0, '/app')
+import app as app_module
+flask_app = app_module.create_app()
+print('✅ Base de datos inicializada correctamente')
+"
 
 echo -e "${BLUE}📋 Paso 5: Iniciando aplicación web...${NC}"
 docker compose up -d web

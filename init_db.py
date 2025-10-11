@@ -21,14 +21,14 @@ def init_database():
     print("=" * 50)
     
     try:
-        # Importar la aplicación
-        from app import create_app
+        # Importar la aplicación desde el archivo app.py (no del paquete app/)
+        import app as app_module
         from app.extensions import db
         
         # Crear la aplicación
-        app = create_app()
+        flask_app = app_module.create_app()
         
-        with app.app_context():
+        with flask_app.app_context():
             print("📋 Creando todas las tablas...")
             
             # Importar todos los modelos para registrarlos
