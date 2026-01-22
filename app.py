@@ -30,11 +30,20 @@ def create_app():
     # Importar extensiones localmente para evitar imports circulares
     from app.extensions import db, login_manager, migrate, mail, csrf, babel
     
+    # Detectar si estamos en producción
+    is_production = os.environ.get('FLASK_ENV') == 'production'
+    
     # Configuración
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///codexsoto.db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
+    
+    # Configuración de sesiones para producción (detrás de proxy HTTPS)
+    app.config['SESSION_COOKIE_SECURE'] = is_production
+    app.config['SESSION_COOKIE_HTTPONLY'] = True
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+    app.config['PREFERRED_URL_SCHEME'] = 'https' if is_production else 'http'
     
     # Configuración de Babel (multi-idioma)
     app.config['BABEL_DEFAULT_LOCALE'] = 'en'
