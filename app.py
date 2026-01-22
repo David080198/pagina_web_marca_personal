@@ -1,4 +1,4 @@
-from flask import Flask, request, session
+from flask import Flask, request, session, redirect
 from werkzeug.middleware.proxy_fix import ProxyFix
 import os
 from dotenv import load_dotenv
@@ -66,6 +66,14 @@ def create_app():
     # Inicializar analytics
     from app.utils.analytics import init_analytics
     init_analytics(app)
+    
+    # Forzar HTTPS en producción
+    @app.before_request
+    def force_https():
+        # Solo en producción (cuando hay un proxy delante)
+        if request.headers.get('X-Forwarded-Proto') == 'http':
+            url = request.url.replace('http://', 'https://', 1)
+            return redirect(url, code=301)
     
     # Agregar csrf_token a todos los templates
     @app.context_processor
