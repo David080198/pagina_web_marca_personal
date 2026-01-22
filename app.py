@@ -1,4 +1,5 @@
 from flask import Flask, request, session
+from werkzeug.middleware.proxy_fix import ProxyFix
 import os
 from dotenv import load_dotenv
 
@@ -219,6 +220,9 @@ def create_app():
             print("⚠️  Continuando con la aplicación...")
             import traceback
             traceback.print_exc()
+    
+    # Aplicar ProxyFix para que Flask reconozca HTTPS detrás de proxy (Traefik/nginx)
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
     
     return app
 
