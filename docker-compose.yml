@@ -19,6 +19,8 @@ services:
       - uploads_data:/app/uploads
       - static_images:/app/app/static/images
     restart: unless-stopped
+    networks:
+      - app-network
 
   # Base de datos PostgreSQL
   db:
@@ -35,13 +37,21 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - app-network
 
   # Redis para cache
   redis:
     image: redis:7-alpine
     restart: unless-stopped
+    networks:
+      - app-network
 
 volumes:
   postgres_data:
   uploads_data:
   static_images:
+
+networks:
+  app-network:
+    driver: bridge
