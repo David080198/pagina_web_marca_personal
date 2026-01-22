@@ -8,6 +8,14 @@ def set_language(lang):
     # Validar que el idioma sea válido
     if lang in ['en', 'es']:
         session['language'] = lang
+        session.modified = True  # Forzar que la sesión se guarde
     
-    # Redirigir a la página anterior o a la página principal
-    return redirect(request.referrer or url_for('main.index'))
+    # Obtener la URL de referencia
+    referrer = request.referrer
+    
+    # Si hay referrer, usarlo; si no, ir al index
+    if referrer:
+        # Asegurar que el referrer use el mismo esquema
+        return redirect(referrer)
+    
+    return redirect(url_for('main.index'))

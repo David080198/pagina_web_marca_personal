@@ -27,6 +27,10 @@ def create_app():
     
     app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
     
+    # Aplicar ProxyFix PRIMERO para que Flask reconozca HTTPS detrás de proxy (Traefik/nginx)
+    # Esto debe estar antes de cualquier configuración de sesión
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
+    
     # Importar extensiones localmente para evitar imports circulares
     from app.extensions import db, login_manager, migrate, mail, csrf, babel
     
@@ -237,9 +241,6 @@ def create_app():
             print("⚠️  Continuando con la aplicación...")
             import traceback
             traceback.print_exc()
-    
-    # Aplicar ProxyFix para que Flask reconozca HTTPS detrás de proxy (Traefik/nginx)
-    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
     
     return app
 
