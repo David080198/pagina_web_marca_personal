@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}{{ _('Technologies') }} - CODEXSOTO{% endblock %}
+
+{% block content %}
+<section class="technologies-page" style="padding-top: 120px; min-height: 100vh;">
+    <div class="container">
+        <div class="page-header text-center" style="margin-bottom: 50px;">
+            <div class="section-label" style="font-family: 'Share Tech Mono', monospace; color: var(--stark-cyan); font-size: 0.9rem; letter-spacing: 3px; margin-bottom: 15px;">
+                // {{ _('MY TECH STACK') }}
+            </div>
+            <h1 style="font-family: 'Orbitron', monospace; font-size: 2.5rem; color: #fff; margin-bottom: 20px;">
+                {{ _('Technologies') }} & {{ _('Tools') }}
+            </h1>
+            <p style="color: #a0aec0; max-width: 600px; margin: 0 auto; font-size: 1.1rem;">
+                {{ _('Explore the technologies I work with, their real-world applications, and industry adoption rates.') }}
+            </p>
+        </div>
+        
+        <div class="tech-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px;">
+            {% for slug, tech in technologies.items() %}
+            <a href="{{ url_for('technologies.detail', slug=slug) }}" class="tech-card" style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.05) 0%, rgba(0, 0, 0, 0.7) 100%); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 15px; padding: 25px; text-decoration: none; transition: all 0.3s ease; display: block;">
+                <div class="tech-card-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                    <div class="tech-icon" style="width: 60px; height: 60px; background: rgba(0, 212, 255, 0.1); border: 2px solid {{ tech.color }}; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                        <i class="{{ tech.icon }}" style="font-size: 1.8rem; color: {{ tech.color }};"></i>
+                    </div>
+                    {% if tech.tiobe_rank %}
+                    <div class="tiobe-badge" style="background: rgba(0, 212, 255, 0.2); border: 1px solid var(--stark-cyan); border-radius: 8px; padding: 5px 12px; font-family: 'Orbitron', monospace; font-size: 0.8rem; color: var(--stark-cyan);">
+                        #{{ tech.tiobe_rank }} TIOBE
+                    </div>
+                    {% else %}
+                    <div class="tiobe-badge" style="background: rgba(108, 122, 137, 0.2); border: 1px solid #6c7a89; border-radius: 8px; padding: 5px 12px; font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; color: #6c7a89;">
+                        {{ tech.tiobe_rating }}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <h3 class="tech-name" style="font-family: 'Orbitron', monospace; font-size: 1.3rem; color: #fff; margin-bottom: 10px;">
+                    {{ tech.get('name_es') if g.get('lang_code') == 'es' and tech.get('name_es') else tech.name }}
+                </h3>
+                
+                <p class="tech-desc" style="color: #6c7a89; font-size: 0.9rem; line-height: 1.6; margin-bottom: 15px;">
+                    {% if g.get('lang_code') == 'es' %}
+                        {{ tech.description[:120] }}...
+                    {% else %}
+                        {{ tech.description_en[:120] }}...
+                    {% endif %}
+                </p>
+                
+                <div class="tech-card-footer" style="display: flex; align-items: center; justify-content: space-between;">
+                    <span class="learn-more" style="color: var(--stark-cyan); font-size: 0.9rem; display: flex; align-items: center; gap: 5px;">
+                        {{ _('Learn more') }} <i class="fas fa-arrow-right"></i>
+                    </span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<style>
+.tech-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--stark-cyan);
+    box-shadow: 0 10px 40px rgba(0, 212, 255, 0.2);
+}
+
+.tech-card:hover .tech-name {
+    color: var(--stark-cyan);
+}
+
+.tech-card:hover .learn-more {
+    transform: translateX(5px);
+}
+
+.learn-more {
+    transition: transform 0.3s ease;
+}
+</style>
+{% endblock %}

@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}Proyectos - {{ config.site_name }}{% endblock %}
+{% block title %}{{ _('Projects') }} - {{ config.site_name }}{% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container py-5" style="padding-top: 120px !important;">
     <div class="row">
         <div class="col-12">
-            <div class="text-center mb-5">
-                <h1 class="display-4 mb-3">Mis Proyectos</h1>
-                <p class="lead text-muted">Explora todos mis proyectos de investigación y automatización</p>
+            <div class="text-center mb-5 animate-fade-in-down">
+                <h1 class="display-4 mb-3">{{ _('My Projects') }}</h1>
+                <p class="lead text-muted">{{ _('Explore all my research and automation projects') }}</p>
             </div>
         </div>
     </div>
@@ -16,19 +16,19 @@
     <!-- Filtros de categoría -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="text-center">
-                <div class="btn-group" role="group" aria-label="Filtros de categoría">
+            <div class="text-center animate-fade-in-up">
+                <div class="btn-group" role="group" aria-label="{{ _('Category filters') }}">
                     <button type="button" class="btn btn-outline-primary active" data-filter="all">
-                        Todos
+                        {{ _('All') }}
                     </button>
                     <button type="button" class="btn btn-outline-primary" data-filter="research">
-                        Investigación
+                        {{ _('Research') }}
                     </button>
                     <button type="button" class="btn btn-outline-primary" data-filter="automation">
-                        Automatización
+                        {{ _('Automation') }}
                     </button>
                     <button type="button" class="btn btn-outline-primary" data-filter="web">
-                        Desarrollo Web
+                        {{ _('Web Development') }}
                     </button>
                 </div>
             </div>
@@ -36,10 +36,10 @@
     </div>
 
     <!-- Grid de proyectos -->
-    <div class="row" id="projects-grid">
+    <div class="row stagger-animation" id="projects-grid">
         {% for project in projects %}
         <div class="col-lg-4 col-md-6 mb-4 project-card" data-category="{{ project.category }}">
-            <div class="card h-100 border-0 shadow-sm hover-card">
+            <div class="card h-100 border-0 shadow-sm card-animated hover-lift img-hover-zoom">
                 {% if project.image_url %}
                 <img src="{{ project.image_url }}" class="card-img-top" alt="{{ project.title }}" style="height: 200px; object-fit: cover;">
                 {% else %}
@@ -70,8 +70,8 @@
                     <!-- Enlaces -->
                     <div class="d-flex gap-2">
                         <a href="{{ url_for('main.project_detail', slug=project.slug) }}" 
-                           class="btn btn-primary flex-grow-1">
-                            <i class="fas fa-eye me-1"></i>Ver Detalles
+                           class="btn btn-primary flex-grow-1 btn-animated">
+                            <i class="fas fa-eye me-1"></i>{{ _('View Details') }}
                         </a>
                         
                         {% if project.github_url %}
@@ -101,10 +101,10 @@
     {% if not projects %}
     <div class="row">
         <div class="col-12">
-            <div class="text-center py-5">
+            <div class="text-center py-5 animate-fade-in-up">
                 <i class="fas fa-folder-open fa-4x text-muted mb-3"></i>
-                <h3 class="text-muted">No hay proyectos disponibles</h3>
-                <p class="text-muted">Los proyectos aparecerán aquí cuando estén publicados.</p>
+                <h3 class="text-muted">{{ _('No projects available') }}</h3>
+                <p class="text-muted">{{ _('Projects will appear here when published.') }}</p>
             </div>
         </div>
     </div>

@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, TextAreaField, PasswordField, BooleanField, SelectField, EmailField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError, Optional, URL
+from flask_babel import lazy_gettext as _l
 from app.models.user import User
 import re
 
@@ -64,15 +65,15 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('La contraseña debe contener al menos un número')
 
 class LoginForm(FlaskForm):
-    username_or_email = StringField('Usuario o Email', validators=[
-        DataRequired(message='Ingrese su usuario o email')
+    username_or_email = StringField(_l('Username or Email'), validators=[
+        DataRequired(message=_l('Enter your username or email'))
     ])
     
-    password = PasswordField('Contraseña', validators=[
-        DataRequired(message='Ingrese su contraseña')
+    password = PasswordField(_l('Password'), validators=[
+        DataRequired(message=_l('Enter your password'))
     ])
     
-    remember_me = BooleanField('Recordarme')
+    remember_me = BooleanField(_l('Remember me'))
 
 class ProfileEditForm(FlaskForm):
     username = StringField('Nombre de usuario', validators=[

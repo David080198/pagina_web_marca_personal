@@ -1,16 +1,79 @@
 {% extends "base.html" %}
 
-{% block title %}Registro - CodexSoto{% endblock %}
+{% block title %}{{ _('Register') }} - CodexSoto{% endblock %}
+
+{% block head %}
+<style>
+    /* Estilos específicos para la página de registro */
+    .auth-page .card {
+        background: #1e293b !important;
+        border: 1px solid #334155 !important;
+    }
+    
+    .auth-page .card-title,
+    .auth-page h1,
+    .auth-page h2,
+    .auth-page h3 {
+        color: #f8fafc !important;
+        font-weight: 600 !important;
+    }
+    
+    .auth-page .text-muted {
+        color: #94a3b8 !important;
+    }
+    
+    .auth-page .form-label,
+    .auth-page .form-check-label {
+        color: #f8fafc !important;
+        font-weight: 500 !important;
+    }
+    
+    .auth-page .form-text {
+        color: #94a3b8 !important;
+    }
+    
+    .auth-page .form-control {
+        background: #1e293b !important;
+        border: 1px solid #334155 !important;
+        color: #f8fafc !important;
+    }
+    
+    .auth-page .form-control:focus {
+        background: #1e293b !important;
+        border-color: #6366f1 !important;
+        color: #f8fafc !important;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+    }
+    
+    .auth-page .form-check-input {
+        background-color: #1e293b !important;
+        border: 1px solid #334155 !important;
+    }
+    
+    .auth-page .form-check-input:checked {
+        background-color: #6366f1 !important;
+        border-color: #6366f1 !important;
+    }
+    
+    .auth-page a {
+        color: #818cf8 !important;
+    }
+    
+    .auth-page a:hover {
+        color: #6366f1 !important;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<div class="auth-page container py-5 mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-5">
-            <div class="card shadow-sm">
+            <div class="card shadow-sm animate-fade-in-up">
                 <div class="card-body p-4">
                     <div class="text-center mb-4">
-                        <h2 class="card-title">Crear Cuenta</h2>
-                        <p class="text-muted">Únete a la comunidad CodexSoto</p>
+                        <h2 class="card-title">{{ _('Create Account') }}</h2>
+                        <p class="text-muted">{{ _('Join the CodexSoto community') }}</p>
                     </div>
                     
                     <form method="POST">
@@ -49,7 +112,7 @@
                                     {{ form.username.errors[0] }}
                                 </div>
                             {% endif %}
-                            <div class="form-text">Solo letras, números y guiones bajos</div>
+                            <div class="form-text">{{ _('Only letters, numbers and underscores') }}</div>
                         </div>
                         
                         <div class="mb-3">
@@ -70,7 +133,7 @@
                                     {{ form.password.errors[0] }}
                                 </div>
                             {% endif %}
-                            <div class="form-text">Mínimo 8 caracteres, al menos una letra y un número</div>
+                            <div class="form-text">{{ _('Minimum 8 characters, at least one letter and one number') }}</div>
                         </div>
                         
                         <div class="mb-3">
@@ -94,7 +157,7 @@
                             <div class="form-check">
                                 {{ form.terms_accepted(class="form-check-input" + (" is-invalid" if form.terms_accepted.errors else "")) }}
                                 <label class="form-check-label" for="terms_accepted">
-                                    Acepto los <a href="#" target="_blank">términos y condiciones</a>
+                                    {{ _('I accept the') }} <a href="#" target="_blank">{{ _('terms and conditions') }}</a>
                                 </label>
                                 {% if form.terms_accepted.errors %}
                                     <div class="invalid-feedback">
@@ -105,14 +168,14 @@
                         </div>
                         
                         <div class="d-grid mb-3">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-user-plus"></i> Crear Cuenta
+                            <button type="submit" class="btn btn-primary btn-lg btn-animated">
+                                <i class="fas fa-user-plus"></i> {{ _('Create Account') }}
                             </button>
                         </div>
                         
                         <div class="text-center">
-                            <p class="mb-0">¿Ya tienes cuenta? 
-                                <a href="{{ url_for('auth.login') }}">Inicia sesión</a>
+                            <p class="mb-0">{{ _('Already have an account?') }} 
+                                <a href="{{ url_for('auth.login') }}">{{ _('Log in') }}</a>
                             </p>
                         </div>
                     </form>

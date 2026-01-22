@@ -1,9 +1,23 @@
-from flask import Flask
+from flask import Flask, request, session
 import os
 from dotenv import load_dotenv
 
 # Cargar variables de entorno
 load_dotenv()
+
+def get_locale():
+    """Seleccionar el idioma del usuario"""
+    # 1. Primero verificar si el usuario ha seleccionado un idioma manualmente
+    if 'language' in session:
+        return session['language']
+    
+    # 2. Verificar si hay un parámetro en la URL
+    lang = request.args.get('lang')
+    if lang in ['en', 'es']:
+        return lang
+    
+    # 3. Usar el idioma del navegador
+    return request.accept_languages.best_match(['en', 'es']) or 'en'
 
 def create_app():
     # Configurar rutas de templates y static
@@ -13,13 +27,21 @@ def create_app():
     app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
     
     # Importar extensiones localmente para evitar imports circulares
-    from app.extensions import db, login_manager, migrate, mail, csrf
+    from app.extensions import db, login_manager, migrate, mail, csrf, babel
     
     # Configuración
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///codexsoto.db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
+    
+    # Configuración de Babel (multi-idioma)
+    app.config['BABEL_DEFAULT_LOCALE'] = 'en'
+    app.config['BABEL_TRANSLATION_DIRECTORIES'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'translations')
+    app.config['LANGUAGES'] = {
+        'en': 'English',
+        'es': 'Español'
+    }
     
     # Configuración de email
     app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
@@ -34,11 +56,21 @@ def create_app():
     login_manager.init_app(app)
     migrate.init_app(app, db)
     mail.init_app(app)
-    # csrf.init_app(app)  # Comentado para evitar problemas con formularios públicos
+    csrf.init_app(app)  # Habilitado para seguridad
+    babel.init_app(app, locale_selector=get_locale)
+    
+    # Exentar rutas de API y webhooks de CSRF
+    from flask_wtf.csrf import CSRFProtect
     
     # Inicializar analytics
     from app.utils.analytics import init_analytics
     init_analytics(app)
+    
+    # Agregar csrf_token a todos los templates
+    @app.context_processor
+    def inject_csrf_token():
+        from flask_wtf.csrf import generate_csrf
+        return dict(csrf_token=generate_csrf)
     
     # Configuración de Flask-Login
     login_manager.login_view = 'auth.login'
@@ -59,6 +91,19 @@ def create_app():
     from app.blueprints.api import api_bp
     from app.blueprints.enrollment import enrollment_bp
     from app.blueprints.payment_admin import payment_admin_bp
+    from app.blueprints.language import language_bp
+    
+    # Nuevos blueprints
+    from app.blueprints.articles import articles_bp
+    from app.blueprints.subscriptions import subscriptions_bp
+    from app.blueprints.newsletter import newsletter_bp
+    from app.blueprints.lessons import lessons_bp
+    from app.blueprints.technologies import bp as technologies_bp
+    
+    # Exentar rutas de API y webhooks de CSRF
+    csrf.exempt(api_bp)
+    csrf.exempt(subscriptions_bp)  # Para webhooks de Stripe/PayPal
+    csrf.exempt(newsletter_bp)  # Para tracking pixels
     
     print("Registrando main_bp...")
     app.register_blueprint(main_bp)
@@ -70,6 +115,14 @@ def create_app():
     app.register_blueprint(api_bp, url_prefix='/api')
     app.register_blueprint(enrollment_bp)  # Ya tiene url_prefix='/enrollment' definido
     app.register_blueprint(payment_admin_bp)  # Ya tiene url_prefix='/admin/payments' definido
+    
+    # Registrar nuevos blueprints
+    app.register_blueprint(articles_bp, url_prefix='/articulos')
+    app.register_blueprint(subscriptions_bp, url_prefix='/suscripciones')
+    app.register_blueprint(newsletter_bp, url_prefix='/newsletter')
+    app.register_blueprint(lessons_bp, url_prefix='/lecciones')
+    app.register_blueprint(language_bp)  # Blueprint para cambio de idioma
+    app.register_blueprint(technologies_bp)  # Blueprint para tecnologías
     print("Todos los blueprints registrados")
     
     # Crear tablas si no existen
@@ -94,6 +147,14 @@ def create_app():
             from app.models.enrollment import CourseEnrollment, Payment
             from app.models.comment import Comment
             from app.models.favorite import Favorite
+            
+            # Nuevos modelos
+            from app.models.subscription import Subscription, SubscriptionPlan, SubscriptionPayment
+            from app.models.article import Article, ArticleCategory
+            from app.models.newsletter import NewsletterSubscriber, NewsletterCampaign
+            from app.models.lesson import Lesson, CourseSection, LessonProgress
+            from app.models.certificate import Certificate
+            
             from werkzeug.security import generate_password_hash
             print("✅ Modelos importados exitosamente")
             

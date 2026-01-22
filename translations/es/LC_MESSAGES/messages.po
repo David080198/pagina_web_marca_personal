@@ -1,0 +1,386 @@
+# Spanish translations for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-01-20 17:06-0600\n"
+"PO-Revision-Date: 2026-01-20 16:32-0600\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: es\n"
+"Language-Team: es <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+# Navigation
+msgid "Home"
+msgstr "Inicio"
+
+msgid "Projects"
+msgstr "Proyectos"
+
+msgid "Courses"
+msgstr "Cursos"
+
+msgid "Blog"
+msgstr "Blog"
+
+msgid "Contact"
+msgstr "Contacto"
+
+msgid "My Profile"
+msgstr "Mi Perfil"
+
+msgid "Dashboard"
+msgstr "Panel de Control"
+
+msgid "Admin"
+msgstr "Administración"
+
+msgid "Logout"
+msgstr "Cerrar Sesión"
+
+msgid "Login"
+msgstr "Iniciar Sesión"
+
+msgid "Register"
+msgstr "Registrarse"
+
+# Footer
+msgid "Software development and technological solutions."
+msgstr "Desarrollo de software y soluciones tecnológicas."
+
+msgid "Links"
+msgstr "Enlaces"
+
+msgid "Resources"
+msgstr "Recursos"
+
+msgid "Articles"
+msgstr "Artículos"
+
+msgid "Connect"
+msgstr "Conecta"
+
+msgid "2024 CODEXSOTO. All rights reserved."
+msgstr "2024 CODEXSOTO. Todos los derechos reservados."
+
+# Contact Page
+msgid "Contact Information"
+msgstr "Información de Contacto"
+
+msgid "Follow me on:"
+msgstr "Sígueme en:"
+
+msgid "Send Message"
+msgstr "Enviar Mensaje"
+
+msgid "Name"
+msgstr "Nombre"
+
+msgid "Your full name"
+msgstr "Tu nombre completo"
+
+msgid "Email"
+msgstr "Correo Electrónico"
+
+msgid "your@email.com"
+msgstr "tu@email.com"
+
+msgid "Subject"
+msgstr "Asunto"
+
+msgid "Message subject (optional)"
+msgstr "Asunto del mensaje (opcional)"
+
+msgid "Message"
+msgstr "Mensaje"
+
+msgid "Write your message here..."
+msgstr "Escribe tu mensaje aquí..."
+
+# Index/Hero Section
+msgid "Available for projects"
+msgstr "Disponible para proyectos"
+
+msgid "Professional"
+msgstr "Profesional"
+
+msgid "Software Development"
+msgstr "Desarrollo de Software"
+
+msgid "I transform ideas into scalable digital solutions. Specialized in web development and automation."
+msgstr "Transformo ideas en soluciones digitales escalables. Especializado en desarrollo web y automatización."
+
+msgid "View Projects"
+msgstr "Ver Proyectos"
+
+msgid "Students"
+msgstr "Estudiantes"
+
+msgid "Years"
+msgstr "Años"
+
+# Services Section
+msgid "Services"
+msgstr "Servicios"
+
+msgid "Solutions"
+msgstr "Soluciones"
+
+msgid "Web Development"
+msgstr "Desarrollo Web"
+
+msgid "Modern and optimized web applications."
+msgstr "Aplicaciones web modernas y optimizadas."
+
+msgid "Automation"
+msgstr "Automatización"
+
+msgid "Scripts and bots to optimize processes."
+msgstr "Scripts y bots para optimizar procesos."
+
+msgid "Mentoring"
+msgstr "Mentoría"
+
+msgid "Personalized programming classes."
+msgstr "Clases personalizadas de programación."
+
+# About Section
+msgid "About Me"
+msgstr "Sobre Mí"
+
+msgid "Hi, I'm"
+msgstr "Hola, soy"
+
+msgid "Software Developer & Technology Enthusiast"
+msgstr "Desarrollador de Software y Entusiasta de la Tecnología"
+
+msgid "AI Developer & Automation Specialist"
+msgstr "Desarrollador de IA y Especialista en Automatización"
+
+msgid "I am a passionate software developer with over 5 years of experience creating technological solutions. I specialize in Python development, web applications, and process automation."
+msgstr "Soy un desarrollador de software apasionado con más de 5 años de experiencia creando soluciones tecnológicas. Me especializo en desarrollo con Python, aplicaciones web y automatización de procesos."
+
+msgid "I am a passionate software developer with over 5 years of experience creating technological solutions. I specialize in implementing AI models, Natural Language Processing (NLP), chatbot development, and process automation."
+msgstr "Soy un desarrollador de software apasionado con más de 5 años de experiencia creando soluciones tecnológicas. Me especializo en implementación de modelos de IA, Procesamiento de Lenguaje Natural (NLP), desarrollo de chatbots y automatización de procesos."
+
+msgid "My mission is to transform complex ideas into elegant and functional solutions. I believe in writing clean code and creating experiences that truly make a difference."
+msgstr "Mi misión es transformar ideas complejas en soluciones elegantes y funcionales. Creo en escribir código limpio y crear experiencias que realmente marquen la diferencia."
+
+msgid "My expertise includes building intelligent systems that transform how businesses operate. From conversational AI to custom automation workflows, I create solutions that drive real results."
+msgstr "Mi experiencia incluye construir sistemas inteligentes que transforman cómo operan las empresas. Desde IA conversacional hasta flujos de automatización personalizados, creo soluciones que generan resultados reales."
+
+msgid "AI/ML"
+msgstr "IA/ML"
+
+msgid "AI Models"
+msgstr "Modelos de IA"
+
+msgid "Projects Completed"
+msgstr "Proyectos Completados"
+
+msgid "Happy Students"
+msgstr "Estudiantes Satisfechos"
+
+msgid "Years Experience"
+msgstr "Años de Experiencia"
+
+# Portfolio Section
+msgid "Portfolio"
+msgstr "Portafolio"
+
+msgid "Featured"
+msgstr "Destacados"
+
+msgid "Project"
+msgstr "Proyecto"
+
+msgid "View"
+msgstr "Ver"
+
+msgid "View All"
+msgstr "Ver Todos"
+
+# Education Section
+msgid "Education"
+msgstr "Educación"
+
+msgid "Available"
+msgstr "Disponibles"
+
+msgid "Course"
+msgstr "Curso"
+
+msgid "View Course"
+msgstr "Ver Curso"
+
+msgid "Featured"
+msgstr "Destacado"
+
+msgid "Free"
+msgstr "Gratis"
+
+# Blog Section
+msgid "Latest"
+msgstr "Últimas"
+
+msgid "Posts"
+msgstr "Publicaciones"
+
+msgid "Read more"
+msgstr "Leer más"
+
+msgid "Read More"
+msgstr "Leer Más"
+
+msgid "View Blog"
+msgstr "Ver Blog"
+
+msgid "Previous"
+msgstr "Anterior"
+
+msgid "Next"
+msgstr "Siguiente"
+
+msgid "Page navigation"
+msgstr "Navegación de páginas"
+
+msgid "No posts yet"
+msgstr "No hay publicaciones aún"
+
+msgid "Interesting content will be here soon!"
+msgstr "¡Pronto habrá contenido interesante aquí!"
+
+# CTA Section
+msgid "Ready for your"
+msgstr "¿Listo para tu"
+
+msgid "project"
+msgstr "proyecto"
+
+msgid "Let's work together to create technological solutions."
+msgstr "Trabajemos juntos para crear soluciones tecnológicas."
+
+# Login Page
+msgid "Access your account"
+msgstr "Accede a tu cuenta"
+
+msgid "You can use your username or email"
+msgstr "Puedes usar tu nombre de usuario o email"
+
+msgid "Don't have an account?"
+msgstr "¿No tienes cuenta?"
+
+msgid "Register here"
+msgstr "Regístrate aquí"
+
+# Register Page
+msgid "Create Account"
+msgstr "Crear Cuenta"
+
+msgid "Join the CodexSoto community"
+msgstr "Únete a la comunidad CodexSoto"
+
+msgid "Only letters, numbers and underscores"
+msgstr "Solo letras, números y guiones bajos"
+
+msgid "Minimum 8 characters, at least one letter and one number"
+msgstr "Mínimo 8 caracteres, al menos una letra y un número"
+
+msgid "I accept the"
+msgstr "Acepto los"
+
+msgid "terms and conditions"
+msgstr "términos y condiciones"
+
+msgid "Already have an account?"
+msgstr "¿Ya tienes cuenta?"
+
+msgid "Log in"
+msgstr "Inicia sesión"
+
+# Projects Page
+msgid "My Projects"
+msgstr "Mis Proyectos"
+
+msgid "Explore all my research and automation projects"
+msgstr "Explora todos mis proyectos de investigación y automatización"
+
+msgid "Category filters"
+msgstr "Filtros de categoría"
+
+msgid "All"
+msgstr "Todos"
+
+msgid "Research"
+msgstr "Investigación"
+
+msgid "View Details"
+msgstr "Ver Detalles"
+
+msgid "No projects available"
+msgstr "No hay proyectos disponibles"
+
+msgid "Projects will appear here when published."
+msgstr "Los proyectos aparecerán aquí cuando estén publicados."
+
+# Courses Page
+msgid "Specialized training in Artificial Intelligence and Automation"
+msgstr "Formación especializada en Inteligencia Artificial y Automatización"
+
+msgid "No courses available yet"
+msgstr "No hay cursos disponibles aún"
+
+msgid "Amazing courses will be available soon!"
+msgstr "¡Pronto habrá cursos increíbles disponibles!"
+
+# Technologies Page
+msgid "Technologies"
+msgstr "Tecnologías"
+
+msgid "Tools"
+msgstr "Herramientas"
+
+msgid "MY TECH STACK"
+msgstr "MI STACK TECNOLÓGICO"
+
+msgid "Explore the technologies I work with, their real-world applications, and industry adoption rates."
+msgstr "Explora las tecnologías con las que trabajo, sus aplicaciones en el mundo real y sus tasas de adopción en la industria."
+
+msgid "Learn more"
+msgstr "Ver más"
+
+msgid "Main Uses"
+msgstr "Usos Principales"
+
+msgid "Real World Applications"
+msgstr "Aplicaciones en el Mundo Real"
+
+msgid "My Experience"
+msgstr "Mi Experiencia"
+
+msgid "Other Technologies"
+msgstr "Otras Tecnologías"
+
+msgid "Need a project with"
+msgstr "¿Necesitas un proyecto con"
+
+msgid "Let's work together to build something amazing."
+msgstr "Trabajemos juntos para construir algo increíble."
+
+msgid "RATING"
+msgstr "CLASIFICACIÓN"
+
+msgid "Source"
+msgstr "Fuente"
+
+msgid "Contact Me"
+msgstr "Contáctame"
+

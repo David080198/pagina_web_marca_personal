@@ -1,338 +1,293 @@
 {% extends "admin/base.html" %}
 
 {% block admin_content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <h1 class="mb-4">Panel de Administración</h1>
-        </div>
-    </div>
-    
-    <!-- Statistics Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card bg-primary text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4>{{ total_posts }}</h4>
-                            <p class="mb-0">Posts Totales</p>
-                        </div>
-                        <div>
-                            <i class="bi bi-file-text fs-1"></i>
-                        </div>
-                    </div>
+<h1 class="admin-title">Panel de Administración</h1>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ total_posts }}</div>
+                    <div class="stat-label">Posts Totales</div>
                 </div>
-            </div>
-        </div>
-        
-        <div class="col-md-3">
-            <div class="card bg-success text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4>{{ total_courses }}</h4>
-                            <p class="mb-0">Cursos</p>
-                        </div>
-                        <div>
-                            <i class="bi bi-book fs-1"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-3">
-            <div class="card bg-info text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4>{{ total_projects }}</h4>
-                            <p class="mb-0">Proyectos</p>
-                        </div>
-                        <div>
-                            <i class="bi bi-gear fs-1"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-3">
-            <div class="card bg-warning text-dark">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4>{{ unread_messages }}</h4>
-                            <p class="mb-0">Mensajes Sin Leer</p>
-                        </div>
-                        <div>
-                            <i class="bi bi-envelope fs-1"></i>
-                        </div>
-                    </div>
+                <div class="stat-icon">
+                    <i class="fas fa-file-alt"></i>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Analytics Section -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h3 class="mb-3">
-                <i class="fas fa-chart-line text-primary"></i> Estadísticas de Visitas
-            </h3>
-        </div>
-    </div>
-    
-    <!-- Analytics Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card bg-gradient-primary text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4>{{ analytics.today_visitors }}</h4>
-                            <p class="mb-0">Visitantes Hoy</p>
-                        </div>
-                        <div>
-                            <i class="fas fa-users fs-1"></i>
-                        </div>
-                    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card success">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ total_courses }}</div>
+                    <div class="stat-label">Cursos</div>
                 </div>
-            </div>
-        </div>
-        
-        <div class="col-md-3">
-            <div class="card bg-gradient-success text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4>{{ analytics.today_views }}</h4>
-                            <p class="mb-0">Vistas Hoy</p>
-                        </div>
-                        <div>
-                            <i class="fas fa-eye fs-1"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-3">
-            <div class="card bg-gradient-info text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4>{{ analytics.total_visitors }}</h4>
-                            <p class="mb-0">Visitantes Totales</p>
-                        </div>
-                        <div>
-                            <i class="fas fa-globe fs-1"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-3">
-            <div class="card bg-gradient-secondary text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4>{{ analytics.total_views }}</h4>
-                            <p class="mb-0">Vistas Totales</p>
-                        </div>
-                        <div>
-                            <i class="fas fa-chart-bar fs-1"></i>
-                        </div>
-                    </div>
+                <div class="stat-icon">
+                    <i class="fas fa-graduation-cap"></i>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Analytics Details -->
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-fire text-primary"></i> Páginas Más Visitadas (7 días)
-                    </h5>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card info">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ total_projects }}</div>
+                    <div class="stat-label">Proyectos</div>
                 </div>
-                <div class="card-body">
-                    {% if analytics.top_pages %}
-                        <div class="list-group list-group-flush">
-                            {% for page, views in analytics.top_pages %}
-                            <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                <span>
-                                    <i class="fas fa-link text-muted me-2"></i>
-                                    {{ page if page != '/' else 'Inicio' }}
-                                </span>
-                                <span class="badge bg-primary rounded-pill">{{ views }} vistas</span>
+                <div class="stat-icon">
+                    <i class="fas fa-project-diagram"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card warning">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ unread_messages }}</div>
+                    <div class="stat-label">Mensajes Sin Leer</div>
+                </div>
+                <div class="stat-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics Section -->
+<h3 class="admin-section-header">
+    <i class="fas fa-chart-line"></i> Estadísticas de Visitas
+</h3>
+
+<!-- Analytics Cards -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ analytics.today_visitors }}</div>
+                    <div class="stat-label">Visitantes Hoy</div>
+                </div>
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card success">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ analytics.today_views }}</div>
+                    <div class="stat-label">Vistas Hoy</div>
+                </div>
+                <div class="stat-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card info">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ analytics.total_visitors }}</div>
+                    <div class="stat-label">Visitantes Totales</div>
+                </div>
+                <div class="stat-icon">
+                    <i class="fas fa-globe"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ analytics.total_views }}</div>
+                    <div class="stat-label">Vistas Totales</div>
+                </div>
+                <div class="stat-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics Details -->
+<div class="row mb-4">
+    <div class="col-lg-6 mb-3">
+        <div class="admin-panel">
+            <div class="admin-panel-header">
+                <i class="fas fa-fire"></i>
+                <h5>Páginas Más Visitadas (7 días)</h5>
+            </div>
+            <div class="admin-panel-body">
+                {% if analytics.top_pages %}
+                    {% for page, views in analytics.top_pages %}
+                    <div class="admin-list-item">
+                        <div class="item-info">
+                            <i class="fas fa-link"></i>
+                            <span>{{ page if page != '/' else 'Inicio' }}</span>
+                        </div>
+                        <span class="admin-badge primary">{{ views }} vistas</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-center" style="color: var(--admin-text-muted);">No hay datos disponibles</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        <div class="row">
+            <div class="col-12 mb-3">
+                <div class="admin-panel">
+                    <div class="admin-panel-header">
+                        <i class="fab fa-chrome"></i>
+                        <h5>Navegadores (30 días)</h5>
+                    </div>
+                    <div class="admin-panel-body">
+                        {% if analytics.browsers %}
+                            {% for browser, count in analytics.browsers %}
+                            <div class="admin-list-item">
+                                <div class="item-info">
+                                    <i class="fab fa-{{ browser.lower() if browser.lower() in ['chrome', 'firefox', 'safari', 'edge', 'opera'] else 'globe' }}"></i>
+                                    <span>{{ browser.title() }}</span>
+                                </div>
+                                <span class="admin-badge success">{{ count }}</span>
                             </div>
                             {% endfor %}
-                        </div>
-                    {% else %}
-                        <p class="text-muted text-center">No hay datos disponibles</p>
-                    {% endif %}
+                        {% else %}
+                            <p class="text-center" style="color: var(--admin-text-muted);">No hay datos disponibles</p>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
-        </div>
-        
-        <div class="col-md-6">
-            <div class="row">
-                <div class="col-12 mb-3">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">
-                                <i class="fas fa-browser text-success"></i> Navegadores (30 días)
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            {% if analytics.browsers %}
-                                {% for browser, count in analytics.browsers %}
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="text-capitalize">
-                                        <i class="fab fa-{{ browser if browser != 'other' else 'internet-explorer' }} me-2"></i>
-                                        {{ browser.title() }}
-                                    </span>
-                                    <span class="badge bg-success">{{ count }}</span>
+            
+            <div class="col-12">
+                <div class="admin-panel">
+                    <div class="admin-panel-header">
+                        <i class="fas fa-mobile-alt"></i>
+                        <h5>Dispositivos (30 días)</h5>
+                    </div>
+                    <div class="admin-panel-body">
+                        {% if analytics.devices %}
+                            {% for device, count in analytics.devices %}
+                            <div class="admin-list-item">
+                                <div class="item-info">
+                                    <i class="fas fa-{{ 'mobile-alt' if device == 'mobile' else 'tablet-alt' if device == 'tablet' else 'desktop' }}"></i>
+                                    <span>{{ device.title() }}</span>
                                 </div>
-                                {% endfor %}
-                            {% else %}
-                                <p class="text-muted text-center">No hay datos disponibles</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">
-                                <i class="fas fa-mobile-alt text-info"></i> Dispositivos (30 días)
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            {% if analytics.devices %}
-                                {% for device, count in analytics.devices %}
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="text-capitalize">
-                                        <i class="fas fa-{{ 'mobile-alt' if device == 'mobile' else 'tablet-alt' if device == 'tablet' else 'desktop' }} me-2"></i>
-                                        {{ device.title() }}
-                                    </span>
-                                    <span class="badge bg-info">{{ count }}</span>
-                                </div>
-                                {% endfor %}
-                            {% else %}
-                                <p class="text-muted text-center">No hay datos disponibles</p>
-                            {% endif %}
-                        </div>
+                                <span class="admin-badge info">{{ count }}</span>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-center" style="color: var(--admin-text-muted);">No hay datos disponibles</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- Quick Actions -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Acciones Rápidas</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-2 mb-2">
-                            <a href="{{ url_for('admin.blog_new') }}" class="btn btn-primary w-100">
-                                <i class="bi bi-plus-circle"></i> Nuevo Post
-                            </a>
-                        </div>
-                        <div class="col-md-2 mb-2">
-                            <a href="{{ url_for('admin.course_new') }}" class="btn btn-success w-100">
-                                <i class="bi bi-plus-circle"></i> Nuevo Curso
-                            </a>
-                        </div>
-                        <div class="col-md-2 mb-2">
-                            <a href="{{ url_for('admin.project_new') }}" class="btn btn-info w-100">
-                                <i class="bi bi-plus-circle"></i> Nuevo Proyecto
-                            </a>
-                        </div>
-                        <div class="col-md-2 mb-2">
-                            <a href="{{ url_for('admin.site_config') }}" class="btn btn-secondary w-100">
-                                <i class="bi bi-gear"></i> Configuración
-                            </a>
-                        </div>
-                        <div class="col-md-2 mb-2">
-                            <a href="{{ url_for('admin.contact_list') }}" class="btn btn-warning w-100">
-                                <i class="bi bi-envelope"></i> Mensajes
-                            </a>
-                        </div>
-                        <div class="col-md-2 mb-2">
-                            <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary w-100">
-                                <i class="bi bi-eye"></i> Ver Sitio
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Recent Messages -->
-    {% if recent_messages %}
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Mensajes Recientes</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Email</th>
-                                    <th>Asunto</th>
-                                    <th>Fecha</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for message in recent_messages %}
-                                <tr class="{% if not message.read %}table-warning{% endif %}">
-                                    <td>{{ message.name }}</td>
-                                    <td>{{ message.email }}</td>
-                                    <td>{{ message.subject or 'Sin asunto' }}</td>
-                                    <td>{{ message.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
-                                    <td>
-                                        {% if message.read %}
-                                            <span class="badge bg-success">Leído</span>
-                                        {% else %}
-                                            <span class="badge bg-warning">Sin leer</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if not message.read %}
-                                        <a href="{{ url_for('admin.message_read', message_id=message.id) }}" 
-                                           class="btn btn-sm btn-outline-primary">Marcar como leído</a>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="text-center mt-3">
-                        <a href="{{ url_for('admin.contact_list') }}" class="btn btn-primary">Ver Todos los Mensajes</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
 </div>
+
+<!-- Quick Actions -->
+<div class="admin-panel mb-4">
+    <div class="admin-panel-header">
+        <i class="fas fa-bolt"></i>
+        <h5>Acciones Rápidas</h5>
+    </div>
+    <div class="admin-panel-body">
+        <div class="quick-actions">
+            <a href="{{ url_for('admin.blog_new') }}" class="admin-btn admin-btn-primary">
+                <i class="fas fa-plus"></i> Nuevo Post
+            </a>
+            <a href="{{ url_for('admin.course_new') }}" class="admin-btn admin-btn-success">
+                <i class="fas fa-plus"></i> Nuevo Curso
+            </a>
+            <a href="{{ url_for('admin.project_new') }}" class="admin-btn admin-btn-info">
+                <i class="fas fa-plus"></i> Nuevo Proyecto
+            </a>
+            <a href="{{ url_for('admin.site_config') }}" class="admin-btn admin-btn-secondary">
+                <i class="fas fa-cog"></i> Configuración
+            </a>
+            <a href="{{ url_for('admin.contact_list') }}" class="admin-btn admin-btn-warning">
+                <i class="fas fa-envelope"></i> Mensajes
+            </a>
+            <a href="{{ url_for('main.index') }}" class="admin-btn admin-btn-outline">
+                <i class="fas fa-eye"></i> Ver Sitio
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Messages -->
+{% if recent_messages %}
+<div class="admin-panel">
+    <div class="admin-panel-header">
+        <i class="fas fa-inbox"></i>
+        <h5>Mensajes Recientes</h5>
+    </div>
+    <div class="admin-panel-body" style="padding: 0;">
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Asunto</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for message in recent_messages %}
+                    <tr class="{% if not message.read %}unread{% endif %}">
+                        <td>{{ message.name }}</td>
+                        <td>{{ message.email }}</td>
+                        <td>{{ message.subject or 'Sin asunto' }}</td>
+                        <td>{{ message.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>
+                            {% if message.read %}
+                                <span class="admin-badge success">Leído</span>
+                            {% else %}
+                                <span class="admin-badge warning">Sin leer</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if not message.read %}
+                            <a href="{{ url_for('admin.message_read', message_id=message.id) }}" 
+                               class="admin-btn admin-btn-outline" style="padding: 5px 10px; font-size: 0.75rem;">
+                               Marcar como leído
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="text-center p-3">
+            <a href="{{ url_for('admin.contact_list') }}" class="admin-btn admin-btn-primary">
+                Ver Todos los Mensajes
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

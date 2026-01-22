@@ -1,10 +1,16 @@
 from flask import Blueprint, jsonify, request
+from flask_wtf.csrf import CSRFProtect
 from app.models.blog import BlogPost
 from app.models.course import Course
 from app.models.project import Project
 from app.models.site_config import SiteConfig
 
 api_bp = Blueprint('api', __name__)
+
+# Exentar todo el blueprint de CSRF (es una API)
+@api_bp.before_request
+def csrf_exempt():
+    pass  # Flask-WTF CSRFProtect ya maneja esto con decoradores
 
 @api_bp.route('/posts')
 def get_posts():

@@ -3,219 +3,205 @@
 {% block title %}Mi Dashboard - CodexSoto{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <!-- Header del dashboard -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card bg-gradient-primary text-white">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <img src="{{ current_user.get_avatar_url(80) }}" 
-                                 alt="{{ current_user.display_name }}" 
-                                 class="rounded-circle border border-white">
-                        </div>
-                        <div class="col">
-                            <h2 class="mb-1">¡Hola, {{ current_user.first_name or current_user.username }}!</h2>
-                            <p class="mb-0 opacity-75">Bienvenido a tu dashboard personal</p>
-                        </div>
-                    </div>
-                </div>
+<div class="user-dashboard" style="padding-top: 120px; min-height: 100vh;">
+    <div class="container">
+        <!-- Header del dashboard -->
+        <div class="dashboard-header" style="display: flex; align-items: center; gap: 25px; margin-bottom: 40px; padding: 30px; background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 15px;">
+            <div class="avatar-container" style="position: relative;">
+                <img src="{{ current_user.get_avatar_url(80) }}" 
+                     alt="{{ current_user.display_name }}" 
+                     style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--stark-cyan); box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);">
+                <div class="status-indicator" style="position: absolute; bottom: 5px; right: 5px; width: 15px; height: 15px; background: #00ff88; border-radius: 50%; border: 2px solid #000;"></div>
+            </div>
+            <div class="welcome-text">
+                <h1 style="font-family: 'Orbitron', monospace; font-size: 2rem; color: #fff; margin: 0;">
+                    ¡Hola, {{ current_user.first_name or current_user.username }}!
+                </h1>
+                <p style="color: #6c7a89; margin: 5px 0 0 0; font-size: 1rem;">
+                    Bienvenido a tu dashboard personal
+                </p>
             </div>
         </div>
-    </div>
-    
-    <!-- Estadísticas -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card text-center h-100">
-                <div class="card-body">
-                    <div class="text-primary mb-2">
+        
+        <!-- Estadísticas simplificadas -->
+        <div class="row mb-4">
+            <div class="col-md-4 mb-3">
+                <div class="stat-card-user" style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.08) 0%, rgba(0, 0, 0, 0.6) 100%); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 12px; padding: 25px; text-align: center; height: 100%; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #00d4ff, transparent);"></div>
+                    <div style="color: #00d4ff; margin-bottom: 15px;">
                         <i class="fas fa-heart fa-2x"></i>
                     </div>
-                    <h3 class="card-title">{{ favorites_count }}</h3>
-                    <p class="card-text text-muted">Favoritos</p>
-                    <a href="{{ url_for('user.favorites') }}" class="btn btn-outline-primary btn-sm">Ver todos</a>
+                    <h3 style="font-family: 'Orbitron', monospace; font-size: 2.5rem; color: #fff; margin: 0;">{{ favorites_count }}</h3>
+                    <p style="color: #6c7a89; margin: 5px 0 15px 0;">Favoritos</p>
+                    <a href="{{ url_for('user.favorites') }}" class="btn-user-action" style="display: inline-block; padding: 8px 20px; border: 1px solid var(--stark-cyan); color: var(--stark-cyan); border-radius: 5px; text-decoration: none; font-size: 0.85rem; transition: all 0.3s ease;">Ver todos</a>
                 </div>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center h-100">
-                <div class="card-body">
-                    <div class="text-success mb-2">
+            <div class="col-md-4 mb-3">
+                <div class="stat-card-user" style="background: linear-gradient(135deg, rgba(0, 255, 136, 0.08) 0%, rgba(0, 0, 0, 0.6) 100%); border: 1px solid rgba(0, 255, 136, 0.2); border-radius: 12px; padding: 25px; text-align: center; height: 100%; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #00ff88, transparent);"></div>
+                    <div style="color: #00ff88; margin-bottom: 15px;">
                         <i class="fas fa-comments fa-2x"></i>
                     </div>
-                    <h3 class="card-title">{{ comments_count }}</h3>
-                    <p class="card-text text-muted">Comentarios</p>
-                    <a href="{{ url_for('user.comments') }}" class="btn btn-outline-success btn-sm">Ver todos</a>
+                    <h3 style="font-family: 'Orbitron', monospace; font-size: 2.5rem; color: #fff; margin: 0;">{{ comments_count }}</h3>
+                    <p style="color: #6c7a89; margin: 5px 0 15px 0;">Comentarios</p>
+                    <a href="{{ url_for('user.comments') }}" class="btn-user-action" style="display: inline-block; padding: 8px 20px; border: 1px solid #00ff88; color: #00ff88; border-radius: 5px; text-decoration: none; font-size: 0.85rem; transition: all 0.3s ease;">Ver todos</a>
                 </div>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center h-100">
-                <div class="card-body">
-                    <div class="text-info mb-2">
-                        <i class="fas fa-user-check fa-2x"></i>
-                    </div>
-                    <h3 class="card-title">
-                        {% if current_user.is_premium() %}Premium{% else %}Básico{% endif %}
-                    </h3>
-                    <p class="card-text text-muted">Plan actual</p>
-                    {% if not current_user.is_premium() %}
-                    <a href="#" class="btn btn-outline-info btn-sm">Actualizar</a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center h-100">
-                <div class="card-body">
-                    <div class="text-warning mb-2">
+            <div class="col-md-4 mb-3">
+                <div class="stat-card-user" style="background: linear-gradient(135deg, rgba(255, 193, 7, 0.08) 0%, rgba(0, 0, 0, 0.6) 100%); border: 1px solid rgba(255, 193, 7, 0.2); border-radius: 12px; padding: 25px; text-align: center; height: 100%; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #ffc107, transparent);"></div>
+                    <div style="color: #ffc107; margin-bottom: 15px;">
                         <i class="fas fa-calendar fa-2x"></i>
                     </div>
-                    <h5 class="card-title">{{ current_user.created_at.strftime('%b %Y') }}</h5>
-                    <p class="card-text text-muted">Miembro desde</p>
-                    <small class="text-muted">{{ current_user.created_at.strftime('%d/%m/%Y') }}</small>
+                    <h3 style="font-family: 'Orbitron', monospace; font-size: 1.5rem; color: #fff; margin: 0;">{{ current_user.created_at.strftime('%b %Y').upper() }}</h3>
+                    <p style="color: #6c7a89; margin: 5px 0 15px 0;">Miembro desde</p>
+                    <span style="color: #6c7a89; font-size: 0.85rem;">{{ current_user.created_at.strftime('%d/%m/%Y') }}</span>
                 </div>
             </div>
         </div>
-    </div>
-    
-    <!-- Contenido principal -->
-    <div class="row">
-        <!-- Favoritos recientes -->
-        <div class="col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="fas fa-heart text-danger me-2"></i>Favoritos Recientes
-                    </h5>
-                    <a href="{{ url_for('user.favorites') }}" class="btn btn-sm btn-outline-primary">Ver todos</a>
-                </div>
-                <div class="card-body p-0">
-                    {% if recent_favorites %}
-                    <div class="list-group list-group-flush">
-                        {% for favorite in recent_favorites %}
-                        {% set content = favorite.get_content_object() %}
-                        {% if content %}
-                        <div class="list-group-item">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">{{ content.title }}</h6>
-                                    <p class="mb-1 text-muted small">
-                                        <span class="badge bg-light text-dark me-1">
+        
+        <!-- Contenido principal -->
+        <div class="row">
+            <!-- Favoritos recientes -->
+            <div class="col-lg-6 mb-4">
+                <div class="dashboard-panel" style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.05) 0%, rgba(0, 0, 0, 0.7) 100%); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 12px; overflow: hidden; height: 100%;">
+                    <div class="panel-header" style="background: rgba(0, 212, 255, 0.1); padding: 15px 20px; border-bottom: 1px solid rgba(0, 212, 255, 0.2); display: flex; justify-content: space-between; align-items: center;">
+                        <h5 style="font-family: 'Orbitron', monospace; font-size: 0.95rem; color: #ff6b6b; margin: 0; display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-heart"></i> FAVORITOS RECIENTES
+                        </h5>
+                        <a href="{{ url_for('user.favorites') }}" style="padding: 5px 15px; border: 1px solid var(--stark-cyan); color: var(--stark-cyan); border-radius: 4px; text-decoration: none; font-size: 0.8rem;">Ver todos</a>
+                    </div>
+                    <div class="panel-body" style="padding: 20px;">
+                        {% if recent_favorites %}
+                            {% for favorite in recent_favorites %}
+                            {% set content = favorite.get_content_object() %}
+                            {% if content %}
+                            <div class="favorite-item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(0, 212, 255, 0.1);">
+                                <div>
+                                    <h6 style="color: #fff; margin: 0 0 5px 0; font-size: 0.95rem;">{{ content.title }}</h6>
+                                    <div style="display: flex; gap: 10px; align-items: center;">
+                                        <span style="background: rgba(0, 212, 255, 0.2); color: var(--stark-cyan); padding: 2px 8px; border-radius: 3px; font-size: 0.7rem; text-transform: uppercase;">
                                             {% if favorite.content_type == 'blog' %}Blog
                                             {% elif favorite.content_type == 'course' %}Curso
                                             {% elif favorite.content_type == 'project' %}Proyecto
                                             {% endif %}
                                         </span>
-                                        {{ favorite.created_at.strftime('%d/%m/%Y') }}
-                                    </p>
+                                        <span style="color: #6c7a89; font-size: 0.8rem;">{{ favorite.created_at.strftime('%d/%m/%Y') }}</span>
+                                    </div>
                                 </div>
-                                <a href="{{ favorite._get_content_url(content) }}" class="btn btn-sm btn-outline-primary">Ver</a>
+                                <a href="{{ favorite._get_content_url(content) }}" style="padding: 5px 12px; border: 1px solid var(--stark-cyan); color: var(--stark-cyan); border-radius: 4px; text-decoration: none; font-size: 0.8rem;">Ver</a>
                             </div>
+                            {% endif %}
+                            {% endfor %}
+                        {% else %}
+                        <div class="empty-state" style="text-align: center; padding: 30px 20px;">
+                            <i class="fas fa-heart" style="font-size: 3rem; color: #2a3441; margin-bottom: 15px;"></i>
+                            <p style="color: #6c7a89; margin-bottom: 15px;">Aún no tienes favoritos</p>
+                            <a href="{{ url_for('main.blog') }}" style="display: inline-block; padding: 10px 25px; background: linear-gradient(135deg, var(--stark-cyan), #0099cc); color: #000; border-radius: 5px; text-decoration: none; font-weight: 600;">EXPLORAR CONTENIDO</a>
                         </div>
                         {% endif %}
-                        {% endfor %}
                     </div>
-                    {% else %}
-                    <div class="p-4 text-center text-muted">
-                        <i class="fas fa-heart-broken fa-3x mb-3 opacity-50"></i>
-                        <p>Aún no tienes favoritos</p>
-                        <a href="{{ url_for('main.blog') }}" class="btn btn-primary btn-sm">Explorar contenido</a>
-                    </div>
-                    {% endif %}
                 </div>
             </div>
-        </div>
-        
-        <!-- Comentarios recientes -->
-        <div class="col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="fas fa-comments text-success me-2"></i>Comentarios Recientes
-                    </h5>
-                    <a href="{{ url_for('user.comments') }}" class="btn btn-sm btn-outline-success">Ver todos</a>
-                </div>
-                <div class="card-body p-0">
-                    {% if recent_comments %}
-                    <div class="list-group list-group-flush">
-                        {% for comment in recent_comments %}
-                        {% set content = comment.get_content_object() %}
-                        {% if content %}
-                        <div class="list-group-item">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">{{ content.title }}</h6>
-                                    <p class="mb-1 small">{{ comment.content[:80] }}{% if comment.content|length > 80 %}...{% endif %}</p>
-                                    <p class="mb-0 text-muted small">
-                                        <span class="badge bg-light text-dark me-1">
+            
+            <!-- Comentarios recientes -->
+            <div class="col-lg-6 mb-4">
+                <div class="dashboard-panel" style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.05) 0%, rgba(0, 0, 0, 0.7) 100%); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 12px; overflow: hidden; height: 100%;">
+                    <div class="panel-header" style="background: rgba(0, 212, 255, 0.1); padding: 15px 20px; border-bottom: 1px solid rgba(0, 212, 255, 0.2); display: flex; justify-content: space-between; align-items: center;">
+                        <h5 style="font-family: 'Orbitron', monospace; font-size: 0.95rem; color: #00ff88; margin: 0; display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-comments"></i> COMENTARIOS RECIENTES
+                        </h5>
+                        <a href="{{ url_for('user.comments') }}" style="padding: 5px 15px; border: 1px solid var(--stark-cyan); color: var(--stark-cyan); border-radius: 4px; text-decoration: none; font-size: 0.8rem;">Ver todos</a>
+                    </div>
+                    <div class="panel-body" style="padding: 20px;">
+                        {% if recent_comments %}
+                            {% for comment in recent_comments %}
+                            {% set content = comment.get_content_object() %}
+                            {% if content %}
+                            <div class="comment-item" style="padding: 12px 0; border-bottom: 1px solid rgba(0, 212, 255, 0.1);">
+                                <h6 style="color: #fff; margin: 0 0 5px 0; font-size: 0.95rem;">{{ content.title }}</h6>
+                                <p style="color: #a0aec0; margin: 0 0 8px 0; font-size: 0.85rem;">{{ comment.content[:80] }}{% if comment.content|length > 80 %}...{% endif %}</p>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div style="display: flex; gap: 10px; align-items: center;">
+                                        <span style="background: rgba(0, 255, 136, 0.2); color: #00ff88; padding: 2px 8px; border-radius: 3px; font-size: 0.7rem; text-transform: uppercase;">
                                             {% if comment.content_type == 'blog' %}Blog
                                             {% elif comment.content_type == 'course' %}Curso
                                             {% elif comment.content_type == 'project' %}Proyecto
                                             {% endif %}
                                         </span>
-                                        {{ comment.created_at.strftime('%d/%m/%Y') }}
-                                    </p>
+                                        <span style="color: #6c7a89; font-size: 0.8rem;">{{ comment.created_at.strftime('%d/%m/%Y') }}</span>
+                                    </div>
+                                    <a href="{{ comment._get_content_url(content) }}" style="padding: 5px 12px; border: 1px solid #00ff88; color: #00ff88; border-radius: 4px; text-decoration: none; font-size: 0.8rem;">Ver</a>
                                 </div>
-                                <a href="{{ comment._get_content_url(content) }}" class="btn btn-sm btn-outline-success">Ver</a>
                             </div>
+                            {% endif %}
+                            {% endfor %}
+                        {% else %}
+                        <div class="empty-state" style="text-align: center; padding: 30px 20px;">
+                            <i class="fas fa-comments" style="font-size: 3rem; color: #2a3441; margin-bottom: 15px;"></i>
+                            <p style="color: #6c7a89; margin-bottom: 15px;">Aún no has comentado</p>
+                            <a href="{{ url_for('main.blog') }}" style="display: inline-block; padding: 10px 25px; background: linear-gradient(135deg, #00ff88, #00cc6a); color: #000; border-radius: 5px; text-decoration: none; font-weight: 600;">Participar en discusiones</a>
                         </div>
                         {% endif %}
-                        {% endfor %}
                     </div>
-                    {% else %}
-                    <div class="p-4 text-center text-muted">
-                        <i class="fas fa-comment-slash fa-3x mb-3 opacity-50"></i>
-                        <p>Aún no has comentado</p>
-                        <a href="{{ url_for('main.blog') }}" class="btn btn-success btn-sm">Participar en discusiones</a>
-                    </div>
-                    {% endif %}
                 </div>
             </div>
         </div>
-    </div>
-    
-    <!-- Acciones rápidas -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-bolt text-warning me-2"></i>Acciones Rápidas
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-md-3 mb-3">
-                            <a href="{{ url_for('user.edit_profile') }}" class="btn btn-outline-primary w-100">
-                                <i class="fas fa-user-edit d-block mb-2 fa-2x"></i>
-                                Editar Perfil
-                            </a>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <a href="{{ url_for('user.change_password') }}" class="btn btn-outline-secondary w-100">
-                                <i class="fas fa-key d-block mb-2 fa-2x"></i>
-                                Cambiar Contraseña
-                            </a>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <a href="{{ url_for('main.courses') }}" class="btn btn-outline-info w-100">
-                                <i class="fas fa-graduation-cap d-block mb-2 fa-2x"></i>
-                                Explorar Cursos
-                            </a>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <a href="{{ url_for('user.profile') }}" class="btn btn-outline-success w-100">
-                                <i class="fas fa-eye d-block mb-2 fa-2x"></i>
-                                Ver Mi Perfil
-                            </a>
-                        </div>
+        
+        <!-- Acciones rápidas -->
+        <div class="dashboard-panel" style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.05) 0%, rgba(0, 0, 0, 0.7) 100%); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 12px; overflow: hidden; margin-bottom: 30px;">
+            <div class="panel-header" style="background: rgba(0, 212, 255, 0.1); padding: 15px 20px; border-bottom: 1px solid rgba(0, 212, 255, 0.2);">
+                <h5 style="font-family: 'Orbitron', monospace; font-size: 0.95rem; color: #ffc107; margin: 0; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-bolt"></i> ACCIONES RÁPIDAS
+                </h5>
+            </div>
+            <div class="panel-body" style="padding: 25px;">
+                <div class="row">
+                    <div class="col-md-3 col-6 mb-3">
+                        <a href="{{ url_for('user.edit_profile') }}" class="quick-action-btn" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 25px 15px; background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 10px; text-decoration: none; transition: all 0.3s ease;">
+                            <i class="fas fa-user-edit" style="font-size: 2rem; color: var(--stark-cyan); margin-bottom: 10px;"></i>
+                            <span style="color: var(--stark-cyan); font-size: 0.9rem;">Editar Perfil</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <a href="{{ url_for('user.change_password') }}" class="quick-action-btn" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 25px 15px; background: rgba(108, 122, 137, 0.1); border: 1px solid rgba(108, 122, 137, 0.3); border-radius: 10px; text-decoration: none; transition: all 0.3s ease;">
+                            <i class="fas fa-key" style="font-size: 2rem; color: #6c7a89; margin-bottom: 10px;"></i>
+                            <span style="color: #a0aec0; font-size: 0.9rem;">Cambiar Contraseña</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <a href="{{ url_for('main.courses') }}" class="quick-action-btn" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 25px 15px; background: rgba(0, 255, 136, 0.05); border: 1px solid rgba(0, 255, 136, 0.2); border-radius: 10px; text-decoration: none; transition: all 0.3s ease;">
+                            <i class="fas fa-graduation-cap" style="font-size: 2rem; color: #00ff88; margin-bottom: 10px;"></i>
+                            <span style="color: #00ff88; font-size: 0.9rem;">Explorar Cursos</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <a href="{{ url_for('user.profile') }}" class="quick-action-btn" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 25px 15px; background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 10px; text-decoration: none; transition: all 0.3s ease;">
+                            <i class="fas fa-eye" style="font-size: 2rem; color: #00ff88; margin-bottom: 10px;"></i>
+                            <span style="color: #00ff88; font-size: 0.9rem;">Ver Mi Perfil</span>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+.btn-user-action:hover {
+    background: var(--stark-cyan) !important;
+    color: #000 !important;
+}
+
+.quick-action-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+    border-color: var(--stark-cyan) !important;
+}
+
+.favorite-item:last-child,
+.comment-item:last-child {
+    border-bottom: none !important;
+}
+</style>
 {% endblock %}

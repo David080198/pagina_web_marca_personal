@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+{% block title %}{{ tech.name }} - {{ _('Technologies') }} - CODEXSOTO{% endblock %}
+
+{% block content %}
+<section class="technology-detail" style="padding-top: 120px; min-height: 100vh;">
+    <div class="container">
+        <!-- Breadcrumb -->
+        <nav class="tech-breadcrumb" style="margin-bottom: 30px;">
+            <a href="{{ url_for('main.index') }}">{{ _('Home') }}</a>
+            <span class="separator">/</span>
+            <a href="{{ url_for('technologies.index') }}">{{ _('Technologies') }}</a>
+            <span class="separator">/</span>
+            <span class="current">{{ tech.name }}</span>
+        </nav>
+        
+        <!-- Hero Section -->
+        <div class="tech-hero" style="margin-bottom: 50px;">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="tech-icon-large" style="width: 80px; height: 80px; background: rgba(0, 212, 255, 0.1); border: 2px solid {{ tech.color }}; border-radius: 15px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+                        <i class="{{ tech.icon }}" style="font-size: 2.5rem; color: {{ tech.color }};"></i>
+                    </div>
+                    <h1 class="tech-title" style="font-family: 'Orbitron', monospace; font-size: 3rem; color: #fff; margin-bottom: 10px;">
+                        {{ tech.name }}
+                    </h1>
+                    {% if tech.get('name_full') %}
+                    <p class="tech-fullname" style="color: var(--stark-cyan); font-size: 1.2rem; margin-bottom: 20px;">
+                        {{ tech.name_full }}
+                    </p>
+                    {% endif %}
+                    <p class="tech-description" style="font-size: 1.1rem; color: #a0aec0; line-height: 1.8;">
+                        {% if g.get('lang_code') == 'es' %}
+                            {{ tech.description }}
+                        {% else %}
+                            {{ tech.description_en }}
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-lg-4">
+                    <div class="tiobe-card" style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 15px; padding: 30px; text-align: center;">
+                        <div class="tiobe-label" style="font-family: 'Orbitron', monospace; font-size: 0.8rem; color: var(--stark-cyan); letter-spacing: 2px; margin-bottom: 10px;">
+                            {% if tech.tiobe_rank %}TIOBE INDEX{% else %}{{ _('RATING') }}{% endif %}
+                        </div>
+                        {% if tech.tiobe_rank %}
+                        <div class="tiobe-rank" style="font-family: 'Orbitron', monospace; font-size: 4rem; font-weight: 700; color: #fff; line-height: 1;">
+                            #{{ tech.tiobe_rank }}
+                        </div>
+                        {% endif %}
+                        <div class="tiobe-rating" style="font-size: 1.5rem; color: var(--stark-cyan); margin-top: 10px;">
+                            {{ tech.tiobe_rating }}
+                        </div>
+                        {% if tech.tiobe_rank %}
+                        <div class="tiobe-source" style="font-size: 0.75rem; color: #6c7a89; margin-top: 15px;">
+                            {{ _('Source') }}: TIOBE Index 2026
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <!-- Uses Section -->
+                <div class="tech-section" style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.05) 0%, rgba(0, 0, 0, 0.7) 100%); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 15px; padding: 30px; margin-bottom: 30px;">
+                    <h2 class="section-title" style="font-family: 'Orbitron', monospace; font-size: 1.3rem; color: var(--stark-cyan); margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-rocket"></i> {{ _('Main Uses') }}
+                    </h2>
+                    <div class="uses-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                        {% set uses = tech.uses if g.get('lang_code') == 'es' else tech.uses_en %}
+                        {% for use in uses %}
+                        <div class="use-item" style="background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.1); border-radius: 10px; padding: 15px; display: flex; align-items: center; gap: 12px; transition: all 0.3s ease;">
+                            <div class="use-icon" style="width: 35px; height: 35px; background: rgba(0, 212, 255, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="fas fa-check" style="color: var(--stark-cyan); font-size: 0.9rem;"></i>
+                            </div>
+                            <span style="color: #e0e6ed; font-size: 0.95rem;">{{ use }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Applications Section -->
+                <div class="tech-section" style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.05) 0%, rgba(0, 0, 0, 0.7) 100%); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 15px; padding: 30px; margin-bottom: 30px;">
+                    <h2 class="section-title" style="font-family: 'Orbitron', monospace; font-size: 1.3rem; color: var(--stark-cyan); margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-building"></i> {{ _('Real World Applications') }}
+                    </h2>
+                    <div class="apps-list">
+                        {% for app in tech.applications %}
+                        <div class="app-item" style="display: flex; align-items: center; gap: 15px; padding: 15px 0; border-bottom: 1px solid rgba(0, 212, 255, 0.1);">
+                            <div class="app-logo" style="width: 50px; height: 50px; background: linear-gradient(135deg, {{ tech.color }}33, {{ tech.color }}11); border: 1px solid {{ tech.color }}44; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-cube" style="color: {{ tech.color }}; font-size: 1.2rem;"></i>
+                            </div>
+                            <div class="app-info">
+                                <div class="app-name" style="font-family: 'Rajdhani', sans-serif; font-weight: 600; color: #fff; font-size: 1.1rem;">{{ app.name }}</div>
+                                <div class="app-desc" style="color: #6c7a89; font-size: 0.9rem;">{{ app.desc }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- My Experience -->
+                <div class="tech-section" style="background: linear-gradient(135deg, rgba(0, 255, 136, 0.05) 0%, rgba(0, 0, 0, 0.7) 100%); border: 1px solid rgba(0, 255, 136, 0.3); border-radius: 15px; padding: 25px; margin-bottom: 30px;">
+                    <h3 class="section-title" style="font-family: 'Orbitron', monospace; font-size: 1rem; color: #00ff88; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-user-astronaut"></i> {{ _('My Experience') }}
+                    </h3>
+                    <p style="color: #a0aec0; font-size: 0.95rem; line-height: 1.7;">
+                        {% if g.get('lang_code') == 'es' %}
+                            {{ tech.my_experience }}
+                        {% else %}
+                            {{ tech.my_experience_en }}
+                        {% endif %}
+                    </p>
+                    <a href="{{ url_for('main.contact') }}" class="btn-contact-tech" style="display: inline-flex; align-items: center; gap: 8px; margin-top: 15px; padding: 10px 20px; background: linear-gradient(135deg, #00ff88, #00cc6a); color: #000; border-radius: 8px; font-weight: 600; text-decoration: none; transition: all 0.3s ease;">
+                        <i class="fas fa-envelope"></i> {{ _('Contact Me') }}
+                    </a>
+                </div>
+                
+                <!-- Other Technologies -->
+                <div class="tech-section" style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.05) 0%, rgba(0, 0, 0, 0.7) 100%); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 15px; padding: 25px;">
+                    <h3 class="section-title" style="font-family: 'Orbitron', monospace; font-size: 1rem; color: var(--stark-cyan); margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-th"></i> {{ _('Other Technologies') }}
+                    </h3>
+                    <div class="other-techs" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                        {% for slug, t in all_technologies.items() %}
+                        {% if slug != tech.slug %}
+                        <a href="{{ url_for('technologies.detail', slug=slug) }}" class="other-tech-tag" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 6px; color: #a0aec0; text-decoration: none; font-size: 0.85rem; transition: all 0.3s ease;">
+                            <i class="{{ t.icon }}" style="color: {{ t.color }};"></i>
+                            {{ t.name }}
+                        </a>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- CTA Section -->
+        <div class="tech-cta" style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 15px; padding: 40px; margin-top: 30px; text-align: center;">
+            <h3 style="font-family: 'Orbitron', monospace; font-size: 1.5rem; color: #fff; margin-bottom: 15px;">
+                {{ _('Need a project with') }} {{ tech.name }}?
+            </h3>
+            <p style="color: #a0aec0; margin-bottom: 25px;">
+                {{ _('Let\'s work together to build something amazing.') }}
+            </p>
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <a href="{{ url_for('main.contact') }}" class="stark-btn primary" style="padding: 12px 30px;">
+                    <i class="fas fa-paper-plane"></i> {{ _('Contact') }}
+                </a>
+                <a href="{{ url_for('main.projects') }}" class="stark-btn secondary" style="padding: 12px 30px;">
+                    <i class="fas fa-folder-open"></i> {{ _('View Projects') }}
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.tech-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+}
+
+.tech-breadcrumb a {
+    color: #6c7a89;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.tech-breadcrumb a:hover {
+    color: var(--stark-cyan);
+}
+
+.tech-breadcrumb .separator {
+    color: #6c7a89;
+}
+
+.tech-breadcrumb .current {
+    color: var(--stark-cyan);
+}
+
+.use-item:hover {
+    background: rgba(0, 212, 255, 0.1) !important;
+    border-color: rgba(0, 212, 255, 0.3) !important;
+    transform: translateX(5px);
+}
+
+.app-item:last-child {
+    border-bottom: none !important;
+}
+
+.app-item:hover .app-name {
+    color: var(--stark-cyan);
+}
+
+.other-tech-tag:hover {
+    background: rgba(0, 212, 255, 0.2) !important;
+    border-color: var(--stark-cyan) !important;
+    color: var(--stark-cyan) !important;
+    transform: translateY(-2px);
+}
+
+.btn-contact-tech:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 255, 136, 0.4);
+}
+
+.stark-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.stark-btn.primary {
+    background: linear-gradient(135deg, var(--stark-cyan), #0099cc);
+    color: #000;
+}
+
+.stark-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+}
+
+.stark-btn.secondary {
+    background: transparent;
+    border: 1px solid var(--stark-cyan);
+    color: var(--stark-cyan);
+}
+
+.stark-btn.secondary:hover {
+    background: var(--stark-cyan);
+    color: #000;
+}
+
+@media (max-width: 768px) {
+    .tech-title {
+        font-size: 2rem !important;
+    }
+    
+    .tiobe-card {
+        margin-top: 30px;
+    }
+    
+    .tiobe-rank {
+        font-size: 3rem !important;
+    }
+}
+</style>
+{% endblock %}
