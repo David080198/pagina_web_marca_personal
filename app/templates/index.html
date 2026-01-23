@@ -22,16 +22,18 @@
             <div class="col-lg-6">
                 <div class="hero-visual animate-fade-in-right">
                     <div class="code-card">
-                        <div class="code-card-header"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span><span class="filename">stark_system.py</span></div>
-                        <div class="code-card-body"><pre><code><span class="keyword">class</span> <span class="class-name">StarkDeveloper</span>:
+                        <div class="code-card-header"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span><span class="filename">llm_engineer.py</span></div>
+                        <div class="code-card-body"><pre><code><span class="keyword">from</span> <span class="class-name">transformers</span> <span class="keyword">import</span> AutoTokenizer
+
+<span class="keyword">class</span> <span class="class-name">AIEngineer</span>:
     <span class="keyword">def</span> <span class="function">__init__</span>(self):
         self.name = <span class="string">"David Soto"</span>
         self.alias = <span class="string">"CODEXSOTO"</span>
-        self.tech = [<span class="string">"Python"</span>, <span class="string">"AI"</span>, <span class="string">"Web"</span>]
-        self.status = <span class="string">"ONLINE"</span>
+        self.expertise = [<span class="string">"LLMs"</span>, <span class="string">"NLP"</span>, <span class="string">"Automation"</span>]
+        self.status = <span class="string">"TRAINING"</span>
 
-jarvis = StarkDeveloper()
-jarvis.initialize_systems()</code></pre></div>
+engineer = AIEngineer()
+engineer.fine_tune_models()</code></pre></div>
                     </div>
                 </div>
             </div>
