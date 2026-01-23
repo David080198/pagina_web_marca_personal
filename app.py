@@ -108,6 +108,7 @@ def create_app():
     print("=== REGISTRANDO BLUEPRINTS ===")
     from app.blueprints.main import main_bp
     from app.blueprints.auth import auth_bp
+    from app.blueprints.password_reset import password_reset_bp
     from app.blueprints.admin import admin_bp
     from app.blueprints.user import user_bp
     from app.blueprints.api import api_bp
@@ -132,6 +133,7 @@ def create_app():
     print("main_bp registrado")
     
     app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(password_reset_bp, url_prefix='/auth')
     app.register_blueprint(admin_bp, url_prefix='/admin')
     app.register_blueprint(user_bp)  # Ya tiene url_prefix='/user' definido
     app.register_blueprint(api_bp, url_prefix='/api')

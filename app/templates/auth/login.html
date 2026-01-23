@@ -113,6 +113,12 @@
                             </button>
                         </div>
                         
+                        <div class="text-center mb-3">
+                            <a href="{{ url_for('password_reset.forgot_password') }}" class="text-muted small">
+                                <i class="fas fa-key"></i> {{ _('Forgot password?') }}
+                            </a>
+                        </div>
+                        
                         <div class="text-center">
                             <p class="mb-0">{{ _('Don\'t have an account?') }} 
                                 <a href="{{ url_for('auth.register') }}">{{ _('Register here') }}</a>
