@@ -8,9 +8,279 @@
     </a>
 </div>
 
+<!-- Estilos del Editor Markdown -->
+<style>
+.markdown-editor-container {
+    border: 1px solid #374151;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #1f2937;
+}
+
+.markdown-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 10px;
+    background: #111827;
+    border-bottom: 1px solid #374151;
+}
+
+.markdown-toolbar .btn-toolbar {
+    padding: 6px 10px;
+    border: 1px solid #374151;
+    background: #1f2937;
+    color: #e5e7eb;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.markdown-toolbar .btn-toolbar:hover {
+    background: #374151;
+    border-color: #00d4ff;
+    color: #00d4ff;
+}
+
+.markdown-toolbar .separator {
+    width: 1px;
+    background: #374151;
+    margin: 0 5px;
+}
+
+.editor-preview-container {
+    display: flex;
+    min-height: 500px;
+}
+
+.editor-pane, .preview-pane {
+    flex: 1;
+    min-height: 500px;
+}
+
+.editor-pane {
+    border-right: 1px solid #374151;
+}
+
+.editor-pane textarea {
+    width: 100%;
+    height: 100%;
+    min-height: 500px;
+    padding: 15px;
+    border: none;
+    background: #1f2937;
+    color: #e5e7eb;
+    font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    resize: none;
+}
+
+.editor-pane textarea:focus {
+    outline: none;
+}
+
+.preview-pane {
+    padding: 15px;
+    background: #111827;
+    overflow-y: auto;
+    color: #e5e7eb;
+}
+
+.preview-pane h1, .preview-pane h2, .preview-pane h3, 
+.preview-pane h4, .preview-pane h5, .preview-pane h6 {
+    color: #00d4ff;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+}
+
+.preview-pane h1 { font-size: 2em; border-bottom: 1px solid #374151; padding-bottom: 0.3em; }
+.preview-pane h2 { font-size: 1.5em; border-bottom: 1px solid #374151; padding-bottom: 0.3em; }
+.preview-pane h3 { font-size: 1.25em; }
+
+.preview-pane p { margin-bottom: 1em; line-height: 1.7; }
+
+.preview-pane code {
+    background: #374151;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9em;
+}
+
+.preview-pane pre {
+    background: #0d1117;
+    padding: 15px;
+    border-radius: 8px;
+    overflow-x: auto;
+    border: 1px solid #374151;
+}
+
+.preview-pane pre code {
+    background: none;
+    padding: 0;
+}
+
+.preview-pane blockquote {
+    border-left: 4px solid #00d4ff;
+    padding-left: 15px;
+    margin: 1em 0;
+    color: #9ca3af;
+    font-style: italic;
+}
+
+.preview-pane img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 1em 0;
+}
+
+.preview-pane ul, .preview-pane ol {
+    margin: 1em 0;
+    padding-left: 2em;
+}
+
+.preview-pane li { margin-bottom: 0.5em; }
+
+.preview-pane a {
+    color: #00d4ff;
+    text-decoration: none;
+}
+
+.preview-pane a:hover {
+    text-decoration: underline;
+}
+
+.preview-pane table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+}
+
+.preview-pane th, .preview-pane td {
+    border: 1px solid #374151;
+    padding: 10px;
+    text-align: left;
+}
+
+.preview-pane th {
+    background: #1f2937;
+    color: #00d4ff;
+}
+
+.preview-pane hr {
+    border: none;
+    border-top: 1px solid #374151;
+    margin: 2em 0;
+}
+
+.preview-label {
+    font-size: 12px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 5px 15px;
+    background: #0d1117;
+    border-bottom: 1px solid #374151;
+}
+
+.editor-label {
+    font-size: 12px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 5px 15px;
+    background: #0d1117;
+    border-bottom: 1px solid #374151;
+}
+
+/* Image upload modal */
+.image-upload-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.image-upload-modal.active {
+    display: flex;
+}
+
+.image-upload-content {
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 12px;
+    padding: 25px;
+    max-width: 500px;
+    width: 90%;
+}
+
+.image-upload-content h4 {
+    color: #00d4ff;
+    margin-bottom: 20px;
+}
+
+.upload-zone {
+    border: 2px dashed #374151;
+    border-radius: 8px;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.upload-zone:hover, .upload-zone.dragover {
+    border-color: #00d4ff;
+    background: rgba(0, 212, 255, 0.1);
+}
+
+.upload-zone i {
+    font-size: 48px;
+    color: #6b7280;
+    margin-bottom: 15px;
+}
+
+.upload-progress {
+    display: none;
+    margin-top: 15px;
+}
+
+.upload-progress .progress {
+    height: 8px;
+    background: #374151;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.upload-progress .progress-bar {
+    background: #00d4ff;
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s;
+}
+
+@media (max-width: 768px) {
+    .editor-preview-container {
+        flex-direction: column;
+    }
+    .editor-pane {
+        border-right: none;
+        border-bottom: 1px solid #374151;
+    }
+}
+</style>
+
 <div class="card">
     <div class="card-body">
-        <form method="POST" enctype="multipart/form-data">
+        <form method="POST" enctype="multipart/form-data" id="blogForm">
             <div class="row">
                 <div class="col-md-6">
                     <div class="mb-3">
@@ -35,10 +305,83 @@
                 <div class="form-text">Breve descripción del post</div>
             </div>
             
+            <!-- Editor Markdown Mejorado -->
             <div class="mb-3">
-                <label for="content" class="form-label">Contenido *</label>
-                <textarea class="form-control" id="content" name="content" rows="15" required>{{ post.content if post else '' }}</textarea>
-                <div class="form-text">Puedes usar HTML y Markdown</div>
+                <label class="form-label">Contenido * <span class="badge bg-info">Markdown</span></label>
+                
+                <div class="markdown-editor-container">
+                    <!-- Toolbar -->
+                    <div class="markdown-toolbar">
+                        <button type="button" class="btn-toolbar" onclick="insertMarkdown('bold')" title="Negrita (Ctrl+B)">
+                            <i class="fas fa-bold"></i>
+                        </button>
+                        <button type="button" class="btn-toolbar" onclick="insertMarkdown('italic')" title="Cursiva (Ctrl+I)">
+                            <i class="fas fa-italic"></i>
+                        </button>
+                        <button type="button" class="btn-toolbar" onclick="insertMarkdown('strikethrough')" title="Tachado">
+                            <i class="fas fa-strikethrough"></i>
+                        </button>
+                        <div class="separator"></div>
+                        <button type="button" class="btn-toolbar" onclick="insertMarkdown('h1')" title="Título H1">
+                            <b>H1</b>
+                        </button>
+                        <button type="button" class="btn-toolbar" onclick="insertMarkdown('h2')" title="Título H2">
+                            <b>H2</b>
+                        </button>
+                        <button type="button" class="btn-toolbar" onclick="insertMarkdown('h3')" title="Título H3">
+                            <b>H3</b>
+                        </button>
+                        <div class="separator"></div>
+                        <button type="button" class="btn-toolbar" onclick="insertMarkdown('ul')" title="Lista">
+                            <i class="fas fa-list-ul"></i>
+                        </button>
+                        <button type="button" class="btn-toolbar" onclick="insertMarkdown('ol')" title="Lista numerada">
+                            <i class="fas fa-list-ol"></i>
+                        </button>
+                        <button type="button" class="btn-toolbar" onclick="insertMarkdown('checklist')" title="Checklist">
+                            <i class="fas fa-tasks"></i>
+                        </button>
+                        <div class="separator"></div>
+                        <button type="button" class="btn-toolbar" onclick="insertMarkdown('link')" title="Enlace">
+                            <i class="fas fa-link"></i>
+                        </button>
+                        <button type="button" class="btn-toolbar" onclick="openImageUpload()" title="Insertar imagen">
+                            <i class="fas fa-image"></i>
+                        </button>
+                        <button type="button" class="btn-toolbar" onclick="insertMarkdown('code')" title="Código inline">
+                            <i class="fas fa-code"></i>
+                        </button>
+                        <button type="button" class="btn-toolbar" onclick="insertMarkdown('codeblock')" title="Bloque de código">
+                            <i class="fas fa-file-code"></i>
+                        </button>
+                        <div class="separator"></div>
+                        <button type="button" class="btn-toolbar" onclick="insertMarkdown('quote')" title="Cita">
+                            <i class="fas fa-quote-left"></i>
+                        </button>
+                        <button type="button" class="btn-toolbar" onclick="insertMarkdown('hr')" title="Línea horizontal">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <button type="button" class="btn-toolbar" onclick="insertMarkdown('table')" title="Tabla">
+                            <i class="fas fa-table"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Editor y Preview -->
+                    <div class="editor-preview-container">
+                        <div class="editor-pane">
+                            <div class="editor-label">✏️ Editor Markdown</div>
+                            <textarea id="content" name="content" required>{{ post.content if post else '' }}</textarea>
+                        </div>
+                        <div class="preview-pane">
+                            <div class="preview-label">👁️ Vista Previa</div>
+                            <div id="preview-content"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-text mt-2">
+                    <i class="fas fa-info-circle"></i> Usa Markdown para formatear tu contenido. 
+                    <a href="https://www.markdownguide.org/cheat-sheet/" target="_blank" style="color: #00d4ff;">Ver guía de Markdown</a>
+                </div>
             </div>
             
             <div class="row">
@@ -52,10 +395,10 @@
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label for="image_file" class="form-label">Imagen del Post</label>
+                        <label for="image_file" class="form-label">Imagen de Portada</label>
                         <input type="file" class="form-control" id="image_file" name="image_file" 
                                accept="image/*">
-                        <div class="form-text">Formatos soportados: JPG, PNG, WebP (máx. 5MB)</div>
+                        <div class="form-text">Imagen principal del post (JPG, PNG, WebP - máx. 5MB)</div>
                         {% if post and post.image_url %}
                         <div class="mt-2">
                             <small class="text-muted">Imagen actual:</small><br>
@@ -94,7 +437,7 @@
                 </a>
                 {% if post %}
                 <button type="button" class="btn btn-info" onclick="previewPost()">
-                    <i class="fas fa-eye"></i> Vista Previa
+                    <i class="fas fa-external-link-alt"></i> Ver en sitio
                 </button>
                 {% endif %}
             </div>
@@ -102,7 +445,313 @@
     </div>
 </div>
 
+<!-- Modal para subir imágenes -->
+<div class="image-upload-modal" id="imageUploadModal">
+    <div class="image-upload-content">
+        <h4><i class="fas fa-image"></i> Insertar Imagen</h4>
+        
+        <ul class="nav nav-tabs mb-3" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#uploadTab">Subir archivo</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#urlTab">URL externa</button>
+            </li>
+        </ul>
+        
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="uploadTab">
+                <div class="upload-zone" id="uploadZone">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p class="mb-0">Arrastra una imagen aquí o haz clic para seleccionar</p>
+                    <small class="text-muted">JPG, PNG, GIF, WebP (máx. 5MB)</small>
+                    <input type="file" id="imageUploadInput" accept="image/*" style="display:none;">
+                </div>
+                <div class="upload-progress" id="uploadProgress">
+                    <div class="progress">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                    <small class="text-muted">Subiendo imagen...</small>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="urlTab">
+                <div class="mb-3">
+                    <label class="form-label">URL de la imagen</label>
+                    <input type="url" class="form-control" id="imageUrlInput" placeholder="https://ejemplo.com/imagen.jpg">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Texto alternativo (opcional)</label>
+                    <input type="text" class="form-control" id="imageAltInput" placeholder="Descripción de la imagen">
+                </div>
+                <button type="button" class="btn btn-primary" onclick="insertImageFromUrl()">
+                    <i class="fas fa-plus"></i> Insertar
+                </button>
+            </div>
+        </div>
+        
+        <div class="mt-3 text-end">
+            <button type="button" class="btn btn-secondary" onclick="closeImageUpload()">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Marked.js para parsear Markdown -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
 <script>
+// Configurar marked.js
+marked.setOptions({
+    breaks: true,
+    gfm: true,
+    headerIds: true,
+    mangle: false
+});
+
+const contentEditor = document.getElementById('content');
+const previewContent = document.getElementById('preview-content');
+
+// Actualizar vista previa en tiempo real
+function updatePreview() {
+    const markdown = contentEditor.value;
+    previewContent.innerHTML = marked.parse(markdown);
+}
+
+// Event listener para actualizar preview
+contentEditor.addEventListener('input', updatePreview);
+
+// Inicializar preview
+updatePreview();
+
+// Insertar markdown según el tipo
+function insertMarkdown(type) {
+    const textarea = contentEditor;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = textarea.value.substring(start, end);
+    let insertion = '';
+    let cursorOffset = 0;
+    
+    switch(type) {
+        case 'bold':
+            insertion = `**${selectedText || 'texto en negrita'}**`;
+            cursorOffset = selectedText ? insertion.length : 2;
+            break;
+        case 'italic':
+            insertion = `*${selectedText || 'texto en cursiva'}*`;
+            cursorOffset = selectedText ? insertion.length : 1;
+            break;
+        case 'strikethrough':
+            insertion = `~~${selectedText || 'texto tachado'}~~`;
+            cursorOffset = selectedText ? insertion.length : 2;
+            break;
+        case 'h1':
+            insertion = `# ${selectedText || 'Título 1'}\n`;
+            cursorOffset = 2;
+            break;
+        case 'h2':
+            insertion = `## ${selectedText || 'Título 2'}\n`;
+            cursorOffset = 3;
+            break;
+        case 'h3':
+            insertion = `### ${selectedText || 'Título 3'}\n`;
+            cursorOffset = 4;
+            break;
+        case 'ul':
+            insertion = `- ${selectedText || 'Elemento de lista'}\n`;
+            cursorOffset = 2;
+            break;
+        case 'ol':
+            insertion = `1. ${selectedText || 'Elemento numerado'}\n`;
+            cursorOffset = 3;
+            break;
+        case 'checklist':
+            insertion = `- [ ] ${selectedText || 'Tarea pendiente'}\n`;
+            cursorOffset = 6;
+            break;
+        case 'link':
+            insertion = `[${selectedText || 'texto del enlace'}](url)`;
+            cursorOffset = selectedText ? insertion.length - 4 : 1;
+            break;
+        case 'image':
+            insertion = `![${selectedText || 'descripción'}](url)`;
+            cursorOffset = selectedText ? insertion.length - 4 : 2;
+            break;
+        case 'code':
+            insertion = `\`${selectedText || 'código'}\``;
+            cursorOffset = 1;
+            break;
+        case 'codeblock':
+            insertion = `\n\`\`\`python\n${selectedText || '# Tu código aquí'}\n\`\`\`\n`;
+            cursorOffset = 10;
+            break;
+        case 'quote':
+            insertion = `> ${selectedText || 'Cita o nota'}\n`;
+            cursorOffset = 2;
+            break;
+        case 'hr':
+            insertion = `\n---\n`;
+            cursorOffset = insertion.length;
+            break;
+        case 'table':
+            insertion = `\n| Columna 1 | Columna 2 | Columna 3 |\n|-----------|-----------|----------|\n| Celda 1   | Celda 2   | Celda 3  |\n| Celda 4   | Celda 5   | Celda 6  |\n`;
+            cursorOffset = insertion.length;
+            break;
+    }
+    
+    // Insertar texto
+    textarea.value = textarea.value.substring(0, start) + insertion + textarea.value.substring(end);
+    
+    // Posicionar cursor
+    textarea.focus();
+    const newPosition = start + cursorOffset;
+    textarea.setSelectionRange(newPosition, newPosition);
+    
+    // Actualizar preview
+    updatePreview();
+}
+
+// Modal de imagen
+function openImageUpload() {
+    document.getElementById('imageUploadModal').classList.add('active');
+}
+
+function closeImageUpload() {
+    document.getElementById('imageUploadModal').classList.remove('active');
+    document.getElementById('imageUrlInput').value = '';
+    document.getElementById('imageAltInput').value = '';
+}
+
+// Insertar imagen desde URL
+function insertImageFromUrl() {
+    const url = document.getElementById('imageUrlInput').value;
+    const alt = document.getElementById('imageAltInput').value || 'imagen';
+    
+    if (url) {
+        const markdown = `![${alt}](${url})`;
+        insertAtCursor(markdown);
+        closeImageUpload();
+    }
+}
+
+// Insertar texto en la posición del cursor
+function insertAtCursor(text) {
+    const textarea = contentEditor;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    
+    textarea.value = textarea.value.substring(0, start) + text + textarea.value.substring(end);
+    textarea.focus();
+    textarea.setSelectionRange(start + text.length, start + text.length);
+    updatePreview();
+}
+
+// Drag and drop para imágenes
+const uploadZone = document.getElementById('uploadZone');
+const imageUploadInput = document.getElementById('imageUploadInput');
+
+uploadZone.addEventListener('click', () => imageUploadInput.click());
+
+uploadZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadZone.classList.add('dragover');
+});
+
+uploadZone.addEventListener('dragleave', () => {
+    uploadZone.classList.remove('dragover');
+});
+
+uploadZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove('dragover');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        uploadImage(files[0]);
+    }
+});
+
+imageUploadInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+        uploadImage(e.target.files[0]);
+    }
+});
+
+// Subir imagen al servidor
+function uploadImage(file) {
+    if (!file.type.startsWith('image/')) {
+        alert('Por favor selecciona un archivo de imagen válido');
+        return;
+    }
+    
+    if (file.size > 5 * 1024 * 1024) {
+        alert('La imagen no debe superar los 5MB');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('image', file);
+    
+    const progress = document.getElementById('uploadProgress');
+    const progressBar = document.getElementById('progressBar');
+    progress.style.display = 'block';
+    
+    fetch('/api/upload-blog-image', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        progress.style.display = 'none';
+        if (data.success) {
+            const markdown = `![${file.name}](${data.url})`;
+            insertAtCursor(markdown);
+            closeImageUpload();
+        } else {
+            alert('Error al subir la imagen: ' + (data.error || 'Error desconocido'));
+        }
+    })
+    .catch(error => {
+        progress.style.display = 'none';
+        alert('Error al subir la imagen: ' + error.message);
+    });
+    
+    // Simular progreso
+    let width = 0;
+    const interval = setInterval(() => {
+        if (width >= 90) {
+            clearInterval(interval);
+        } else {
+            width += 10;
+            progressBar.style.width = width + '%';
+        }
+    }, 100);
+}
+
+// Atajos de teclado
+contentEditor.addEventListener('keydown', function(e) {
+    if (e.ctrlKey || e.metaKey) {
+        switch(e.key.toLowerCase()) {
+            case 'b':
+                e.preventDefault();
+                insertMarkdown('bold');
+                break;
+            case 'i':
+                e.preventDefault();
+                insertMarkdown('italic');
+                break;
+            case 'k':
+                e.preventDefault();
+                insertMarkdown('link');
+                break;
+        }
+    }
+    
+    // Tab para indentar
+    if (e.key === 'Tab') {
+        e.preventDefault();
+        insertAtCursor('    ');
+    }
+});
+
 // Auto-generar slug desde el título
 document.getElementById('title').addEventListener('input', function() {
     const title = this.value;
@@ -111,29 +760,6 @@ document.getElementById('title').addEventListener('input', function() {
         .replace(/[\s_-]+/g, '-')
         .replace(/^-+|-+$/g, '');
     document.getElementById('slug').value = slug;
-});
-
-// Preview de imagen seleccionada
-document.getElementById('image_file').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            // Crear o actualizar la vista previa
-            let preview = document.getElementById('image_preview');
-            if (!preview) {
-                preview = document.createElement('div');
-                preview.id = 'image_preview';
-                preview.className = 'mt-2';
-                e.target.parentNode.appendChild(preview);
-            }
-            preview.innerHTML = `
-                <small class="text-muted">Vista previa:</small><br>
-                <img src="${e.target.result}" alt="Vista previa" class="img-thumbnail" style="max-height: 100px;">
-            `;
-        };
-        reader.readAsDataURL(file);
-    }
 });
 
 {% if post %}
