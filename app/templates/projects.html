@@ -54,11 +54,11 @@
                     </div>
                     
                     <!-- Features -->
-                    <div class="mb-3">
-                        <small class="text-muted d-block mb-2"><i class="fas fa-check-circle text-success me-1"></i> Customer Management</small>
-                        <small class="text-muted d-block mb-2"><i class="fas fa-check-circle text-success me-1"></i> Order Tracking System</small>
-                        <small class="text-muted d-block mb-2"><i class="fas fa-check-circle text-success me-1"></i> Measurements Database</small>
-                        <small class="text-muted d-block"><i class="fas fa-check-circle text-success me-1"></i> Analytics & Reports</small>
+                    <div class="mb-3 features-list">
+                        <small class="text-success d-block mb-2"><i class="fas fa-check-circle text-success me-2"></i> Customer Management</small>
+                        <small class="text-success d-block mb-2"><i class="fas fa-check-circle text-success me-2"></i> Order Tracking System</small>
+                        <small class="text-success d-block mb-2"><i class="fas fa-check-circle text-success me-2"></i> Measurements Database</small>
+                        <small class="text-success d-block"><i class="fas fa-check-circle text-success me-2"></i> Analytics & Reports</small>
                     </div>
                     
                     <!-- Enlaces -->
@@ -104,11 +104,11 @@
                     </div>
                     
                     <!-- Features -->
-                    <div class="mb-3">
-                        <small class="text-muted d-block mb-2"><i class="fas fa-check-circle text-success me-1"></i> Stark Industries HUD Theme</small>
-                        <small class="text-muted d-block mb-2"><i class="fas fa-check-circle text-success me-1"></i> Admin Dashboard</small>
-                        <small class="text-muted d-block mb-2"><i class="fas fa-check-circle text-success me-1"></i> Blog & Courses System</small>
-                        <small class="text-muted d-block"><i class="fas fa-check-circle text-success me-1"></i> SSL with Let's Encrypt</small>
+                    <div class="mb-3 features-list">
+                        <small class="text-success d-block mb-2"><i class="fas fa-check-circle text-success me-2"></i> Stark Industries HUD Theme</small>
+                        <small class="text-success d-block mb-2"><i class="fas fa-check-circle text-success me-2"></i> Admin Dashboard</small>
+                        <small class="text-success d-block mb-2"><i class="fas fa-check-circle text-success me-2"></i> Blog & Courses System</small>
+                        <small class="text-success d-block"><i class="fas fa-check-circle text-success me-2"></i> SSL with Let's Encrypt</small>
                     </div>
                     
                     <!-- Enlaces -->
@@ -393,6 +393,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .featured-project-card .card-text {
     color: rgba(255, 255, 255, 0.8);
+}
+
+.features-list small {
+    font-size: 0.95rem !important;
+    line-height: 1.6;
+    font-weight: 500;
+}
+
+.features-list i {
+    font-size: 1rem;
 }
 </style>
 {% endblock %}
