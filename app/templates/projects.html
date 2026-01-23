@@ -13,9 +13,135 @@
         </div>
     </div>
 
+    <!-- Proyectos Live / Destacados -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="section-title mb-4">
+                <span class="status-indicator"></span>
+                {{ _('Live Projects') }}
+            </h2>
+        </div>
+    </div>
+    
+    <div class="row mb-5 stagger-animation">
+        <!-- Professional Alterations by Maria -->
+        <div class="col-lg-6 col-md-12 mb-4">
+            <div class="card h-100 border-0 shadow-lg card-animated hover-lift featured-project-card">
+                <div class="card-img-wrapper">
+                    <img src="{{ url_for('static', filename='images/projects/alterations-dashboard.png') }}" 
+                         class="card-img-top" 
+                         alt="Professional Alterations by Maria - Dashboard"
+                         style="height: 280px; object-fit: cover; object-position: top;">
+                    <div class="live-badge">
+                        <span class="pulse-dot"></span> LIVE
+                    </div>
+                </div>
+                
+                <div class="card-body d-flex flex-column">
+                    <h4 class="card-title">Professional Alterations by Maria</h4>
+                    <p class="card-text flex-grow-1">
+                        {{ _('Complete business management system for a professional alterations shop. Features include customer management, order tracking, measurements database, invoicing, and analytics dashboard.') }}
+                    </p>
+                    
+                    <!-- Tecnologías -->
+                    <div class="mb-3">
+                        <span class="badge bg-primary me-1">Python</span>
+                        <span class="badge bg-success me-1">Flask</span>
+                        <span class="badge bg-info me-1">PostgreSQL</span>
+                        <span class="badge bg-warning text-dark me-1">Bootstrap</span>
+                        <span class="badge bg-secondary me-1">Docker</span>
+                        <span class="badge bg-dark me-1">Dokploy</span>
+                    </div>
+                    
+                    <!-- Features -->
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-2"><i class="fas fa-check-circle text-success me-1"></i> Customer Management</small>
+                        <small class="text-muted d-block mb-2"><i class="fas fa-check-circle text-success me-1"></i> Order Tracking System</small>
+                        <small class="text-muted d-block mb-2"><i class="fas fa-check-circle text-success me-1"></i> Measurements Database</small>
+                        <small class="text-muted d-block"><i class="fas fa-check-circle text-success me-1"></i> Analytics & Reports</small>
+                    </div>
+                    
+                    <!-- Enlaces -->
+                    <div class="d-flex gap-2 mt-auto">
+                        <a href="https://professional-alterations-by-maria.codexsoto.com/" 
+                           class="btn btn-primary flex-grow-1 btn-animated"
+                           target="_blank" 
+                           rel="noopener noreferrer">
+                            <i class="fas fa-external-link-alt me-1"></i>{{ _('Visit Site') }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- CODEXSOTO Portfolio (Este sitio) -->
+        <div class="col-lg-6 col-md-12 mb-4">
+            <div class="card h-100 border-0 shadow-lg card-animated hover-lift featured-project-card">
+                <div class="card-img-wrapper">
+                    <img src="{{ url_for('static', filename='images/projects/codexsoto-portfolio.png') }}" 
+                         class="card-img-top" 
+                         alt="CODEXSOTO Portfolio"
+                         style="height: 280px; object-fit: cover; object-position: top;">
+                    <div class="live-badge">
+                        <span class="pulse-dot"></span> LIVE
+                    </div>
+                </div>
+                
+                <div class="card-body d-flex flex-column">
+                    <h4 class="card-title">CODEXSOTO Portfolio</h4>
+                    <p class="card-text flex-grow-1">
+                        {{ _('Personal brand website with Stark Industries inspired design. Features blog, courses, projects showcase, admin panel, and user authentication system.') }}
+                    </p>
+                    
+                    <!-- Tecnologías -->
+                    <div class="mb-3">
+                        <span class="badge bg-primary me-1">Python</span>
+                        <span class="badge bg-success me-1">Flask</span>
+                        <span class="badge bg-info me-1">PostgreSQL</span>
+                        <span class="badge bg-danger me-1">Redis</span>
+                        <span class="badge bg-secondary me-1">Docker</span>
+                        <span class="badge bg-dark me-1">Traefik</span>
+                    </div>
+                    
+                    <!-- Features -->
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-2"><i class="fas fa-check-circle text-success me-1"></i> Stark Industries HUD Theme</small>
+                        <small class="text-muted d-block mb-2"><i class="fas fa-check-circle text-success me-1"></i> Admin Dashboard</small>
+                        <small class="text-muted d-block mb-2"><i class="fas fa-check-circle text-success me-1"></i> Blog & Courses System</small>
+                        <small class="text-muted d-block"><i class="fas fa-check-circle text-success me-1"></i> SSL with Let's Encrypt</small>
+                    </div>
+                    
+                    <!-- Enlaces -->
+                    <div class="d-flex gap-2 mt-auto">
+                        <a href="https://codexsoto.com/" 
+                           class="btn btn-primary flex-grow-1 btn-animated"
+                           target="_blank" 
+                           rel="noopener noreferrer">
+                            <i class="fas fa-external-link-alt me-1"></i>{{ _('Visit Site') }}
+                        </a>
+                        <a href="https://github.com/David080198/pagina_web_marca_personal" 
+                           class="btn btn-outline-dark" 
+                           target="_blank" 
+                           rel="noopener noreferrer">
+                            <i class="fab fa-github"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Separador -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <hr class="section-divider">
+        </div>
+    </div>
+
     <!-- Filtros de categoría -->
     <div class="row mb-4">
         <div class="col-12">
+            <h2 class="section-title mb-4">{{ _('All Projects') }}</h2>
             <div class="text-center animate-fade-in-up">
                 <div class="btn-group" role="group" aria-label="{{ _('Category filters') }}">
                     <button type="button" class="btn btn-outline-primary active" data-filter="all">
@@ -172,6 +298,101 @@ document.addEventListener('DOMContentLoaded', function() {
 .btn-group .btn:last-child {
     border-top-right-radius: 0.375rem;
     border-bottom-right-radius: 0.375rem;
+}
+
+/* Featured Projects Styles */
+.section-title {
+    font-family: 'Orbitron', monospace;
+    color: var(--stark-cyan, #00d4ff);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.status-indicator {
+    width: 12px;
+    height: 12px;
+    background: #00ff88;
+    border-radius: 50%;
+    animation: pulse-glow 2s infinite;
+    box-shadow: 0 0 10px #00ff88;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { opacity: 1; box-shadow: 0 0 10px #00ff88; }
+    50% { opacity: 0.5; box-shadow: 0 0 20px #00ff88; }
+}
+
+.featured-project-card {
+    background: linear-gradient(145deg, rgba(10, 25, 47, 0.95), rgba(0, 20, 40, 0.98));
+    border: 1px solid rgba(0, 212, 255, 0.3) !important;
+    overflow: hidden;
+}
+
+.featured-project-card:hover {
+    border-color: var(--stark-cyan, #00d4ff) !important;
+    box-shadow: 0 0 30px rgba(0, 212, 255, 0.3) !important;
+}
+
+.card-img-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+.card-img-wrapper img {
+    transition: transform 0.5s ease;
+}
+
+.featured-project-card:hover .card-img-wrapper img {
+    transform: scale(1.05);
+}
+
+.live-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(0, 255, 136, 0.2);
+    border: 1px solid #00ff88;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.75rem;
+    color: #00ff88;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    backdrop-filter: blur(10px);
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: #00ff88;
+    border-radius: 50%;
+    animation: pulse-dot 1.5s infinite;
+}
+
+@keyframes pulse-dot {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0.5; }
+}
+
+.section-divider {
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--stark-cyan, #00d4ff), transparent);
+    margin: 2rem 0;
+}
+
+.featured-project-card .card-title {
+    color: #fff;
+    font-family: 'Orbitron', monospace;
+}
+
+.featured-project-card .card-text {
+    color: rgba(255, 255, 255, 0.8);
 }
 </style>
 {% endblock %}
