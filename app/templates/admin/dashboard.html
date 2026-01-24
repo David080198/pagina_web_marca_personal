@@ -5,12 +5,12 @@
 
 <!-- Statistics Cards -->
 <div class="row mb-4">
-    <div class="col-lg-3 col-md-6 mb-3">
+    <div class="col-lg-2 col-md-4 mb-3">
         <div class="stat-card">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <div class="stat-number">{{ total_posts }}</div>
-                    <div class="stat-label">Posts Totales</div>
+                    <div class="stat-label">Posts</div>
                 </div>
                 <div class="stat-icon">
                     <i class="fas fa-file-alt"></i>
@@ -19,7 +19,7 @@
         </div>
     </div>
     
-    <div class="col-lg-3 col-md-6 mb-3">
+    <div class="col-lg-2 col-md-4 mb-3">
         <div class="stat-card success">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
@@ -33,7 +33,7 @@
         </div>
     </div>
     
-    <div class="col-lg-3 col-md-6 mb-3">
+    <div class="col-lg-2 col-md-4 mb-3">
         <div class="stat-card info">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
@@ -47,15 +47,43 @@
         </div>
     </div>
     
-    <div class="col-lg-3 col-md-6 mb-3">
+    <div class="col-lg-2 col-md-4 mb-3">
+        <div class="stat-card" style="background: linear-gradient(135deg, rgba(138, 43, 226, 0.15), rgba(138, 43, 226, 0.05)); border-color: rgba(138, 43, 226, 0.3);">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number" style="color: #8a2be2;">{{ total_users }}</div>
+                    <div class="stat-label">Usuarios</div>
+                </div>
+                <div class="stat-icon" style="color: #8a2be2;">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-2 col-md-4 mb-3">
         <div class="stat-card warning">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <div class="stat-number">{{ unread_messages }}</div>
-                    <div class="stat-label">Mensajes Sin Leer</div>
+                    <div class="stat-label">Mensajes</div>
                 </div>
                 <div class="stat-icon">
                     <i class="fas fa-envelope"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-2 col-md-4 mb-3">
+        <div class="stat-card" style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(0, 212, 255, 0.05)); border-color: rgba(0, 212, 255, 0.3);">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number" style="color: #00d4ff;">{{ analytics.today_visitors }}</div>
+                    <div class="stat-label">Hoy</div>
+                </div>
+                <div class="stat-icon" style="color: #00d4ff;">
+                    <i class="fas fa-eye"></i>
                 </div>
             </div>
         </div>
@@ -236,6 +264,66 @@
 </div>
 
 <!-- Recent Messages -->
+{% if recent_users %}
+<div class="admin-panel mb-4">
+    <div class="admin-panel-header">
+        <i class="fas fa-user-plus"></i>
+        <h5>Usuarios Registrados Recientemente</h5>
+    </div>
+    <div class="admin-panel-body" style="padding: 0;">
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Avatar</th>
+                        <th>Usuario</th>
+                        <th>Email</th>
+                        <th>Nombre</th>
+                        <th>Registrado</th>
+                        <th>Último Acceso</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in recent_users %}
+                    <tr>
+                        <td>
+                            <img src="{{ user.get_avatar_url(40) }}" 
+                                 alt="{{ user.username }}" 
+                                 style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid rgba(0, 212, 255, 0.3);">
+                        </td>
+                        <td><strong>{{ user.username }}</strong></td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.display_name }}</td>
+                        <td>{{ user.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>
+                            {% if user.last_login %}
+                                {{ user.last_login.strftime('%d/%m/%Y %H:%M') }}
+                            {% else %}
+                                <span style="color: var(--admin-text-muted);">Nunca</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.is_active %}
+                                <span class="admin-badge success">Activo</span>
+                            {% else %}
+                                <span class="admin-badge danger">Inactivo</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="text-center p-3">
+            <a href="{{ url_for('admin.users_list') }}" class="admin-btn admin-btn-primary">
+                <i class="fas fa-users me-1"></i> Ver Todos los Usuarios
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 {% if recent_messages %}
 <div class="admin-panel">
     <div class="admin-panel-header">

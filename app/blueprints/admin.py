@@ -6,6 +6,7 @@ from app.models.project import Project
 from app.models.site_config import SiteConfig
 from app.models.contact import ContactMessage
 from app.models.enrollment import CourseEnrollment, Payment, PaymentStatus, EnrollmentStatus
+from app.models.user import User
 from app.extensions import db
 from app.utils.file_upload import save_uploaded_file, delete_uploaded_file
 import os
@@ -47,6 +48,10 @@ def dashboard():
     total_projects = Project.query.count()
     unread_messages = ContactMessage.query.filter_by(read=False).count()
     
+    # Estadísticas de usuarios
+    total_users = User.query.filter_by(is_admin=False).count()
+    recent_users = User.query.filter_by(is_admin=False).order_by(User.created_at.desc()).limit(10).all()
+    
     recent_messages = ContactMessage.query.order_by(ContactMessage.created_at.desc()).limit(5).all()
     
     # Obtener estadísticas de analytics
@@ -59,6 +64,8 @@ def dashboard():
                          total_courses=total_courses,
                          total_projects=total_projects,
                          unread_messages=unread_messages,
+                         total_users=total_users,
+                         recent_users=recent_users,
                          recent_messages=recent_messages,
                          analytics=analytics)
 
@@ -719,3 +726,114 @@ def reject_payment(payment_id):
     
     # Redirigir de vuelta a la lista de pagos rechazados
     return redirect(url_for('admin.payments', status='rejected'))
+
+
+# ========================================
+# Gestión de Usuarios
+# ========================================
+
+@admin_bp.route('/users')
+@login_required
+@admin_required
+def users_list():
+    """Lista de todos los usuarios"""
+    page = request.args.get('page', 1, type=int)
+    search = request.args.get('search', '')
+    filter_role = request.args.get('role', '')
+    
+    query = User.query
+    
+    # Filtrar por búsqueda
+    if search:
+        query = query.filter(
+            db.or_(
+                User.username.ilike(f'%{search}%'),
+                User.email.ilike(f'%{search}%'),
+                User.first_name.ilike(f'%{search}%'),
+                User.last_name.ilike(f'%{search}%')
+            )
+        )
+    
+    # Filtrar por rol
+    if filter_role == 'admin':
+        query = query.filter_by(is_admin=True)
+    elif filter_role == 'user':
+        query = query.filter_by(is_admin=False)
+    
+    # Ordenar y paginar
+    users = query.order_by(User.created_at.desc()).paginate(page=page, per_page=20, error_out=False)
+    
+    # Estadísticas
+    total_users = User.query.count()
+    total_admins = User.query.filter_by(is_admin=True).count()
+    active_users = User.query.filter_by(is_active=True, is_admin=False).count()
+    
+    return render_template('admin/users_list.html',
+                         users=users,
+                         search=search,
+                         filter_role=filter_role,
+                         total_users=total_users,
+                         total_admins=total_admins,
+                         active_users=active_users)
+
+
+@admin_bp.route('/users/<int:user_id>/toggle-status', methods=['POST'])
+@login_required
+@admin_required
+def toggle_user_status(user_id):
+    """Activar/desactivar usuario"""
+    user = User.query.get_or_404(user_id)
+    
+    if user.is_admin:
+        flash('No puedes desactivar a un administrador', 'error')
+        return redirect(url_for('admin.users_list'))
+    
+    user.is_active = not user.is_active
+    db.session.commit()
+    
+    status = 'activado' if user.is_active else 'desactivado'
+    flash(f'Usuario {user.username} {status} correctamente', 'success')
+    return redirect(url_for('admin.users_list'))
+
+
+@admin_bp.route('/users/<int:user_id>/toggle-admin', methods=['POST'])
+@login_required
+@admin_required
+def toggle_user_admin(user_id):
+    """Hacer/quitar admin a un usuario"""
+    user = User.query.get_or_404(user_id)
+    
+    if user.id == current_user.id:
+        flash('No puedes cambiar tu propio rol de admin', 'error')
+        return redirect(url_for('admin.users_list'))
+    
+    user.is_admin = not user.is_admin
+    user.role = 'admin' if user.is_admin else 'user'
+    db.session.commit()
+    
+    status = 'ahora es administrador' if user.is_admin else 'ya no es administrador'
+    flash(f'Usuario {user.username} {status}', 'success')
+    return redirect(url_for('admin.users_list'))
+
+
+@admin_bp.route('/users/<int:user_id>/delete', methods=['POST'])
+@login_required
+@admin_required
+def delete_user(user_id):
+    """Eliminar usuario"""
+    user = User.query.get_or_404(user_id)
+    
+    if user.is_admin:
+        flash('No puedes eliminar a un administrador', 'error')
+        return redirect(url_for('admin.users_list'))
+    
+    if user.id == current_user.id:
+        flash('No puedes eliminarte a ti mismo', 'error')
+        return redirect(url_for('admin.users_list'))
+    
+    username = user.username
+    db.session.delete(user)
+    db.session.commit()
+    
+    flash(f'Usuario {username} eliminado correctamente', 'success')
+    return redirect(url_for('admin.users_list'))
