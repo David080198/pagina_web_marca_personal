@@ -281,6 +281,8 @@
 <div class="card">
     <div class="card-body">
         <form method="POST" enctype="multipart/form-data" id="blogForm">
+            {{ form.hidden_tag() if form else '' }}
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="row">
                 <div class="col-md-6">
                     <div class="mb-3">
@@ -694,8 +696,14 @@ function uploadImage(file) {
     const progressBar = document.getElementById('progressBar');
     progress.style.display = 'block';
     
+    // Obtener el token CSRF
+    const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+    
     fetch('/api/upload-blog-image', {
         method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken
+        },
         body: formData
     })
     .then(response => response.json())
