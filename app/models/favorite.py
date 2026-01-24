@@ -30,6 +30,22 @@ class Favorite(db.Model):
             return Project.query.get(self.content_id)
         return None
     
+    def _get_content_url(self, content=None):
+        """Genera la URL del contenido asociado al favorito"""
+        from flask import url_for
+        if content is None:
+            content = self.get_content_object()
+        if content is None:
+            return '#'
+        
+        if self.content_type == 'blog':
+            return url_for('main.blog_post', slug=content.slug)
+        elif self.content_type == 'course':
+            return url_for('main.course_detail', slug=content.slug)
+        elif self.content_type == 'project':
+            return url_for('main.project_detail', slug=content.slug)
+        return '#'
+    
     @staticmethod
     def is_favorited_by_user(user_id, content_type, content_id):
         """Verifica si un contenido está en favoritos del usuario"""

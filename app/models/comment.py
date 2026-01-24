@@ -7,6 +7,7 @@ class Comment(db.Model):
     
     # Referencia al usuario
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User', backref=db.backref('comments', lazy='dynamic'))
     
     # Comentario polimórfico (puede ser en blog, curso o proyecto)
     content_type = db.Column(db.String(20), nullable=False)  # 'blog', 'course', 'project'
@@ -37,6 +38,22 @@ class Comment(db.Model):
             return Project.query.get(self.content_id)
         return None
     
+    def _get_content_url(self, content=None):
+        """Genera la URL del contenido asociado al comentario"""
+        from flask import url_for
+        if content is None:
+            content = self.get_content_object()
+        if content is None:
+            return '#'
+        
+        if self.content_type == 'blog':
+            return url_for('main.blog_post', slug=content.slug)
+        elif self.content_type == 'course':
+            return url_for('main.course_detail', slug=content.slug)
+        elif self.content_type == 'project':
+            return url_for('main.project_detail', slug=content.slug)
+        return '#'
+    
     def get_replies_count(self):
         """Cuenta las respuestas a este comentario"""
         return self.replies.filter_by(is_approved=True).count()
@@ -58,8 +75,8 @@ class Comment(db.Model):
         return {
             'id': self.id,
             'content': self.content,
-            'author': self.author.display_name,
-            'author_avatar': self.author.get_avatar_url(50),
+            'author': self.user.display_name,
+            'author_avatar': self.user.get_avatar_url(50),
             'content_type': self.content_type,
             'content_id': self.content_id,
             'parent_id': self.parent_id,
@@ -70,4 +87,4 @@ class Comment(db.Model):
         }
     
     def __repr__(self):
-        return f'<Comment {self.id} by {self.author.username}>'
+        return f'<Comment {self.id} by user_id={self.user_id}>'
