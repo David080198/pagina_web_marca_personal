@@ -3,262 +3,755 @@
 {% block title %}{{ user.display_name }} - Perfil - CodexSoto{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="row">
-        <div class="col-md-4">
-            <!-- Información del usuario -->
-            <div class="card">
-                <div class="card-body text-center">
-                    <img src="{{ user.get_avatar_url(200) }}" 
-                         alt="{{ user.display_name }}" 
-                         class="rounded-circle mb-3" 
-                         width="200" height="200">
-                    
-                    <h3 class="card-title">{{ user.display_name }}</h3>
-                    <p class="text-muted">@{{ user.username }}</p>
-                    
-                    {% if user.bio %}
-                    <p class="card-text">{{ user.bio }}</p>
-                    {% endif %}
-                    
-                    <div class="row text-center mb-3">
-                        <div class="col">
-                            <div class="border-end">
-                                <strong class="d-block">{{ user.comments.count() }}</strong>
-                                <small class="text-muted">Comentarios</small>
+<div class="container py-5" style="padding-top: 120px !important;">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <!-- Información del usuario -->
+                    <div class="card profile-card">
+                        <div class="card-body text-center">
+                            <div class="avatar-wrapper mb-3">
+                                <img src="{{ user.get_avatar_url(200) }}" 
+                                     alt="{{ user.display_name }}" 
+                                     class="rounded-circle avatar-img" 
+                                     width="150" height="150">
                             </div>
-                        </div>
-                        <div class="col">
-                            <strong class="d-block">{{ user.favorites.count() }}</strong>
-                            <small class="text-muted">Favoritos</small>
-                        </div>
-                    </div>
-                    
-                    <div class="d-flex flex-column gap-2">
-                        {% if user.location %}
-                        <small class="text-muted">
-                            <i class="fas fa-map-marker-alt me-1"></i>{{ user.location }}
-                        </small>
-                        {% endif %}
-                        
-                        {% if user.website %}
-                        <small>
-                            <i class="fas fa-link me-1"></i>
-                            <a href="{{ user.website }}" target="_blank" class="text-decoration-none">
-                                {{ user.website }}
-                            </a>
-                        </small>
-                        {% endif %}
-                        
-                        <small class="text-muted">
-                            <i class="fas fa-calendar me-1"></i>
-                            Miembro desde {{ user.created_at.strftime('%B %Y') }}
-                        </small>
-                        
-                        <small>
-                            <span class="badge bg-{{ 'warning' if user.role == 'premium' else ('danger' if user.is_admin else 'secondary') }}">
-                                {% if user.is_admin %}Admin
-                                {% elif user.role == 'premium' %}Premium
-                                {% else %}Usuario
-                                {% endif %}
-                            </span>
-                        </small>
-                    </div>
-                    
-                    {% if current_user.is_authenticated and current_user.id == user.id %}
-                    <div class="mt-3">
-                        <a href="{{ url_for('user.edit_profile') }}" class="btn btn-primary btn-sm">
-                            <i class="fas fa-edit"></i> Editar Perfil
-                        </a>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-8">
-            <!-- Pestañas de contenido -->
-            <ul class="nav nav-tabs" id="profileTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="activity-tab" data-bs-toggle="tab" 
-                            data-bs-target="#activity" type="button" role="tab">
-                        <i class="fas fa-chart-line me-1"></i>Actividad Reciente
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="comments-tab" data-bs-toggle="tab" 
-                            data-bs-target="#comments" type="button" role="tab">
-                        <i class="fas fa-comments me-1"></i>Comentarios
-                    </button>
-                </li>
-                {% if current_user.is_authenticated and current_user.id == user.id %}
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="favorites-tab" data-bs-toggle="tab" 
-                            data-bs-target="#favorites" type="button" role="tab">
-                        <i class="fas fa-heart me-1"></i>Favoritos
-                    </button>
-                </li>
-                {% endif %}
-            </ul>
-            
-            <div class="tab-content" id="profileTabsContent">
-                <!-- Actividad Reciente -->
-                <div class="tab-pane fade show active" id="activity" role="tabpanel">
-                    <div class="card border-0">
-                        <div class="card-body">
-                            <h5>Actividad Reciente</h5>
                             
-                            {% if recent_comments %}
-                            <div class="timeline">
-                                {% for comment in recent_comments %}
-                                {% set content = comment.get_content_object() %}
-                                {% if content %}
-                                <div class="timeline-item mb-3">
-                                    <div class="timeline-marker bg-primary"></div>
-                                    <div class="timeline-content">
-                                        <small class="text-muted">{{ comment.created_at.strftime('%d/%m/%Y %H:%M') }}</small>
-                                        <p class="mb-1">
-                                            Comentó en 
-                                            <a href="{{ comment._get_content_url(content) }}" class="text-decoration-none">
-                                                {{ content.title }}
-                                            </a>
-                                        </p>
-                                        <p class="text-muted small">{{ comment.content[:100] }}{% if comment.content|length > 100 %}...{% endif %}</p>
-                                    </div>
+                            <h3 class="profile-name">{{ user.display_name }}</h3>
+                            <p class="profile-username">@{{ user.username }}</p>
+                            
+                            {% if user.bio %}
+                            <p class="profile-bio">{{ user.bio }}</p>
+                            {% endif %}
+                            
+                            <div class="profile-stats">
+                                <div class="stat-item">
+                                    <strong class="stat-number">{{ user.comments.count() }}</strong>
+                                    <small class="stat-label">Comentarios</small>
+                                </div>
+                                <div class="stat-item">
+                                    <strong class="stat-number">{{ user.favorites.count() }}</strong>
+                                    <small class="stat-label">Favoritos</small>
+                                </div>
+                                <div class="stat-item">
+                                    <strong class="stat-number">{{ user.likes.count() if user.likes else 0 }}</strong>
+                                    <small class="stat-label">Likes</small>
+                                </div>
+                            </div>
+                            
+                            <div class="profile-details">
+                                {% if user.location %}
+                                <div class="detail-item">
+                                    <i class="fas fa-map-marker-alt"></i>{{ user.location }}
                                 </div>
                                 {% endif %}
-                                {% endfor %}
-                            </div>
-                            {% else %}
-                            <div class="text-center text-muted py-4">
-                                <i class="fas fa-comment-slash fa-3x mb-3 opacity-50"></i>
-                                <p>No hay actividad reciente</p>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Comentarios -->
-                <div class="tab-pane fade" id="comments" role="tabpanel">
-                    <div class="card border-0">
-                        <div class="card-body">
-                            <h5>Comentarios Públicos</h5>
-                            
-                            {% if public_comments %}
-                            <div class="list-group list-group-flush">
-                                {% for comment in public_comments %}
-                                {% set content = comment.get_content_object() %}
-                                {% if content %}
-                                <div class="list-group-item px-0">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1">
-                                                <a href="{{ comment._get_content_url(content) }}" class="text-decoration-none">
-                                                    {{ content.title }}
-                                                </a>
-                                            </h6>
-                                            <p class="mb-1">{{ comment.content }}</p>
-                                            <small class="text-muted">
-                                                {{ comment.created_at.strftime('%d/%m/%Y %H:%M') }}
-                                                {% if comment.get_replies_count() > 0 %}
-                                                • {{ comment.get_replies_count() }} respuesta{{ 's' if comment.get_replies_count() != 1 else '' }}
-                                                {% endif %}
-                                            </small>
-                                        </div>
-                                    </div>
+                                
+                                {% if user.website %}
+                                <div class="detail-item">
+                                    <i class="fas fa-link"></i>
+                                    <a href="{{ user.website }}" target="_blank">{{ user.website }}</a>
                                 </div>
                                 {% endif %}
-                                {% endfor %}
-                            </div>
-                            {% else %}
-                            <div class="text-center text-muted py-4">
-                                <i class="fas fa-comments fa-3x mb-3 opacity-50"></i>
-                                <p>No hay comentarios públicos</p>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Favoritos (solo para el propio usuario) -->
-                {% if current_user.is_authenticated and current_user.id == user.id %}
-                <div class="tab-pane fade" id="favorites" role="tabpanel">
-                    <div class="card border-0">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="mb-0">Mis Favoritos</h5>
-                                <a href="{{ url_for('user.favorites') }}" class="btn btn-outline-primary btn-sm">Ver todos</a>
-                            </div>
-                            
-                            {% if recent_favorites %}
-                            <div class="row">
-                                {% for favorite in recent_favorites %}
-                                {% set content = favorite.get_content_object() %}
-                                {% if content %}
-                                <div class="col-md-6 mb-3">
-                                    <div class="card h-100">
-                                        {% if content.image_url %}
-                                        <img src="{{ content.image_url }}" class="card-img-top" alt="{{ content.title }}" style="height: 150px; object-fit: cover;">
+                                
+                                <div class="detail-item">
+                                    <i class="fas fa-calendar"></i>
+                                    Miembro desde {{ user.created_at.strftime('%B %Y') }}
+                                </div>
+                                
+                                <div class="detail-item">
+                                    <span class="badge role-badge {{ 'admin' if user.is_admin else ('premium' if user.role == 'premium' else 'user') }}">
+                                        {% if user.is_admin %}
+                                        <i class="fas fa-crown me-1"></i>Admin
+                                        {% elif user.role == 'premium' %}
+                                        <i class="fas fa-star me-1"></i>Premium
+                                        {% else %}
+                                        <i class="fas fa-user me-1"></i>Usuario
                                         {% endif %}
-                                        <div class="card-body">
-                                            <h6 class="card-title">{{ content.title }}</h6>
-                                            <p class="card-text small text-muted">
-                                                {% if favorite.content_type == 'blog' %}Blog
-                                                {% elif favorite.content_type == 'course' %}Curso
-                                                {% elif favorite.content_type == 'project' %}Proyecto
-                                                {% endif %}
-                                            </p>
-                                            <a href="{{ favorite._get_content_url(content) }}" class="btn btn-sm btn-outline-primary">Ver</a>
-                                        </div>
-                                    </div>
+                                    </span>
                                 </div>
-                                {% endif %}
-                                {% endfor %}
                             </div>
-                            {% else %}
-                            <div class="text-center text-muted py-4">
-                                <i class="fas fa-heart-broken fa-3x mb-3 opacity-50"></i>
-                                <p>No tienes favoritos aún</p>
-                                <a href="{{ url_for('main.blog') }}" class="btn btn-primary btn-sm">Explorar contenido</a>
+                            
+                            {% if current_user.is_authenticated and current_user.id == user.id %}
+                            <div class="mt-4">
+                                <a href="{{ url_for('user.edit_profile') }}" class="btn btn-edit-profile">
+                                    <i class="fas fa-edit me-1"></i> Editar Perfil
+                                </a>
                             </div>
                             {% endif %}
                         </div>
                     </div>
                 </div>
-                {% endif %}
+                
+                <div class="col-md-8">
+                    <!-- Pestañas de contenido -->
+                    <div class="profile-tabs-container">
+                        <ul class="nav nav-tabs profile-tabs" id="profileTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="activity-tab" data-bs-toggle="tab" 
+                                        data-bs-target="#activity" type="button" role="tab">
+                                    <i class="fas fa-chart-line me-1"></i>Actividad
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="comments-tab" data-bs-toggle="tab" 
+                                        data-bs-target="#comments" type="button" role="tab">
+                                    <i class="fas fa-comments me-1"></i>Comentarios
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="likes-tab" data-bs-toggle="tab" 
+                                        data-bs-target="#likes" type="button" role="tab">
+                                    <i class="fas fa-heart me-1"></i>Likes
+                                </button>
+                            </li>
+                            {% if current_user.is_authenticated and current_user.id == user.id %}
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="favorites-tab" data-bs-toggle="tab" 
+                                        data-bs-target="#favorites" type="button" role="tab">
+                                    <i class="fas fa-bookmark me-1"></i>Favoritos
+                                </button>
+                            </li>
+                            {% endif %}
+                        </ul>
+                        
+                        <div class="tab-content profile-tab-content" id="profileTabsContent">
+                            <!-- Actividad Reciente -->
+                            <div class="tab-pane fade show active" id="activity" role="tabpanel">
+                                <div class="tab-panel-content">
+                                    <h5 class="panel-title">Actividad Reciente</h5>
+                                    
+                                    {% if recent_comments %}
+                                    <div class="activity-timeline">
+                                        {% for comment in recent_comments %}
+                                        {% set content = comment.get_content_object() %}
+                                        {% if content %}
+                                        <div class="activity-item">
+                                            <div class="activity-icon">
+                                                <i class="fas fa-comment"></i>
+                                            </div>
+                                            <div class="activity-content">
+                                                <small class="activity-date">{{ comment.created_at.strftime('%d/%m/%Y %H:%M') }}</small>
+                                                <p class="activity-text">
+                                                    Comentó en <strong>{{ content.title }}</strong>
+                                                </p>
+                                                <p class="activity-preview">{{ comment.content[:100] }}{% if comment.content|length > 100 %}...{% endif %}</p>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    {% else %}
+                                    <div class="empty-state">
+                                        <i class="fas fa-clock"></i>
+                                        <p>No hay actividad reciente</p>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Comentarios -->
+                            <div class="tab-pane fade" id="comments" role="tabpanel">
+                                <div class="tab-panel-content">
+                                    <h5 class="panel-title">Comentarios Públicos</h5>
+                                    
+                                    {% if public_comments %}
+                                    <div class="comments-list">
+                                        {% for comment in public_comments %}
+                                        {% set content = comment.get_content_object() %}
+                                        {% if content %}
+                                        <div class="comment-card">
+                                            <div class="comment-card-header">
+                                                <span class="comment-source">
+                                                    {% if comment.content_type == 'blog' %}
+                                                    <i class="fas fa-blog me-1"></i>Blog
+                                                    {% elif comment.content_type == 'course' %}
+                                                    <i class="fas fa-graduation-cap me-1"></i>Curso
+                                                    {% elif comment.content_type == 'project' %}
+                                                    <i class="fas fa-project-diagram me-1"></i>Proyecto
+                                                    {% endif %}
+                                                </span>
+                                                <span class="comment-date">{{ comment.created_at.strftime('%d/%m/%Y') }}</span>
+                                            </div>
+                                            <h6 class="comment-title">{{ content.title }}</h6>
+                                            <p class="comment-text">{{ comment.content }}</p>
+                                            {% if comment.get_replies_count() > 0 %}
+                                            <small class="comment-replies-count">
+                                                <i class="fas fa-reply me-1"></i>{{ comment.get_replies_count() }} respuesta{{ 's' if comment.get_replies_count() != 1 else '' }}
+                                            </small>
+                                            {% endif %}
+                                        </div>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    {% else %}
+                                    <div class="empty-state">
+                                        <i class="fas fa-comments"></i>
+                                        <p>No hay comentarios públicos</p>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Likes -->
+                            <div class="tab-pane fade" id="likes" role="tabpanel">
+                                <div class="tab-panel-content">
+                                    <h5 class="panel-title">Contenido que le gustó</h5>
+                                    
+                                    {% if user_likes %}
+                                    <div class="likes-grid">
+                                        {% for like in user_likes %}
+                                        {% set content = like.get_content_object() %}
+                                        {% if content %}
+                                        <div class="like-card">
+                                            <div class="like-type">
+                                                {% if like.content_type == 'blog' %}
+                                                <i class="fas fa-blog"></i>
+                                                {% elif like.content_type == 'course' %}
+                                                <i class="fas fa-graduation-cap"></i>
+                                                {% elif like.content_type == 'project' %}
+                                                <i class="fas fa-project-diagram"></i>
+                                                {% endif %}
+                                            </div>
+                                            <div class="like-info">
+                                                <h6 class="like-title">{{ content.title }}</h6>
+                                                <small class="like-date">{{ like.created_at.strftime('%d/%m/%Y') }}</small>
+                                            </div>
+                                            <a href="{{ like._get_content_url(content) }}" class="like-link">
+                                                <i class="fas fa-arrow-right"></i>
+                                            </a>
+                                        </div>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    {% else %}
+                                    <div class="empty-state">
+                                        <i class="fas fa-heart"></i>
+                                        <p>No ha dado like a ningún contenido</p>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Favoritos (solo para el propio usuario) -->
+                            {% if current_user.is_authenticated and current_user.id == user.id %}
+                            <div class="tab-pane fade" id="favorites" role="tabpanel">
+                                <div class="tab-panel-content">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="panel-title mb-0">Mis Favoritos</h5>
+                                        <a href="{{ url_for('user.favorites') }}" class="btn btn-sm btn-outline-neon">Ver todos</a>
+                                    </div>
+                                    
+                                    {% if recent_favorites %}
+                                    <div class="favorites-grid">
+                                        {% for favorite in recent_favorites %}
+                                        {% set content = favorite.get_content_object() %}
+                                        {% if content %}
+                                        <div class="favorite-card">
+                                            {% if content.image_url %}
+                                            <div class="favorite-image">
+                                                <img src="{{ content.image_url }}" alt="{{ content.title }}">
+                                            </div>
+                                            {% endif %}
+                                            <div class="favorite-info">
+                                                <span class="favorite-type">
+                                                    {% if favorite.content_type == 'blog' %}Blog
+                                                    {% elif favorite.content_type == 'course' %}Curso
+                                                    {% elif favorite.content_type == 'project' %}Proyecto
+                                                    {% endif %}
+                                                </span>
+                                                <h6 class="favorite-title">{{ content.title }}</h6>
+                                                <a href="{{ favorite._get_content_url(content) }}" class="btn btn-sm btn-neon">Ver</a>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    {% else %}
+                                    <div class="empty-state">
+                                        <i class="fas fa-bookmark"></i>
+                                        <p>No tienes favoritos aún</p>
+                                        <a href="{{ url_for('main.blog') }}" class="btn btn-neon btn-sm">Explorar contenido</a>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <style>
-.timeline {
+/* Profile Card Styles */
+.profile-card {
+    background: linear-gradient(145deg, rgba(10, 25, 47, 0.95), rgba(0, 20, 40, 0.98));
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.profile-card .card-body {
+    padding: 30px;
+}
+
+.avatar-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.avatar-img {
+    border: 3px solid #00d4ff;
+    box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+}
+
+.profile-name {
+    color: #fff;
+    font-family: 'Orbitron', monospace;
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+}
+
+.profile-username {
+    color: #00d4ff;
+    font-size: 1rem;
+    margin-bottom: 15px;
+}
+
+.profile-bio {
+    color: #9ca3af;
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.profile-stats {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px 0;
+    border-top: 1px solid rgba(0, 212, 255, 0.1);
+    border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+    margin-bottom: 20px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    display: block;
+    color: #00d4ff;
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-family: 'Orbitron', monospace;
+}
+
+.stat-label {
+    color: #6b7280;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+}
+
+.profile-details {
+    text-align: left;
+}
+
+.detail-item {
+    color: #9ca3af;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+}
+
+.detail-item i {
+    color: #00d4ff;
+    width: 20px;
+    margin-right: 10px;
+}
+
+.detail-item a {
+    color: #00d4ff;
+    text-decoration: none;
+}
+
+.detail-item a:hover {
+    color: #fff;
+}
+
+.role-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+}
+
+.role-badge.admin {
+    background: linear-gradient(135deg, #ff4757, #c0392b);
+    color: #fff;
+}
+
+.role-badge.premium {
+    background: linear-gradient(135deg, #f1c40f, #f39c12);
+    color: #0a1929;
+}
+
+.role-badge.user {
+    background: linear-gradient(135deg, #374151, #1f2937);
+    color: #9ca3af;
+}
+
+.btn-edit-profile {
+    background: linear-gradient(135deg, #00d4ff, #0099cc);
+    border: none;
+    color: #0a1929;
+    font-weight: 600;
+    padding: 10px 25px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-edit-profile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+    color: #0a1929;
+}
+
+/* Profile Tabs */
+.profile-tabs-container {
+    background: linear-gradient(145deg, rgba(10, 25, 47, 0.95), rgba(0, 20, 40, 0.98));
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.profile-tabs {
+    border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.profile-tabs .nav-link {
+    color: #6b7280;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-right: 5px;
+    transition: all 0.3s ease;
+}
+
+.profile-tabs .nav-link:hover {
+    color: #00d4ff;
+    background: rgba(0, 212, 255, 0.1);
+}
+
+.profile-tabs .nav-link.active {
+    background: linear-gradient(135deg, #00d4ff, #0099cc);
+    color: #0a1929;
+    font-weight: 600;
+}
+
+.profile-tab-content {
+    padding: 25px;
+}
+
+.tab-panel-content {
+    min-height: 300px;
+}
+
+.panel-title {
+    color: #fff;
+    font-family: 'Orbitron', monospace;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+/* Activity Timeline */
+.activity-timeline {
     position: relative;
     padding-left: 30px;
 }
 
-.timeline-item {
-    position: relative;
-}
-
-.timeline-marker {
-    position: absolute;
-    left: -35px;
-    top: 5px;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-}
-
-.timeline::before {
+.activity-timeline::before {
     content: '';
     position: absolute;
-    left: -30px;
+    left: 10px;
     top: 0;
     bottom: 0;
     width: 2px;
-    background: #dee2e6;
+    background: rgba(0, 212, 255, 0.2);
+}
+
+.activity-item {
+    position: relative;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(30, 41, 59, 0.5);
+    border-radius: 8px;
+    border: 1px solid #374151;
+}
+
+.activity-icon {
+    position: absolute;
+    left: -30px;
+    top: 20px;
+    width: 20px;
+    height: 20px;
+    background: #00d4ff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.activity-icon i {
+    color: #0a1929;
+    font-size: 10px;
+}
+
+.activity-date {
+    color: #6b7280;
+    font-size: 0.8rem;
+}
+
+.activity-text {
+    color: #e5e7eb;
+    margin: 5px 0;
+}
+
+.activity-text strong {
+    color: #00d4ff;
+}
+
+.activity-preview {
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin: 0;
+    font-style: italic;
+}
+
+/* Comment Cards */
+.comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.comment-card {
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid #374151;
+    border-radius: 10px;
+    padding: 18px;
+    transition: all 0.2s ease;
+}
+
+.comment-card:hover {
+    border-color: rgba(0, 212, 255, 0.3);
+}
+
+.comment-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.comment-source {
+    color: #00d4ff;
+    font-size: 0.8rem;
+}
+
+.comment-date {
+    color: #6b7280;
+    font-size: 0.8rem;
+}
+
+.comment-title {
+    color: #fff;
+    font-size: 1rem;
+    margin-bottom: 8px;
+}
+
+.comment-text {
+    color: #9ca3af;
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.comment-replies-count {
+    color: #6b7280;
+}
+
+/* Likes Grid */
+.likes-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.like-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid #374151;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.like-card:hover {
+    border-color: rgba(0, 212, 255, 0.3);
+    transform: translateX(5px);
+}
+
+.like-type {
+    width: 45px;
+    height: 45px;
+    background: rgba(0, 212, 255, 0.1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.like-type i {
+    color: #00d4ff;
+    font-size: 1.2rem;
+}
+
+.like-info {
+    flex-grow: 1;
+}
+
+.like-title {
+    color: #fff;
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.like-date {
+    color: #6b7280;
+}
+
+.like-link {
+    color: #00d4ff;
+    padding: 10px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.like-link:hover {
+    background: rgba(0, 212, 255, 0.1);
+    color: #fff;
+}
+
+/* Favorites Grid */
+.favorites-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.favorite-card {
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid #374151;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.favorite-card:hover {
+    border-color: rgba(0, 212, 255, 0.4);
+    transform: translateY(-3px);
+}
+
+.favorite-image {
+    height: 120px;
+    overflow: hidden;
+}
+
+.favorite-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.favorite-info {
+    padding: 15px;
+}
+
+.favorite-type {
+    color: #00d4ff;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+.favorite-title {
+    color: #fff;
+    font-size: 0.9rem;
+    margin: 8px 0;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 50px 20px;
+    color: #6b7280;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+.empty-state p {
+    margin-bottom: 15px;
+}
+
+/* Button Neon */
+.btn-neon {
+    background: linear-gradient(135deg, #00d4ff, #0099cc);
+    border: none;
+    color: #0a1929;
+    font-weight: 600;
+}
+
+.btn-neon:hover {
+    color: #0a1929;
+    box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+}
+
+.btn-outline-neon {
+    border: 1px solid #00d4ff;
+    color: #00d4ff;
+    background: transparent;
+}
+
+.btn-outline-neon:hover {
+    background: rgba(0, 212, 255, 0.1);
+    color: #00d4ff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .profile-stats {
+        flex-wrap: wrap;
+    }
+    
+    .profile-tabs .nav-link {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+    
+    .favorites-grid {
+        grid-template-columns: 1fr;
+    }
 }
 </style>
 {% endblock %}

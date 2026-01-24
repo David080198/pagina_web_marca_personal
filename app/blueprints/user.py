@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from app.models.user import User
 from app.models.comment import Comment
 from app.models.favorite import Favorite
+from app.models.like import Like
 from app.models.blog import BlogPost
 from app.models.course import Course
 from app.models.project import Project
@@ -52,6 +53,10 @@ def profile():
     recent_favorites = Favorite.query.filter_by(user_id=current_user.id)\
         .order_by(desc(Favorite.created_at)).limit(6).all()
     
+    # Obtener likes del usuario
+    user_likes = Like.query.filter_by(user_id=current_user.id)\
+        .order_by(desc(Like.created_at)).limit(10).all()
+    
     # Obtener inscripciones si existen
     try:
         from app.models.enrollment import CourseEnrollment
@@ -65,6 +70,7 @@ def profile():
                          recent_comments=recent_comments,
                          public_comments=public_comments,
                          recent_favorites=recent_favorites,
+                         user_likes=user_likes,
                          recent_enrollments=recent_enrollments)
 
 @user_bp.route('/profile/edit', methods=['GET', 'POST'])

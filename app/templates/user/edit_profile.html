@@ -1,170 +1,599 @@
-{% extends "base.html" %}
+{% extends "base.html" %}{% extends "base.html" %}
 
-{% block title %}Editar Perfil - CodexSoto{% endblock %}
 
-{% block content %}
-<div class="container py-4">
-    <div class="row">
-        <div class="col-md-8 mx-auto">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">
-                        <i class="fas fa-user-edit me-2"></i>Editar Perfil
-                    </h4>
-                    <a href="{{ url_for('user.profile') }}" class="btn btn-outline-secondary">
-                        <i class="fas fa-arrow-left"></i> Volver al perfil
-                    </a>
-                </div>
-                <div class="card-body">
-                    <form method="POST" enctype="multipart/form-data">
-                        {{ form.hidden_tag() }}
-                        
-                        <!-- Avatar -->
-                        <div class="text-center mb-4">
-                            <img src="{{ current_user.get_avatar_url(150) }}" 
-                                 alt="{{ current_user.display_name }}" 
-                                 class="rounded-circle border" 
-                                 id="avatar-preview" 
-                                 width="150" height="150">
-                            <div class="mt-3">
-                                {{ form.avatar_file.label(class="form-label") }}
-                                {{ form.avatar_file(class="form-control") }}
-                                {% if form.avatar_file.errors %}
-                                    <div class="text-danger small">
-                                        {{ form.avatar_file.errors[0] }}
-                                    </div>
-                                {% endif %}
-                                <div class="form-text">JPG, PNG o GIF. Máximo 5MB.</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Información personal -->
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    {{ form.first_name.label(class="form-label") }}
-                                    {{ form.first_name(class="form-control" + (" is-invalid" if form.first_name.errors else "")) }}
-                                    {% if form.first_name.errors %}
-                                        <div class="invalid-feedback">
-                                            {{ form.first_name.errors[0] }}
-                                        </div>
-                                    {% endif %}
+
+{% block title %}Editar Perfil - CodexSoto{% endblock %}{% block title %}Editar Perfil - CodexSoto{% endblock %}
+
+
+
+{% block content %}{% block content %}
+
+<div class="container py-5" style="padding-top: 120px !important;"><div class="container py-4">
+
+    <div class="row justify-content-center">    <div class="row">
+
+        <div class="col-lg-8">        <div class="col-md-8 mx-auto">
+
+            <div class="edit-profile-card">            <div class="card">
+
+                <div class="card-header-custom">                <div class="card-header d-flex justify-content-between align-items-center">
+
+                    <div class="d-flex justify-content-between align-items-center">                    <h4 class="mb-0">
+
+                        <h4 class="mb-0">                        <i class="fas fa-user-edit me-2"></i>Editar Perfil
+
+                            <i class="fas fa-user-edit me-2"></i>Editar Perfil                    </h4>
+
+                        </h4>                    <a href="{{ url_for('user.profile') }}" class="btn btn-outline-secondary">
+
+                        <a href="{{ url_for('user.profile') }}" class="btn btn-outline-neon btn-sm">                        <i class="fas fa-arrow-left"></i> Volver al perfil
+
+                            <i class="fas fa-arrow-left me-1"></i> Volver al perfil                    </a>
+
+                        </a>                </div>
+
+                    </div>                <div class="card-body">
+
+                </div>                    <form method="POST" enctype="multipart/form-data">
+
+                                        {{ form.hidden_tag() }}
+
+                <div class="card-body-custom">                        
+
+                    <form method="POST" enctype="multipart/form-data">                        <!-- Avatar -->
+
+                        {{ form.hidden_tag() }}                        <div class="text-center mb-4">
+
+                                                    <img src="{{ current_user.get_avatar_url(150) }}" 
+
+                        <!-- Avatar -->                                 alt="{{ current_user.display_name }}" 
+
+                        <div class="avatar-section">                                 class="rounded-circle border" 
+
+                            <div class="avatar-preview-wrapper">                                 id="avatar-preview" 
+
+                                <img src="{{ current_user.get_avatar_url(150) }}"                                  width="150" height="150">
+
+                                     alt="{{ current_user.display_name }}"                             <div class="mt-3">
+
+                                     class="avatar-preview"                                 {{ form.avatar_file.label(class="form-label") }}
+
+                                     id="avatar-preview">                                {{ form.avatar_file(class="form-control") }}
+
+                                <div class="avatar-edit-overlay">                                {% if form.avatar_file.errors %}
+
+                                    <i class="fas fa-camera"></i>                                    <div class="text-danger small">
+
+                                </div>                                        {{ form.avatar_file.errors[0] }}
+
+                            </div>                                    </div>
+
+                            <div class="avatar-upload">                                {% endif %}
+
+                                <label class="form-label">{{ form.avatar_file.label.text }}</label>                                <div class="form-text">JPG, PNG o GIF. Máximo 5MB.</div>
+
+                                {{ form.avatar_file(class="form-control", accept="image/*") }}                            </div>
+
+                                {% if form.avatar_file.errors %}                        </div>
+
+                                    <div class="text-danger small mt-1">                        
+
+                                        {{ form.avatar_file.errors[0] }}                        <!-- Información personal -->
+
+                                    </div>                        <div class="row">
+
+                                {% endif %}                            <div class="col-md-6">
+
+                                <div class="form-text">JPG, PNG o GIF. Máximo 5MB.</div>                                <div class="mb-3">
+
+                            </div>                                    {{ form.first_name.label(class="form-label") }}
+
+                        </div>                                    {{ form.first_name(class="form-control" + (" is-invalid" if form.first_name.errors else "")) }}
+
+                                                            {% if form.first_name.errors %}
+
+                        <hr class="divider">                                        <div class="invalid-feedback">
+
+                                                                    {{ form.first_name.errors[0] }}
+
+                        <!-- Información personal -->                                        </div>
+
+                        <h5 class="section-title">                                    {% endif %}
+
+                            <i class="fas fa-user me-2"></i>Información Personal                                </div>
+
+                        </h5>                            </div>
+
+                                                    <div class="col-md-6">
+
+                        <div class="row">                                <div class="mb-3">
+
+                            <div class="col-md-6">                                    {{ form.last_name.label(class="form-label") }}
+
+                                <div class="form-group">                                    {{ form.last_name(class="form-control" + (" is-invalid" if form.last_name.errors else "")) }}
+
+                                    {{ form.first_name.label(class="form-label") }}                                    {% if form.last_name.errors %}
+
+                                    {{ form.first_name(class="form-control" + (" is-invalid" if form.first_name.errors else ""), placeholder="Tu nombre") }}                                        <div class="invalid-feedback">
+
+                                    {% if form.first_name.errors %}                                            {{ form.last_name.errors[0] }}
+
+                                        <div class="invalid-feedback">                                        </div>
+
+                                            {{ form.first_name.errors[0] }}                                    {% endif %}
+
+                                        </div>                                </div>
+
+                                    {% endif %}                            </div>
+
+                                </div>                        </div>
+
+                            </div>                        
+
+                            <div class="col-md-6">                        <div class="mb-3">
+
+                                <div class="form-group">                            {{ form.username.label(class="form-label") }}
+
+                                    {{ form.last_name.label(class="form-label") }}                            {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else "")) }}
+
+                                    {{ form.last_name(class="form-control" + (" is-invalid" if form.last_name.errors else ""), placeholder="Tu apellido") }}                            {% if form.username.errors %}
+
+                                    {% if form.last_name.errors %}                                <div class="invalid-feedback">
+
+                                        <div class="invalid-feedback">                                    {{ form.username.errors[0] }}
+
+                                            {{ form.last_name.errors[0] }}                                </div>
+
+                                        </div>                            {% endif %}
+
+                                    {% endif %}                        </div>
+
+                                </div>                        
+
+                            </div>                        <div class="mb-3">
+
+                        </div>                            {{ form.email.label(class="form-label") }}
+
+                                                    {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else "")) }}
+
+                        <div class="form-group">                            {% if form.email.errors %}
+
+                            {{ form.username.label(class="form-label") }}                                <div class="invalid-feedback">
+
+                            {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else ""), placeholder="nombre_usuario") }}                                    {{ form.email.errors[0] }}
+
+                            {% if form.username.errors %}                                </div>
+
+                                <div class="invalid-feedback">                            {% endif %}
+
+                                    {{ form.username.errors[0] }}                        </div>
+
+                                </div>                        
+
+                            {% endif %}                        <div class="mb-3">
+
+                        </div>                            {{ form.bio.label(class="form-label") }}
+
+                                                    {{ form.bio(class="form-control", rows="4") }}
+
+                        <div class="form-group">                            {% if form.bio.errors %}
+
+                            {{ form.email.label(class="form-label") }}                                <div class="text-danger small">
+
+                            {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="tu@email.com") }}                                    {{ form.bio.errors[0] }}
+
+                            {% if form.email.errors %}                                </div>
+
+                                <div class="invalid-feedback">                            {% endif %}
+
+                                    {{ form.email.errors[0] }}                            <div class="form-text">Cuéntanos un poco sobre ti</div>
+
+                                </div>                        </div>
+
+                            {% endif %}                        
+
+                        </div>                        <div class="row">
+
+                                                    <div class="col-md-6">
+
+                        <div class="form-group">                                <div class="mb-3">
+
+                            {{ form.bio.label(class="form-label") }}                                    {{ form.location.label(class="form-label") }}
+
+                            {{ form.bio(class="form-control", rows="4", placeholder="Cuéntanos un poco sobre ti...") }}                                    {{ form.location(class="form-control") }}
+
+                            {% if form.bio.errors %}                                </div>
+
+                                <div class="text-danger small mt-1">                            </div>
+
+                                    {{ form.bio.errors[0] }}                            <div class="col-md-6">
+
+                                </div>                                <div class="mb-3">
+
+                            {% endif %}                                    {{ form.website.label(class="form-label") }}
+
+                        </div>                                    {{ form.website(class="form-control" + (" is-invalid" if form.website.errors else "")) }}
+
+                                                            {% if form.website.errors %}
+
+                        <div class="row">                                        <div class="invalid-feedback">
+
+                            <div class="col-md-6">                                            {{ form.website.errors[0] }}
+
+                                <div class="form-group">                                        </div>
+
+                                    {{ form.location.label(class="form-label") }}                                    {% endif %}
+
+                                    {{ form.location(class="form-control", placeholder="Ciudad, País") }}                                </div>
+
+                                </div>                            </div>
+
+                            </div>                        </div>
+
+                            <div class="col-md-6">                        
+
+                                <div class="form-group">                        <!-- Preferencias -->
+
+                                    {{ form.website.label(class="form-label") }}                        <hr>
+
+                                    {{ form.website(class="form-control" + (" is-invalid" if form.website.errors else ""), placeholder="https://tu-sitio.com") }}                        <h5>Preferencias</h5>
+
+                                    {% if form.website.errors %}                        
+
+                                        <div class="invalid-feedback">                        <div class="row">
+
+                                            {{ form.website.errors[0] }}                            <div class="col-md-6">
+
+                                        </div>                                <div class="mb-3">
+
+                                    {% endif %}                                    {{ form.preferred_language.label(class="form-label") }}
+
+                                </div>                                    {{ form.preferred_language(class="form-select") }}
+
+                            </div>                                </div>
+
+                        </div>                            </div>
+
+                                                    <div class="col-md-6">
+
+                        <hr class="divider">                                <div class="mb-3">
+
+                                                            {{ form.theme_preference.label(class="form-label") }}
+
+                        <!-- Preferencias -->                                    {{ form.theme_preference(class="form-select") }}
+
+                        <h5 class="section-title">                                </div>
+
+                            <i class="fas fa-cog me-2"></i>Preferencias                            </div>
+
+                        </h5>                        </div>
+
+                                                
+
+                        <div class="row">                        <div class="mb-3">
+
+                            <div class="col-md-6">                            <div class="form-check">
+
+                                <div class="form-group">                                {{ form.newsletter_subscribed(class="form-check-input") }}
+
+                                    {{ form.preferred_language.label(class="form-label") }}                                {{ form.newsletter_subscribed.label(class="form-check-label") }}
+
+                                    {{ form.preferred_language(class="form-select") }}                            </div>
+
+                                </div>                        </div>
+
+                            </div>                        
+
+                            <div class="col-md-6">                        <div class="mb-3">
+
+                                <div class="form-group">                            <div class="form-check">
+
+                                    {{ form.theme_preference.label(class="form-label") }}                                {{ form.email_notifications(class="form-check-input") }}
+
+                                    {{ form.theme_preference(class="form-select") }}                                {{ form.email_notifications.label(class="form-check-label") }}
+
+                                </div>                            </div>
+
+                            </div>                        </div>
+
+                        </div>                        
+
+                                                <div class="d-flex justify-content-between">
+
+                        <div class="preferences-checkboxes">                            <div>
+
+                            <div class="form-check-custom">                                <button type="submit" class="btn btn-primary">
+
+                                {{ form.newsletter_subscribed(class="form-check-input") }}                                    <i class="fas fa-save"></i> Guardar Cambios
+
+                                {{ form.newsletter_subscribed.label(class="form-check-label") }}                                </button>
+
+                                <small class="text-muted d-block ms-4">Recibe las últimas noticias y actualizaciones</small>                                <a href="{{ url_for('user.profile') }}" class="btn btn-secondary">Cancelar</a>
+
+                            </div>                            </div>
+
+                                                        <a href="{{ url_for('user.change_password') }}" class="btn btn-outline-warning">
+
+                            <div class="form-check-custom">                                <i class="fas fa-key"></i> Cambiar Contraseña
+
+                                {{ form.email_notifications(class="form-check-input") }}                            </a>
+
+                                {{ form.email_notifications.label(class="form-check-label") }}                        </div>
+
+                                <small class="text-muted d-block ms-4">Notificaciones sobre respuestas a tus comentarios</small>                    </form>
+
+                            </div>                </div>
+
+                        </div>            </div>
+
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    {{ form.last_name.label(class="form-label") }}
-                                    {{ form.last_name(class="form-control" + (" is-invalid" if form.last_name.errors else "")) }}
-                                    {% if form.last_name.errors %}
-                                        <div class="invalid-feedback">
-                                            {{ form.last_name.errors[0] }}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
+
+                        <hr class="divider">    </div>
+
                         </div>
-                        
-                        <div class="mb-3">
-                            {{ form.username.label(class="form-label") }}
-                            {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else "")) }}
-                            {% if form.username.errors %}
-                                <div class="invalid-feedback">
-                                    {{ form.username.errors[0] }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="mb-3">
-                            {{ form.email.label(class="form-label") }}
-                            {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else "")) }}
-                            {% if form.email.errors %}
-                                <div class="invalid-feedback">
-                                    {{ form.email.errors[0] }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="mb-3">
-                            {{ form.bio.label(class="form-label") }}
-                            {{ form.bio(class="form-control", rows="4") }}
-                            {% if form.bio.errors %}
-                                <div class="text-danger small">
-                                    {{ form.bio.errors[0] }}
-                                </div>
-                            {% endif %}
-                            <div class="form-text">Cuéntanos un poco sobre ti</div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    {{ form.location.label(class="form-label") }}
-                                    {{ form.location(class="form-control") }}
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    {{ form.website.label(class="form-label") }}
-                                    {{ form.website(class="form-control" + (" is-invalid" if form.website.errors else "")) }}
-                                    {% if form.website.errors %}
-                                        <div class="invalid-feedback">
-                                            {{ form.website.errors[0] }}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Preferencias -->
-                        <hr>
-                        <h5>Preferencias</h5>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    {{ form.preferred_language.label(class="form-label") }}
-                                    {{ form.preferred_language(class="form-select") }}
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    {{ form.theme_preference.label(class="form-label") }}
-                                    {{ form.theme_preference(class="form-select") }}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <div class="form-check">
-                                {{ form.newsletter_subscribed(class="form-check-input") }}
-                                {{ form.newsletter_subscribed.label(class="form-check-label") }}
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <div class="form-check">
-                                {{ form.email_notifications(class="form-check-input") }}
-                                {{ form.email_notifications.label(class="form-check-label") }}
-                            </div>
-                        </div>
-                        
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> Guardar Cambios
-                                </button>
-                                <a href="{{ url_for('user.profile') }}" class="btn btn-secondary">Cancelar</a>
-                            </div>
-                            <a href="{{ url_for('user.change_password') }}" class="btn btn-outline-warning">
-                                <i class="fas fa-key"></i> Cambiar Contraseña
-                            </a>
-                        </div>
-                    </form>
+
+                        <!-- Botones de acción -->
+
+                        <div class="action-buttons"><script>
+
+                            <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">// Preview del avatar
+
+                                <div class="d-flex gap-2">document.getElementById('avatar_file').addEventListener('change', function(e) {
+
+                                    <button type="submit" class="btn btn-neon">    const file = e.target.files[0];
+
+                                        <i class="fas fa-save me-1"></i> Guardar Cambios    if (file) {
+
+                                    </button>        const reader = new FileReader();
+
+                                    <a href="{{ url_for('user.profile') }}" class="btn btn-outline-secondary">Cancelar</a>        reader.onload = function(e) {
+
+                                </div>            document.getElementById('avatar-preview').src = e.target.result;
+
+                                <a href="{{ url_for('user.change_password') }}" class="btn btn-outline-warning">        };
+
+                                    <i class="fas fa-key me-1"></i> Cambiar Contraseña        reader.readAsDataURL(file);
+
+                                </a>    }
+
+                            </div>});
+
+                        </div></script>
+
+                    </form>{% endblock %}
+
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+/* Edit Profile Card */
+.edit-profile-card {
+    background: linear-gradient(145deg, rgba(10, 25, 47, 0.95), rgba(0, 20, 40, 0.98));
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.card-header-custom {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 20px 30px;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+.card-header-custom h4 {
+    color: #fff;
+    font-family: 'Orbitron', monospace;
+}
+
+.card-body-custom {
+    padding: 30px;
+}
+
+/* Avatar Section */
+.avatar-section {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    padding: 20px;
+    background: rgba(30, 41, 59, 0.3);
+    border-radius: 12px;
+    margin-bottom: 25px;
+}
+
+.avatar-preview-wrapper {
+    position: relative;
+    cursor: pointer;
+}
+
+.avatar-preview {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid #00d4ff;
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+    object-fit: cover;
+}
+
+.avatar-edit-overlay {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 35px;
+    height: 35px;
+    background: linear-gradient(135deg, #00d4ff, #0099cc);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0a1929;
+    font-size: 14px;
+}
+
+.avatar-upload {
+    flex-grow: 1;
+}
+
+/* Divider */
+.divider {
+    border-color: rgba(0, 212, 255, 0.2);
+    margin: 25px 0;
+}
+
+/* Section Title */
+.section-title {
+    color: #00d4ff;
+    font-family: 'Orbitron', monospace;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}
+
+/* Form Groups */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    color: #e5e7eb;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.form-control, .form-select {
+    background: #1e293b;
+    border: 1px solid #374151;
+    color: #e5e7eb;
+    padding: 12px 15px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    background: #1e293b;
+    border-color: #00d4ff;
+    color: #e5e7eb;
+    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.15);
+}
+
+.form-control::placeholder {
+    color: #6b7280;
+}
+
+.form-control.is-invalid {
+    border-color: #ff4757;
+}
+
+.invalid-feedback {
+    color: #ff4757;
+    font-size: 0.85rem;
+}
+
+.form-text {
+    color: #6b7280;
+    font-size: 0.85rem;
+    margin-top: 5px;
+}
+
+/* Checkboxes */
+.preferences-checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-check-custom {
+    padding: 15px;
+    background: rgba(30, 41, 59, 0.3);
+    border-radius: 8px;
+    border: 1px solid #374151;
+}
+
+.form-check-custom .form-check-input {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    background-color: #1e293b;
+    border-color: #374151;
+}
+
+.form-check-custom .form-check-input:checked {
+    background-color: #00d4ff;
+    border-color: #00d4ff;
+}
+
+.form-check-custom .form-check-label {
+    color: #e5e7eb;
+    font-weight: 500;
+}
+
+/* Buttons */
+.btn-neon {
+    background: linear-gradient(135deg, #00d4ff, #0099cc);
+    border: none;
+    color: #0a1929;
+    font-weight: 600;
+    padding: 12px 25px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-neon:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+    color: #0a1929;
+}
+
+.btn-outline-neon {
+    border: 1px solid #00d4ff;
+    color: #00d4ff;
+    background: transparent;
+}
+
+.btn-outline-neon:hover {
+    background: rgba(0, 212, 255, 0.1);
+    color: #00d4ff;
+}
+
+.btn-outline-secondary {
+    border-color: #6b7280;
+    color: #9ca3af;
+}
+
+.btn-outline-secondary:hover {
+    background: rgba(107, 114, 128, 0.1);
+    color: #9ca3af;
+    border-color: #6b7280;
+}
+
+.btn-outline-warning {
+    border-color: #f1c40f;
+    color: #f1c40f;
+}
+
+.btn-outline-warning:hover {
+    background: rgba(241, 196, 15, 0.1);
+    color: #f1c40f;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .avatar-section {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .action-buttons .d-flex {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .action-buttons .btn {
+        width: 100%;
+    }
+}
+</style>
 
 <script>
 // Preview del avatar

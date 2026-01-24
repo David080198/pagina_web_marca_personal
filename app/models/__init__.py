@@ -9,6 +9,7 @@ from .analytics import PageView, VisitorStats
 from .enrollment import CourseEnrollment, Payment, EnrollmentStatus, PaymentStatus, PaymentMethod
 from .comment import Comment
 from .favorite import Favorite
+from .like import Like
 
 # Nuevos modelos - CODEXSOTO Platform
 from .subscription import Subscription, SubscriptionPayment, SubscriptionPlan, SubscriptionStatus
@@ -31,6 +32,7 @@ __all__ = [
     'Payment',
     'Comment',
     'Favorite',
+    'Like',
     
     # Enums de enrollment
     'EnrollmentStatus',

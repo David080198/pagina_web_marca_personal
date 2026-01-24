@@ -5,6 +5,9 @@ from app.models.blog import BlogPost
 from app.models.course import Course
 from app.models.project import Project
 from app.models.site_config import SiteConfig
+from app.models.like import Like
+from app.models.comment import Comment
+from app.extensions import db
 from werkzeug.utils import secure_filename
 import os
 import uuid
@@ -237,3 +240,225 @@ def upload_blog_image():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
+
+# ===============================================
+# API de Likes
+# ===============================================
+
+@api_bp.route('/like/<content_type>/<int:content_id>', methods=['POST'])
+@login_required
+def toggle_like(content_type, content_id):
+    """Toggle like en un contenido (blog, course, project)"""
+    if content_type not in ['blog', 'course', 'project']:
+        return jsonify({'success': False, 'error': 'Tipo de contenido inválido'}), 400
+    
+    # Verificar que el contenido existe
+    if content_type == 'blog':
+        content = BlogPost.query.get(content_id)
+    elif content_type == 'course':
+        content = Course.query.get(content_id)
+    elif content_type == 'project':
+        content = Project.query.get(content_id)
+    
+    if not content:
+        return jsonify({'success': False, 'error': 'Contenido no encontrado'}), 404
+    
+    # Toggle like
+    liked = Like.toggle_like(current_user.id, content_type, content_id)
+    likes_count = Like.get_likes_count(content_type, content_id)
+    
+    return jsonify({
+        'success': True,
+        'liked': liked,
+        'likes_count': likes_count
+    })
+
+
+@api_bp.route('/like/<content_type>/<int:content_id>', methods=['GET'])
+def get_like_status(content_type, content_id):
+    """Obtener estado del like y contador"""
+    if content_type not in ['blog', 'course', 'project']:
+        return jsonify({'success': False, 'error': 'Tipo de contenido inválido'}), 400
+    
+    likes_count = Like.get_likes_count(content_type, content_id)
+    liked = False
+    
+    if current_user.is_authenticated:
+        liked = Like.user_has_liked(current_user.id, content_type, content_id)
+    
+    return jsonify({
+        'success': True,
+        'liked': liked,
+        'likes_count': likes_count
+    })
+
+
+# ===============================================
+# API de Comentarios
+# ===============================================
+
+@api_bp.route('/comments/<content_type>/<int:content_id>', methods=['GET'])
+def get_comments(content_type, content_id):
+    """Obtener comentarios de un contenido"""
+    if content_type not in ['blog', 'course', 'project']:
+        return jsonify({'success': False, 'error': 'Tipo de contenido inválido'}), 400
+    
+    comments = Comment.query.filter_by(
+        content_type=content_type,
+        content_id=content_id,
+        is_approved=True,
+        parent_id=None  # Solo comentarios principales
+    ).order_by(Comment.created_at.desc()).all()
+    
+    comments_data = []
+    for comment in comments:
+        replies = Comment.query.filter_by(
+            parent_id=comment.id,
+            is_approved=True
+        ).order_by(Comment.created_at.asc()).all()
+        
+        comments_data.append({
+            'id': comment.id,
+            'content': comment.content,
+            'user': {
+                'id': comment.user.id,
+                'username': comment.user.username,
+                'display_name': comment.user.display_name,
+                'avatar_url': comment.user.get_avatar_url(50)
+            },
+            'created_at': comment.created_at.isoformat(),
+            'is_pinned': comment.is_pinned,
+            'can_edit': current_user.is_authenticated and comment.can_edit(current_user),
+            'can_delete': current_user.is_authenticated and comment.can_delete(current_user),
+            'replies': [{
+                'id': reply.id,
+                'content': reply.content,
+                'user': {
+                    'id': reply.user.id,
+                    'username': reply.user.username,
+                    'display_name': reply.user.display_name,
+                    'avatar_url': reply.user.get_avatar_url(40)
+                },
+                'created_at': reply.created_at.isoformat(),
+                'can_edit': current_user.is_authenticated and reply.can_edit(current_user),
+                'can_delete': current_user.is_authenticated and reply.can_delete(current_user)
+            } for reply in replies]
+        })
+    
+    return jsonify({
+        'success': True,
+        'comments': comments_data,
+        'count': len(comments_data)
+    })
+
+
+@api_bp.route('/comments/<content_type>/<int:content_id>', methods=['POST'])
+@login_required
+def add_comment(content_type, content_id):
+    """Agregar un comentario"""
+    if content_type not in ['blog', 'course', 'project']:
+        return jsonify({'success': False, 'error': 'Tipo de contenido inválido'}), 400
+    
+    data = request.get_json()
+    if not data or not data.get('content'):
+        return jsonify({'success': False, 'error': 'El contenido del comentario es requerido'}), 400
+    
+    content_text = data['content'].strip()
+    if len(content_text) < 3:
+        return jsonify({'success': False, 'error': 'El comentario es muy corto'}), 400
+    if len(content_text) > 2000:
+        return jsonify({'success': False, 'error': 'El comentario es muy largo (máximo 2000 caracteres)'}), 400
+    
+    parent_id = data.get('parent_id')
+    
+    # Verificar que el comentario padre existe si se especifica
+    if parent_id:
+        parent = Comment.query.get(parent_id)
+        if not parent:
+            return jsonify({'success': False, 'error': 'Comentario padre no encontrado'}), 404
+    
+    try:
+        comment = Comment(
+            content=content_text,
+            user_id=current_user.id,
+            content_type=content_type,
+            content_id=content_id,
+            parent_id=parent_id,
+            is_approved=True  # Auto aprobar por ahora
+        )
+        db.session.add(comment)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'comment': {
+                'id': comment.id,
+                'content': comment.content,
+                'user': {
+                    'id': current_user.id,
+                    'username': current_user.username,
+                    'display_name': current_user.display_name,
+                    'avatar_url': current_user.get_avatar_url(50)
+                },
+                'created_at': comment.created_at.isoformat()
+            }
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@api_bp.route('/comments/<int:comment_id>', methods=['PUT'])
+@login_required
+def edit_comment(comment_id):
+    """Editar un comentario"""
+    comment = Comment.query.get_or_404(comment_id)
+    
+    if not comment.can_edit(current_user):
+        return jsonify({'success': False, 'error': 'No tienes permiso para editar este comentario'}), 403
+    
+    data = request.get_json()
+    if not data or not data.get('content'):
+        return jsonify({'success': False, 'error': 'El contenido es requerido'}), 400
+    
+    content_text = data['content'].strip()
+    if len(content_text) < 3 or len(content_text) > 2000:
+        return jsonify({'success': False, 'error': 'Longitud de comentario inválida'}), 400
+    
+    try:
+        comment.content = content_text
+        comment.updated_at = datetime.utcnow()
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'comment': {
+                'id': comment.id,
+                'content': comment.content,
+                'updated_at': comment.updated_at.isoformat()
+            }
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@api_bp.route('/comments/<int:comment_id>', methods=['DELETE'])
+@login_required
+def delete_comment(comment_id):
+    """Eliminar un comentario"""
+    comment = Comment.query.get_or_404(comment_id)
+    
+    if not comment.can_delete(current_user):
+        return jsonify({'success': False, 'error': 'No tienes permiso para eliminar este comentario'}), 403
+    
+    try:
+        # Eliminar respuestas también
+        Comment.query.filter_by(parent_id=comment.id).delete()
+        db.session.delete(comment)
+        db.session.commit()
+        
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
