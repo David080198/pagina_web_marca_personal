@@ -23,30 +23,48 @@ create_app = app_module.create_app
 from app.extensions import db
 from app.models.user import User
 
-NEW_USERNAME = 'administrador'
-NEW_PASSWORD = 'David1Soto2'
+# Nuevas credenciales - CAMBIAR según necesites
+NEW_USERNAME = 'david'
+NEW_PASSWORD = 'MiPasswordSeguro123!'
+NEW_EMAIL = 'david@codexsoto.com'
 
 app = create_app()
 
 with app.app_context():
-    # Prefer finding by username 'admin'
+    # Buscar usuario admin existente por varios criterios
     user = User.query.filter_by(username='admin').first()
+    if not user:
+        user = User.query.filter_by(username='administrador').first()
+    if not user:
+        user = User.query.filter_by(is_admin=True).first()
     if not user:
         admin_email = os.environ.get('ADMIN_EMAIL')
         if admin_email:
             user = User.query.filter_by(email=admin_email).first()
 
     if not user:
-        print('No se encontró el usuario administrador (username="admin" o ADMIN_EMAIL). No se aplicaron cambios.')
+        print('No se encontró ningún usuario administrador. Creando uno nuevo...')
+        user = User(
+            username=NEW_USERNAME,
+            email=NEW_EMAIL,
+            is_admin=True,
+            role='admin'
+        )
+        user.set_password(NEW_PASSWORD)
+        db.session.add(user)
+        db.session.commit()
+        print(f"✅ Usuario admin creado: {NEW_USERNAME} / {NEW_EMAIL}")
     else:
-        # Check for username conflict
-        conflict = User.query.filter(User.username==NEW_USERNAME, User.id!=user.id).first()
-        if conflict:
-            print(f"Existe otro usuario con username '{NEW_USERNAME}'. Cambia el NEW_USERNAME en el script o elimina/confirma el usuario conflictivo.")
-        else:
-            user.username = NEW_USERNAME
-            user.password_hash = generate_password_hash(NEW_PASSWORD)
-            user.is_admin = True
-            user.role = 'admin'
-            db.session.commit()
-            print(f"Credenciales actualizadas. Nuevo username: {user.username} | contraseña: {NEW_PASSWORD}")
+        # Actualizar credenciales
+        old_username = user.username
+        user.username = NEW_USERNAME
+        user.email = NEW_EMAIL
+        user.set_password(NEW_PASSWORD)
+        user.is_admin = True
+        user.role = 'admin'
+        db.session.commit()
+        print(f"✅ Credenciales actualizadas!")
+        print(f"   Usuario anterior: {old_username}")
+        print(f"   Nuevo usuario: {NEW_USERNAME}")
+        print(f"   Email: {NEW_EMAIL}")
+        print(f"   Contraseña: {NEW_PASSWORD}")
