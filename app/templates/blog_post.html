@@ -49,11 +49,15 @@
                 <footer class="blog-footer mt-5 pt-4">
                     <div class="row align-items-center">
                         <div class="col-md-6 mb-3 mb-md-0">
-                            <!-- Botón de Like -->
+                            <!-- Botones de Like y Favorito -->
                             <div class="d-flex align-items-center gap-3">
                                 <button id="likeBtn" class="btn btn-like" onclick="toggleLike()">
                                     <i class="fas fa-heart" id="likeIcon"></i>
                                     <span id="likesCount">0</span>
+                                </button>
+                                <button id="favoriteBtn" class="btn btn-favorite" onclick="toggleFavorite()">
+                                    <i class="fas fa-bookmark" id="favoriteIcon"></i>
+                                    <span id="favoriteText">Guardar</span>
                                 </button>
                                 <a href="{{ url_for('main.blog') }}" class="btn btn-outline-neon">
                                     <i class="fas fa-arrow-left me-2"></i> Volver al Blog
@@ -419,6 +423,74 @@ document.addEventListener('DOMContentLoaded', function() {
     50% { transform: scale(1.3); }
 }
 
+/* Favorite Button Styles */
+.btn-favorite {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: 2px solid #374151;
+    background: transparent;
+    color: #9ca3af;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-favorite:hover {
+    border-color: #00d4ff;
+    color: #00d4ff;
+    transform: scale(1.05);
+}
+
+.btn-favorite.favorited {
+    border-color: #00d4ff;
+    background: rgba(0, 212, 255, 0.1);
+    color: #00d4ff;
+}
+
+.btn-favorite.favorited i {
+    animation: bookmark-pop 0.4s ease;
+}
+
+@keyframes bookmark-pop {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2) rotate(10deg); }
+}
+
+/* Toast Notifications */
+.toast-notification {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding: 15px 25px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.9);
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    color: #fff;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    z-index: 9999;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+}
+
+.toast-notification.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast-notification.toast-success {
+    border-color: #00ff88;
+    color: #00ff88;
+}
+
+.toast-notification.toast-info {
+    border-color: #00d4ff;
+    color: #00d4ff;
+}
+
 /* Comments Section Styles */
 .comments-section {
     background: rgba(0, 0, 0, 0.2);
@@ -624,6 +696,7 @@ const isAuthenticated = {{ 'true' if current_user.is_authenticated else 'false' 
 // Cargar likes y comentarios al iniciar
 document.addEventListener('DOMContentLoaded', function() {
     loadLikeStatus();
+    loadFavoriteStatus();
     loadComments();
     
     // Contador de caracteres para comentarios
@@ -692,6 +765,83 @@ function updateLikeUI(liked, count) {
         likeIcon.classList.remove('fas');
         likeIcon.classList.add('far');
     }
+}
+
+// =====================
+// Funciones de Favoritos
+// =====================
+
+function loadFavoriteStatus() {
+    fetch(`/api/favorite/${contentType}/${postId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateFavoriteUI(data.favorited);
+            }
+        })
+        .catch(error => console.error('Error loading favorite status:', error));
+}
+
+function toggleFavorite() {
+    if (!isAuthenticated) {
+        window.location.href = "{{ url_for('auth.login') }}?next={{ request.url | urlencode }}";
+        return;
+    }
+    
+    fetch(`/api/favorite/${contentType}/${postId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateFavoriteUI(data.favorited);
+            // Mostrar feedback
+            const message = data.favorited ? '¡Agregado a favoritos!' : 'Eliminado de favoritos';
+            showToast(message, data.favorited ? 'success' : 'info');
+        } else {
+            alert(data.error || 'Error al procesar el favorito');
+        }
+    })
+    .catch(error => {
+        console.error('Error toggling favorite:', error);
+        alert('Error de conexión');
+    });
+}
+
+function updateFavoriteUI(favorited) {
+    const favoriteBtn = document.getElementById('favoriteBtn');
+    const favoriteIcon = document.getElementById('favoriteIcon');
+    const favoriteText = document.getElementById('favoriteText');
+    
+    if (favorited) {
+        favoriteBtn.classList.add('favorited');
+        favoriteIcon.classList.remove('far');
+        favoriteIcon.classList.add('fas');
+        favoriteText.textContent = 'Guardado';
+    } else {
+        favoriteBtn.classList.remove('favorited');
+        favoriteIcon.classList.remove('fas');
+        favoriteIcon.classList.add('far');
+        favoriteText.textContent = 'Guardar';
+    }
+}
+
+function showToast(message, type = 'info') {
+    // Crear toast temporal
+    const toast = document.createElement('div');
+    toast.className = `toast-notification toast-${type}`;
+    toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'} me-2"></i>${message}`;
+    document.body.appendChild(toast);
+    
+    // Mostrar y ocultar
+    setTimeout(() => toast.classList.add('show'), 100);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 2500);
 }
 
 // =====================

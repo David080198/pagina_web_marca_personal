@@ -7,6 +7,7 @@ from app.models.project import Project
 from app.models.site_config import SiteConfig
 from app.models.like import Like
 from app.models.comment import Comment
+from app.models.favorite import Favorite
 from app.extensions import db
 from werkzeug.utils import secure_filename
 import os
@@ -290,6 +291,54 @@ def get_like_status(content_type, content_id):
         'success': True,
         'liked': liked,
         'likes_count': likes_count
+    })
+
+
+# ===============================================
+# API de Favoritos
+# ===============================================
+
+@api_bp.route('/favorite/<content_type>/<int:content_id>', methods=['POST'])
+@login_required
+def toggle_favorite(content_type, content_id):
+    """Toggle favorito en un contenido (blog, course, project)"""
+    if content_type not in ['blog', 'course', 'project']:
+        return jsonify({'success': False, 'error': 'Tipo de contenido inválido'}), 400
+    
+    # Verificar que el contenido existe
+    if content_type == 'blog':
+        content = BlogPost.query.get(content_id)
+    elif content_type == 'course':
+        content = Course.query.get(content_id)
+    elif content_type == 'project':
+        content = Project.query.get(content_id)
+    
+    if not content:
+        return jsonify({'success': False, 'error': 'Contenido no encontrado'}), 404
+    
+    # Toggle favorite
+    favorited = Favorite.toggle_favorite(current_user.id, content_type, content_id)
+    
+    return jsonify({
+        'success': True,
+        'favorited': favorited
+    })
+
+
+@api_bp.route('/favorite/<content_type>/<int:content_id>', methods=['GET'])
+def get_favorite_status(content_type, content_id):
+    """Obtener estado del favorito"""
+    if content_type not in ['blog', 'course', 'project']:
+        return jsonify({'success': False, 'error': 'Tipo de contenido inválido'}), 400
+    
+    favorited = False
+    
+    if current_user.is_authenticated:
+        favorited = Favorite.is_favorited_by_user(current_user.id, content_type, content_id)
+    
+    return jsonify({
+        'success': True,
+        'favorited': favorited
     })
 
 
