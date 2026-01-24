@@ -182,17 +182,26 @@ def create_app():
             from werkzeug.security import generate_password_hash
             print("✅ Modelos importados exitosamente")
             
-            # Verificar si el usuario admin ya existe
+            # Credenciales del admin desde variables de entorno
+            admin_email = os.environ.get('ADMIN_EMAIL', 'david@codexsoto.com')
+            admin_password = os.environ.get('ADMIN_PASSWORD', 'MiPasswordSeguro123!')
+            admin_username = admin_email.split('@')[0]  # Usar parte antes del @ como username
+            
+            # Buscar usuario admin existente por varios criterios
             print("Verificando usuario administrador...")
-            admin_user = User.query.filter_by(username='admin').first()
+            admin_user = User.query.filter_by(is_admin=True).first()
+            if not admin_user:
+                admin_user = User.query.filter_by(email=admin_email).first()
+            if not admin_user:
+                admin_user = User.query.filter_by(username='admin').first()
+            if not admin_user:
+                admin_user = User.query.filter_by(username='administrador').first()
             
             if not admin_user:
+                # Crear nuevo usuario admin
                 print("Creando usuario administrador...")
-                admin_email = os.environ.get('ADMIN_EMAIL', 'admin@codexsoto.com')
-                admin_password = os.environ.get('ADMIN_PASSWORD', 'admin123')
-                
                 admin_user = User(
-                    username='admin',
+                    username=admin_username,
                     email=admin_email,
                     first_name='David',
                     last_name='Soto',
@@ -205,7 +214,15 @@ def create_app():
                 db.session.add(admin_user)
                 print(f"✅ Usuario administrador creado: {admin_email}")
             else:
-                print(f"✅ Usuario administrador ya existe: {admin_user.email}")
+                # Actualizar credenciales del admin existente
+                print(f"Actualizando credenciales del administrador...")
+                admin_user.username = admin_username
+                admin_user.email = admin_email
+                admin_user.set_password(admin_password)
+                admin_user.is_admin = True
+                admin_user.role = 'admin'
+                admin_user.email_verified = True
+                print(f"✅ Credenciales actualizadas: {admin_email}")
             
             # Crear configuración por defecto del sitio
             print("Verificando configuración del sitio...")
