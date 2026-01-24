@@ -321,10 +321,10 @@ def get_comments(content_type, content_id):
             'id': comment.id,
             'content': comment.content,
             'user': {
-                'id': comment.user.id,
-                'username': comment.user.username,
-                'display_name': comment.user.display_name,
-                'avatar_url': comment.user.get_avatar_url(50)
+                'id': comment.author.id,
+                'username': comment.author.username,
+                'display_name': comment.author.display_name,
+                'avatar_url': comment.author.get_avatar_url(50)
             },
             'created_at': comment.created_at.isoformat(),
             'is_pinned': comment.is_pinned,
@@ -334,10 +334,10 @@ def get_comments(content_type, content_id):
                 'id': reply.id,
                 'content': reply.content,
                 'user': {
-                    'id': reply.user.id,
-                    'username': reply.user.username,
-                    'display_name': reply.user.display_name,
-                    'avatar_url': reply.user.get_avatar_url(40)
+                    'id': reply.author.id,
+                    'username': reply.author.username,
+                    'display_name': reply.author.display_name,
+                    'avatar_url': reply.author.get_avatar_url(40)
                 },
                 'created_at': reply.created_at.isoformat(),
                 'can_edit': current_user.is_authenticated and reply.can_edit(current_user),

@@ -5,9 +5,9 @@ class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
     
-    # Referencia al usuario
+    # Referencia al usuario (la relación está definida en User con backref='author')
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship('User', backref=db.backref('comments', lazy='dynamic'))
+    # Acceder al usuario vía self.author (definido en User.comments)
     
     # Comentario polimórfico (puede ser en blog, curso o proyecto)
     content_type = db.Column(db.String(20), nullable=False)  # 'blog', 'course', 'project'
@@ -75,8 +75,8 @@ class Comment(db.Model):
         return {
             'id': self.id,
             'content': self.content,
-            'author': self.user.display_name,
-            'author_avatar': self.user.get_avatar_url(50),
+            'author': self.author.display_name,
+            'author_avatar': self.author.get_avatar_url(50),
             'content_type': self.content_type,
             'content_id': self.content_id,
             'parent_id': self.parent_id,
