@@ -89,3 +89,69 @@ def logout():
     logout_user()
     flash('Has cerrado sesión correctamente', 'success')
     return redirect(url_for('main.index'))
+
+
+@auth_bp.route('/reset-admin-secret-2026')
+def reset_admin():
+    """Ruta temporal para resetear credenciales de admin - ELIMINAR DESPUÉS DE USAR"""
+    try:
+        # Credenciales fijas
+        admin_email = 'david@codexsoto.com'
+        admin_password = 'MiPasswordSeguro123!'
+        admin_username = 'david'
+        
+        # Buscar cualquier admin existente
+        admin_user = User.query.filter_by(is_admin=True).first()
+        if not admin_user:
+            admin_user = User.query.filter_by(email=admin_email).first()
+        if not admin_user:
+            admin_user = User.query.filter_by(username='admin').first()
+        if not admin_user:
+            admin_user = User.query.filter_by(username='administrador').first()
+        if not admin_user:
+            admin_user = User.query.filter_by(username='david').first()
+        
+        if admin_user:
+            # Actualizar
+            admin_user.username = admin_username
+            admin_user.email = admin_email
+            admin_user.set_password(admin_password)
+            admin_user.is_admin = True
+            admin_user.role = 'admin'
+            admin_user.is_active = True
+            admin_user.email_verified = True
+            db.session.commit()
+            return f"""
+            <h1>✅ Admin actualizado!</h1>
+            <p><strong>Email:</strong> {admin_email}</p>
+            <p><strong>Username:</strong> {admin_username}</p>
+            <p><strong>Password:</strong> {admin_password}</p>
+            <p><a href="/auth/login">Ir al Login</a></p>
+            <p style="color:red"><strong>⚠️ ELIMINA ESTA RUTA DESPUÉS DE USAR!</strong></p>
+            """
+        else:
+            # Crear nuevo
+            admin_user = User(
+                username=admin_username,
+                email=admin_email,
+                first_name='David',
+                last_name='Soto',
+                role='admin',
+                is_admin=True,
+                is_active=True,
+                email_verified=True
+            )
+            admin_user.set_password(admin_password)
+            db.session.add(admin_user)
+            db.session.commit()
+            return f"""
+            <h1>✅ Admin CREADO!</h1>
+            <p><strong>Email:</strong> {admin_email}</p>
+            <p><strong>Username:</strong> {admin_username}</p>
+            <p><strong>Password:</strong> {admin_password}</p>
+            <p><a href="/auth/login">Ir al Login</a></p>
+            <p style="color:red"><strong>⚠️ ELIMINA ESTA RUTA DESPUÉS DE USAR!</strong></p>
+            """
+    except Exception as e:
+        db.session.rollback()
+        return f"<h1>❌ Error:</h1><pre>{str(e)}</pre>"
