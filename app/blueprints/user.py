@@ -22,6 +22,7 @@ def dashboard():
     # Estadísticas del usuario
     comments_count = Comment.query.filter_by(user_id=current_user.id).count()
     favorites_count = Favorite.query.filter_by(user_id=current_user.id).count()
+    likes_count = Like.query.filter_by(user_id=current_user.id).count()
     
     # Favoritos recientes
     recent_favorites = Favorite.query.filter_by(user_id=current_user.id)\
@@ -31,11 +32,17 @@ def dashboard():
     recent_comments = Comment.query.filter_by(user_id=current_user.id)\
         .order_by(desc(Comment.created_at)).limit(5).all()
     
+    # Likes recientes
+    recent_likes = Like.query.filter_by(user_id=current_user.id)\
+        .order_by(desc(Like.created_at)).limit(5).all()
+    
     return render_template('user/dashboard.html',
                          comments_count=comments_count,
                          favorites_count=favorites_count,
+                         likes_count=likes_count,
                          recent_favorites=recent_favorites,
-                         recent_comments=recent_comments)
+                         recent_comments=recent_comments,
+                         recent_likes=recent_likes)
 
 @user_bp.route('/profile')
 @login_required
