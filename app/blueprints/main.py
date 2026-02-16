@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, url_for, current_app
 from flask_login import current_user
 from flask_mail import Message
 from app.models.blog import BlogPost
@@ -106,12 +106,12 @@ def projects():
 def contact():
     config = SiteConfig.query.first()
     
-    print("=== DEBUG FORMULARIO CONTACTO ===")
-    print(f"Método de request: {request.method}")
+    current_app.logger.warning("=== DEBUG FORMULARIO CONTACTO ===")
+    current_app.logger.warning(f"Método de request: {request.method}")
     
     if request.method == 'POST':
-        print("--- DATOS RAW DEL FORMULARIO ---")
-        print(f"request.form: {dict(request.form)}")
+        current_app.logger.warning("--- DATOS RAW DEL FORMULARIO ---")
+        current_app.logger.warning(f"request.form: {dict(request.form)}")
         
         # Obtener datos del formulario directamente
         name = request.form.get('name', '').strip()
@@ -119,20 +119,20 @@ def contact():
         subject = request.form.get('subject', 'Contacto desde la web').strip()
         message = request.form.get('message', '').strip()
         
-        print(f"Nombre capturado: '{name}'")
-        print(f"Email capturado: '{email}'")
-        print(f"Asunto capturado: '{subject}'")
-        print(f"Mensaje capturado: '{message}'")
+        current_app.logger.warning(f"Nombre capturado: '{name}'")
+        current_app.logger.warning(f"Email capturado: '{email}'")
+        current_app.logger.warning(f"Asunto capturado: '{subject}'")
+        current_app.logger.warning(f"Mensaje capturado: '{message}'")
         
         # Validación básica
         if not name or not email or not message:
             flash('Por favor completa todos los campos requeridos.', 'error')
-            print("--- VALIDACIÓN FALLIDA ---")
+            current_app.logger.warning("--- VALIDACIÓN FALLIDA ---")
             return render_template('contact.html', config=config)
         
         if len(message) < 10:
             flash('El mensaje debe tener al menos 10 caracteres.', 'error')
-            print("--- MENSAJE MUY CORTO ---")
+            current_app.logger.warning("--- MENSAJE MUY CORTO ---")
             return render_template('contact.html', config=config)
         
         # Guardar mensaje en la base de datos
@@ -146,20 +146,22 @@ def contact():
             
             db.session.add(contact_message)
             db.session.commit()
-            print("--- MENSAJE GUARDADO EN BD EXITOSAMENTE ---")
-            print(f"ID del mensaje: {contact_message.id}")
+            current_app.logger.warning("--- MENSAJE GUARDADO EN BD EXITOSAMENTE ---")
+            current_app.logger.warning(f"ID del mensaje: {contact_message.id}")
         except Exception as e:
-            print(f"--- ERROR AL GUARDAR EN BD ---")
-            print(f"Error: {e}")
+            current_app.logger.error(f"--- ERROR AL GUARDAR EN BD ---")
+            current_app.logger.error(f"Error: {e}")
             db.session.rollback()
             flash('Error al enviar el mensaje. Inténtalo de nuevo.', 'error')
             return render_template('contact.html', config=config)
         
         # Enviar email al administrador
         try:
-            recipient_email = config.contact_email or 'admin@codexsoto.com'
-            print(f"--- INTENTANDO ENVIAR EMAIL ---")
-            print(f"Destinatario: {recipient_email}")
+            recipient_email = config.contact_email if config and config.contact_email else 'codexsoto@gmail.com'
+            current_app.logger.warning(f"--- INTENTANDO ENVIAR EMAIL ---")
+            current_app.logger.warning(f"Destinatario: {recipient_email}")
+            current_app.logger.warning(f"MAIL_SERVER: {current_app.config.get('MAIL_SERVER')}")
+            current_app.logger.warning(f"MAIL_USERNAME: {current_app.config.get('MAIL_USERNAME')}")
             
             msg = Message(
                 subject=f'[CodexSoto] {subject}',
@@ -167,10 +169,12 @@ def contact():
                 body=f'Nombre: {name}\nEmail: {email}\n\nMensaje:\n{message}'
             )
             mail.send(msg)
-            print("--- EMAIL ENVIADO EXITOSAMENTE ---")
+            current_app.logger.warning("--- EMAIL ENVIADO EXITOSAMENTE ---")
         except Exception as e:
-            print(f"--- ERROR ENVIANDO EMAIL ---")
-            print(f"Error: {e}")
+            current_app.logger.error(f"--- ERROR ENVIANDO EMAIL ---")
+            current_app.logger.error(f"Error: {e}")
+            import traceback
+            current_app.logger.error(traceback.format_exc())
         
         # Enviar email de confirmación al usuario
         try:
@@ -190,17 +194,19 @@ El equipo de CodexSoto
 '''
             )
             mail.send(confirmation_msg)
-            print("--- EMAIL DE CONFIRMACIÓN ENVIADO AL USUARIO ---")
+            current_app.logger.warning("--- EMAIL DE CONFIRMACIÓN ENVIADO AL USUARIO ---")
         except Exception as e:
-            print(f"--- ERROR ENVIANDO EMAIL DE CONFIRMACIÓN ---")
-            print(f"Error: {e}")
+            current_app.logger.error(f"--- ERROR ENVIANDO EMAIL DE CONFIRMACIÓN ---")
+            current_app.logger.error(f"Error: {e}")
+            import traceback
+            current_app.logger.error(traceback.format_exc())
         
         flash('Mensaje enviado correctamente. Te contactaré pronto.', 'success')
-        print("--- REDIRIGIENDO DESPUÉS DE ÉXITO ---")
+        current_app.logger.warning("--- REDIRIGIENDO DESPUÉS DE ÉXITO ---")
         return redirect(url_for('main.contact'))
     
-    print("--- RENDERIZANDO TEMPLATE ---")
-    print("=== FIN DEBUG ===")
+    current_app.logger.warning("--- RENDERIZANDO TEMPLATE ---")
+    current_app.logger.warning("=== FIN DEBUG ===")
     return render_template('contact.html', config=config)
 
 @main_bp.route('/proyecto/<slug>')
