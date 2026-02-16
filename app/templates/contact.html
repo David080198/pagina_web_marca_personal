@@ -46,6 +46,7 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ _('Send Message') }}</h5>
                             <form method="POST">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                 <div class="mb-3">
                                     <label for="name" class="form-label">{{ _('Name') }} *</label>
                                     <input type="text" class="form-control" id="name" name="name" required 
