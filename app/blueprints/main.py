@@ -89,20 +89,30 @@ def contact():
         message = request.form.get('message')
         
         # Guardar mensaje en la base de datos
-        contact_message = ContactMessage(
-            name=name,
-            email=email,
-            subject=subject,
-            message=message
-        )
-        db.session.add(contact_message)
-        db.session.commit()
+        try:
+            contact_message = ContactMessage(
+                name=name,
+                email=email,
+                subject=subject,
+                message=message
+            )
+            db.session.add(contact_message)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error guardando mensaje: {e}")
+            flash('Error al enviar el mensaje. Por favor intenta de nuevo.', 'error')
+            return redirect(url_for('main.contact'))
         
         # Enviar email (opcional)
         try:
+            recipient_email = 'admin@codexsoto.com'
+            if config and config.contact_email:
+                recipient_email = config.contact_email
+            
             msg = Message(
                 subject=f'[CodexSoto] {subject}',
-                recipients=[config.contact_email or 'admin@codexsoto.com'],
+                recipients=[recipient_email],
                 body=f'Nombre: {name}\nEmail: {email}\n\nMensaje:\n{message}'
             )
             mail.send(msg)
