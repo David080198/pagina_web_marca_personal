@@ -9,6 +9,7 @@
             <h1 class="mb-4">Configuración del Sitio</h1>
             
             <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <div class="card mb-4">
                     <div class="card-header">
                         <h5 class="mb-0">Información General</h5>

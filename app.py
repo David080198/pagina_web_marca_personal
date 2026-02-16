@@ -13,7 +13,7 @@ def create_app():
     app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
     
     # Importar extensiones localmente para evitar imports circulares
-    from app.extensions import db, login_manager, migrate, mail
+    from app.extensions import db, login_manager, migrate, mail, csrf
     
     # Configuración
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
@@ -34,6 +34,7 @@ def create_app():
     login_manager.init_app(app)
     migrate.init_app(app, db)
     mail.init_app(app)
+    csrf.init_app(app)
     
     # Inicializar analytics
     from app.utils.analytics import init_analytics
