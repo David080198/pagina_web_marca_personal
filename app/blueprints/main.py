@@ -155,16 +155,22 @@ def contact():
             flash('Error al enviar el mensaje. Inténtalo de nuevo.', 'error')
             return render_template('contact.html', config=config)
         
+        # Configurar sender
+        import os
+        mail_sender = os.environ.get('MAIL_DEFAULT_SENDER') or os.environ.get('MAIL_USERNAME') or 'codexsoto@gmail.com'
+        
         # Enviar email al administrador
         try:
             recipient_email = config.contact_email if config and config.contact_email else 'codexsoto@gmail.com'
             current_app.logger.warning(f"--- INTENTANDO ENVIAR EMAIL ---")
             current_app.logger.warning(f"Destinatario: {recipient_email}")
+            current_app.logger.warning(f"Sender: {mail_sender}")
             current_app.logger.warning(f"MAIL_SERVER: {current_app.config.get('MAIL_SERVER')}")
             current_app.logger.warning(f"MAIL_USERNAME: {current_app.config.get('MAIL_USERNAME')}")
             
             msg = Message(
                 subject=f'[CodexSoto] {subject}',
+                sender=mail_sender,
                 recipients=[recipient_email],
                 body=f'Nombre: {name}\nEmail: {email}\n\nMensaje:\n{message}'
             )
@@ -180,6 +186,7 @@ def contact():
         try:
             confirmation_msg = Message(
                 subject='Gracias por contactarnos - CodexSoto',
+                sender=mail_sender,
                 recipients=[email],
                 body=f'''Hola {name},
 

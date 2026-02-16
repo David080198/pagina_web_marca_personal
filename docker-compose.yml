@@ -10,6 +10,11 @@ services:
       - ADMIN_EMAIL=${ADMIN_EMAIL:-david@codexsoto.com}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-MiPasswordSeguro123!}
       - FLASK_ENV=production
+      - MAIL_SERVER=${MAIL_SERVER:-smtp.gmail.com}
+      - MAIL_PORT=${MAIL_PORT:-587}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MAIL_DEFAULT_SENDER=${MAIL_DEFAULT_SENDER}
     depends_on:
       db:
         condition: service_healthy
