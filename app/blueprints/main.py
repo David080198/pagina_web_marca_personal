@@ -155,7 +155,7 @@ def contact():
             flash('Error al enviar el mensaje. Inténtalo de nuevo.', 'error')
             return render_template('contact.html', config=config)
         
-        # Enviar email (opcional)
+        # Enviar email al administrador
         try:
             recipient_email = config.contact_email or 'admin@codexsoto.com'
             print(f"--- INTENTANDO ENVIAR EMAIL ---")
@@ -170,6 +170,29 @@ def contact():
             print("--- EMAIL ENVIADO EXITOSAMENTE ---")
         except Exception as e:
             print(f"--- ERROR ENVIANDO EMAIL ---")
+            print(f"Error: {e}")
+        
+        # Enviar email de confirmación al usuario
+        try:
+            confirmation_msg = Message(
+                subject='Gracias por contactarnos - CodexSoto',
+                recipients=[email],
+                body=f'''Hola {name},
+
+¡Gracias por contactarnos! Hemos recibido tu mensaje y te responderemos lo antes posible.
+
+Resumen de tu mensaje:
+- Asunto: {subject}
+- Mensaje: {message[:200]}{'...' if len(message) > 200 else ''}
+
+Saludos,
+El equipo de CodexSoto
+'''
+            )
+            mail.send(confirmation_msg)
+            print("--- EMAIL DE CONFIRMACIÓN ENVIADO AL USUARIO ---")
+        except Exception as e:
+            print(f"--- ERROR ENVIANDO EMAIL DE CONFIRMACIÓN ---")
             print(f"Error: {e}")
         
         flash('Mensaje enviado correctamente. Te contactaré pronto.', 'success')
