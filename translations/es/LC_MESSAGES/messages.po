@@ -384,3 +384,10 @@ msgstr "Fuente"
 msgid "Contact Me"
 msgstr "Contáctame"
 
+# Projects Page - Catálogo Codexsoto
+msgid "Design catalog and templates portfolio for different professional niches. Features specialized designs for musicians and architects with modern layouts and responsive design."
+msgstr "Catálogo de diseños y portafolio de plantillas para diferentes nichos profesionales. Incluye diseños especializados para músicos y arquitectos con layouts modernos y diseño responsivo."
+
+# Projects Page - Alondra Soto Portfolio
+msgid "Professional portfolio website for an architect specializing in health infrastructure, sports centers, and urban development projects. Features elegant galleries and project showcases."
+msgstr "Sitio web de portafolio profesional para una arquitecta especializada en infraestructura de salud, centros deportivos y proyectos de desarrollo urbano. Incluye galerías elegantes y exhibición de proyectos."
