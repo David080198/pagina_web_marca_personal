@@ -44,18 +44,18 @@ def forgot_password():
                                        reset_url=reset_url)
                 )
                 mail.send(msg)
-                flash('Se ha enviado un correo con las instrucciones para resetear tu contraseña.', 'success')
+                # Mostrar página de éxito
+                return render_template('auth/forgot_password.html', email_sent=True, user_email=email)
             except Exception as e:
                 print(f"Error enviando email: {e}")
                 flash('Error al enviar el correo. Por favor intenta más tarde.', 'danger')
+                return redirect(url_for('password_reset.forgot_password'))
         else:
             # Informar que el correo no está registrado
             flash('El correo electrónico no está registrado en nuestro sistema.', 'danger')
             return redirect(url_for('password_reset.forgot_password'))
-        
-        return redirect(url_for('auth.login'))
     
-    return render_template('auth/forgot_password.html')
+    return render_template('auth/forgot_password.html', email_sent=False)
 
 @password_reset_bp.route('/reset-password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
