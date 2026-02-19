@@ -93,6 +93,369 @@
         </div>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Chatbot FAQ Widget -->
+    <div id="chatbot-container">
+        <!-- Chat Button -->
+        <button id="chatbot-toggle" class="chatbot-toggle" aria-label="Abrir chat">
+            <i class="fas fa-comments" id="chatbot-icon-open"></i>
+            <i class="fas fa-times" id="chatbot-icon-close" style="display: none;"></i>
+        </button>
+        
+        <!-- Chat Window -->
+        <div id="chatbot-window" class="chatbot-window">
+            <div class="chatbot-header">
+                <div class="chatbot-header-info">
+                    <div class="chatbot-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div>
+                        <h4>CodexBot</h4>
+                        <span class="chatbot-status"><span class="status-dot"></span> Online</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chatbot-messages" id="chatbot-messages">
+                <div class="chat-message bot-message">
+                    <div class="message-content">
+                        👋 ¡Hola! Soy CodexBot. ¿En qué puedo ayudarte hoy?
+                    </div>
+                </div>
+                <div class="chat-message bot-message">
+                    <div class="message-content">
+                        Selecciona una de las preguntas frecuentes:
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chatbot-options" id="chatbot-options">
+                <button class="chat-option" data-question="servicios">💼 ¿Qué servicios ofreces?</button>
+                <button class="chat-option" data-question="contacto">📧 ¿Cómo puedo contactarte?</button>
+                <button class="chat-option" data-question="cursos">📚 ¿Tienes cursos disponibles?</button>
+                <button class="chat-option" data-question="proyectos">🚀 ¿Puedo ver tus proyectos?</button>
+                <button class="chat-option" data-question="tecnologias">🛠️ ¿Qué tecnologías usas?</button>
+                <button class="chat-option" data-question="cotizacion">💰 ¿Cómo solicito una cotización?</button>
+            </div>
+        </div>
+    </div>
+    
+    <style>
+        /* Chatbot Container */
+        #chatbot-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            font-family: 'Rajdhani', sans-serif;
+        }
+        
+        /* Toggle Button */
+        .chatbot-toggle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00d4ff, #3b82f6);
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .chatbot-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(0, 212, 255, 0.6);
+        }
+        
+        .chatbot-toggle i {
+            font-size: 24px;
+            color: white;
+        }
+        
+        /* Chat Window */
+        .chatbot-window {
+            position: absolute;
+            bottom: 75px;
+            right: 0;
+            width: 350px;
+            max-height: 500px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.3s ease;
+        }
+        
+        .chatbot-window.active {
+            display: flex;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Header */
+        .chatbot-header {
+            background: linear-gradient(90deg, #00d4ff, #3b82f6);
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .chatbot-header-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .chatbot-avatar {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .chatbot-avatar i {
+            font-size: 22px;
+            color: white;
+        }
+        
+        .chatbot-header h4 {
+            margin: 0;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .chatbot-status {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Messages Area */
+        .chatbot-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            max-height: 250px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .chat-message {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .bot-message {
+            justify-content: flex-start;
+        }
+        
+        .user-message {
+            justify-content: flex-end;
+        }
+        
+        .message-content {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .bot-message .message-content {
+            background: rgba(0, 212, 255, 0.1);
+            color: #e2e8f0;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-bottom-left-radius: 4px;
+        }
+        
+        .user-message .message-content {
+            background: linear-gradient(135deg, #00d4ff, #3b82f6);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        
+        /* Options Area */
+        .chatbot-options {
+            padding: 15px;
+            border-top: 1px solid rgba(0, 212, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .chat-option {
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            color: #e2e8f0;
+            padding: 10px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            text-align: left;
+            transition: all 0.2s ease;
+            font-family: 'Rajdhani', sans-serif;
+        }
+        
+        .chat-option:hover {
+            background: rgba(0, 212, 255, 0.15);
+            border-color: #00d4ff;
+            transform: translateX(5px);
+        }
+        
+        /* Scrollbar */
+        .chatbot-messages::-webkit-scrollbar,
+        .chatbot-options::-webkit-scrollbar {
+            width: 5px;
+        }
+        
+        .chatbot-messages::-webkit-scrollbar-track,
+        .chatbot-options::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .chatbot-messages::-webkit-scrollbar-thumb,
+        .chatbot-options::-webkit-scrollbar-thumb {
+            background: rgba(0, 212, 255, 0.3);
+            border-radius: 3px;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 480px) {
+            .chatbot-window {
+                width: calc(100vw - 40px);
+                right: -10px;
+                max-height: 70vh;
+            }
+            
+            #chatbot-container {
+                bottom: 15px;
+                right: 15px;
+            }
+        }
+    </style>
+    
+    <script>
+        // Chatbot FAQ Logic
+        (function() {
+            const toggle = document.getElementById('chatbot-toggle');
+            const window = document.getElementById('chatbot-window');
+            const iconOpen = document.getElementById('chatbot-icon-open');
+            const iconClose = document.getElementById('chatbot-icon-close');
+            const messagesContainer = document.getElementById('chatbot-messages');
+            const optionsContainer = document.getElementById('chatbot-options');
+            
+            // Respuestas predefinidas
+            const responses = {
+                'servicios': {
+                    question: '💼 ¿Qué servicios ofreces?',
+                    answer: '🚀 Ofrezco servicios de:\n\n• Desarrollo web Full Stack\n• Automatización de procesos\n• Integración de IA en aplicaciones\n• Consultoría tecnológica\n• Desarrollo de APIs\n• Sistemas de gestión personalizados\n\n¿Te gustaría más información sobre alguno?'
+                },
+                'contacto': {
+                    question: '📧 ¿Cómo puedo contactarte?',
+                    answer: '📬 Puedes contactarme de varias formas:\n\n• A través del <a href="/contacto" style="color: #00d4ff;">formulario de contacto</a>\n• Por email: david@codexsoto.com\n• A través de LinkedIn o GitHub\n\n¡Estaré encantado de ayudarte! 😊'
+                },
+                'cursos': {
+                    question: '📚 ¿Tienes cursos disponibles?',
+                    answer: '📖 ¡Sí! Tengo cursos disponibles sobre:\n\n• Desarrollo web con Flask/Python\n• Automatización con IA\n• Bases de datos\n• Y más contenido en desarrollo\n\nVisita la sección de <a href="/cursos" style="color: #00d4ff;">Cursos</a> para ver todos los disponibles.'
+                },
+                'proyectos': {
+                    question: '🚀 ¿Puedo ver tus proyectos?',
+                    answer: '💻 ¡Por supuesto! Puedes ver mis proyectos en la sección <a href="/proyectos" style="color: #00d4ff;">Proyectos</a>.\n\nAlgunos proyectos destacados:\n• Professional Alterations by Maria\n• CODEXSOTO Portfolio\n• Catálogo Codexsoto\n• Alondra Soto Portfolio\n\n¡Todos están en producción!'
+                },
+                'tecnologias': {
+                    question: '🛠️ ¿Qué tecnologías usas?',
+                    answer: '⚡ Mi stack tecnológico incluye:\n\n<b>Backend:</b> Python, Flask, PostgreSQL\n<b>Frontend:</b> HTML5, CSS3, JavaScript, Bootstrap\n<b>DevOps:</b> Docker, Nginx, Traefik\n<b>Otras:</b> Git, APIs REST, IA/ML\n\nSiempre estoy aprendiendo nuevas tecnologías 🚀'
+                },
+                'cotizacion': {
+                    question: '💰 ¿Cómo solicito una cotización?',
+                    answer: '💼 Para solicitar una cotización:\n\n1. Ve al <a href="/contacto" style="color: #00d4ff;">formulario de contacto</a>\n2. Describe tu proyecto o idea\n3. Indica tu presupuesto aproximado (opcional)\n4. Te responderé en menos de 24 horas\n\n¡Las consultas iniciales son gratuitas!'
+                }
+            };
+            
+            // Toggle chat window
+            toggle.addEventListener('click', function() {
+                window.classList.toggle('active');
+                if (window.classList.contains('active')) {
+                    iconOpen.style.display = 'none';
+                    iconClose.style.display = 'block';
+                } else {
+                    iconOpen.style.display = 'block';
+                    iconClose.style.display = 'none';
+                }
+            });
+            
+            // Handle option clicks
+            optionsContainer.addEventListener('click', function(e) {
+                if (e.target.classList.contains('chat-option')) {
+                    const questionKey = e.target.dataset.question;
+                    const data = responses[questionKey];
+                    
+                    if (data) {
+                        // Add user message
+                        addMessage(data.question, 'user');
+                        
+                        // Add bot response after small delay
+                        setTimeout(function() {
+                            addMessage(data.answer, 'bot');
+                            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                        }, 500);
+                    }
+                }
+            });
+            
+            function addMessage(text, type) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'chat-message ' + type + '-message';
+                messageDiv.innerHTML = '<div class="message-content">' + text.replace(/\n/g, '<br>') + '</div>';
+                messagesContainer.appendChild(messageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        })();
+    </script>
+    
     {% block scripts %}{% endblock %}
     {% block extra_js %}{% endblock %}
 </body>
