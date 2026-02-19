@@ -34,8 +34,10 @@ def forgot_password():
             
             # Enviar email
             try:
+                mail_sender = os.environ.get('MAIL_DEFAULT_SENDER') or os.environ.get('MAIL_USERNAME') or 'codexsoto@gmail.com'
                 msg = Message(
-                    subject='Password Reset Request - CODEXSOTO',
+                    subject='Restablecer Contraseña - CODEXSOTO',
+                    sender=mail_sender,
                     recipients=[user.email],
                     html=render_template('auth/reset_password_email.html', 
                                        user=user, 
@@ -47,8 +49,9 @@ def forgot_password():
                 print(f"Error enviando email: {e}")
                 flash('Error al enviar el correo. Por favor intenta más tarde.', 'danger')
         else:
-            # Por seguridad, no decimos si el correo existe o no
-            flash('Se ha enviado un correo con las instrucciones para resetear tu contraseña.', 'success')
+            # Informar que el correo no está registrado
+            flash('El correo electrónico no está registrado en nuestro sistema.', 'danger')
+            return redirect(url_for('password_reset.forgot_password'))
         
         return redirect(url_for('auth.login'))
     
