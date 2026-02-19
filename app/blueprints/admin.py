@@ -837,3 +837,35 @@ def delete_user(user_id):
     
     flash(f'Usuario {username} eliminado correctamente', 'success')
     return redirect(url_for('admin.users_list'))
+
+
+# ============================================
+# API Endpoints para Analytics/Gráficos
+# ============================================
+
+@admin_bp.route('/api/analytics/daily-views')
+@login_required
+@admin_required
+def api_daily_views():
+    """API endpoint para obtener datos de visitas diarias"""
+    days = request.args.get('days', 30, type=int)
+    days = min(days, 365)  # Máximo 1 año
+    
+    from app.utils.analytics import get_daily_views_data
+    data = get_daily_views_data(days)
+    
+    return jsonify(data)
+
+
+@admin_bp.route('/api/analytics/referrers')
+@login_required
+@admin_required
+def api_referrers():
+    """API endpoint para obtener estadísticas de fuentes de tráfico"""
+    days = request.args.get('days', 30, type=int)
+    days = min(days, 365)  # Máximo 1 año
+    
+    from app.utils.analytics import get_referrer_stats
+    data = get_referrer_stats(days)
+    
+    return jsonify(data)

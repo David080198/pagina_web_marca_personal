@@ -233,6 +233,42 @@
     </div>
 </div>
 
+<!-- Gráficos de Analytics -->
+<div class="row mb-4">
+    <div class="col-lg-8 mb-3">
+        <div class="admin-panel">
+            <div class="admin-panel-header">
+                <i class="fas fa-chart-line"></i>
+                <h5>Visitas Diarias (Últimos 30 días)</h5>
+                <div class="ms-auto">
+                    <select id="chartDaysSelect" class="form-select form-select-sm" style="width: auto; background: var(--admin-card-bg); color: var(--admin-text); border-color: var(--admin-border);">
+                        <option value="7">7 días</option>
+                        <option value="14">14 días</option>
+                        <option value="30" selected>30 días</option>
+                        <option value="60">60 días</option>
+                        <option value="90">90 días</option>
+                    </select>
+                </div>
+            </div>
+            <div class="admin-panel-body">
+                <canvas id="dailyViewsChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-3">
+        <div class="admin-panel">
+            <div class="admin-panel-header">
+                <i class="fas fa-search"></i>
+                <h5>Fuentes de Tráfico</h5>
+            </div>
+            <div class="admin-panel-body">
+                <canvas id="referrersChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Quick Actions -->
 <div class="admin-panel mb-4">
     <div class="admin-panel-header">
@@ -378,4 +414,224 @@
     </div>
 </div>
 {% endif %}
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<script>
+// Variables globales para los gráficos
+let dailyViewsChart = null;
+let referrersChart = null;
+
+// Colores del tema
+const chartColors = {
+    primary: '#00d4ff',
+    secondary: '#3b82f6',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    purple: '#8b5cf6',
+    pink: '#ec4899',
+    orange: '#f97316',
+    teal: '#14b8a6',
+    indigo: '#6366f1',
+    gray: '#6b7280'
+};
+
+// Cargar gráfico de visitas diarias
+async function loadDailyViewsChart(days = 30) {
+    try {
+        const response = await fetch(`{{ url_for('admin.api_daily_views') }}?days=${days}`);
+        const data = await response.json();
+        
+        const ctx = document.getElementById('dailyViewsChart').getContext('2d');
+        
+        // Destruir gráfico anterior si existe
+        if (dailyViewsChart) {
+            dailyViewsChart.destroy();
+        }
+        
+        dailyViewsChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.labels,
+                datasets: [
+                    {
+                        label: 'Vistas',
+                        data: data.views,
+                        borderColor: chartColors.primary,
+                        backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: chartColors.primary,
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    },
+                    {
+                        label: 'Visitantes Únicos',
+                        data: data.visitors,
+                        borderColor: chartColors.success,
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: chartColors.success,
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#a0aec0',
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(26, 32, 44, 0.95)',
+                        titleColor: '#fff',
+                        bodyColor: '#a0aec0',
+                        borderColor: 'rgba(0, 212, 255, 0.3)',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: true
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#718096',
+                            maxTicksLimit: 10
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#718096',
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error loading daily views chart:', error);
+    }
+}
+
+// Cargar gráfico de fuentes de tráfico
+async function loadReferrersChart(days = 30) {
+    try {
+        const response = await fetch(`{{ url_for('admin.api_referrers') }}?days=${days}`);
+        const data = await response.json();
+        
+        const ctx = document.getElementById('referrersChart').getContext('2d');
+        
+        // Destruir gráfico anterior si existe
+        if (referrersChart) {
+            referrersChart.destroy();
+        }
+        
+        // Colores para el pie chart
+        const pieColors = [
+            chartColors.primary,
+            chartColors.success,
+            chartColors.warning,
+            chartColors.purple,
+            chartColors.pink,
+            chartColors.orange,
+            chartColors.teal,
+            chartColors.indigo,
+            chartColors.secondary,
+            chartColors.danger,
+            chartColors.gray
+        ];
+        
+        referrersChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    data: data.data,
+                    backgroundColor: pieColors.slice(0, data.labels.length),
+                    borderColor: 'rgba(26, 32, 44, 0.8)',
+                    borderWidth: 2,
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#a0aec0',
+                            usePointStyle: true,
+                            padding: 15,
+                            font: {
+                                size: 11
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(26, 32, 44, 0.95)',
+                        titleColor: '#fff',
+                        bodyColor: '#a0aec0',
+                        borderColor: 'rgba(0, 212, 255, 0.3)',
+                        borderWidth: 1,
+                        padding: 12,
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.raw / total) * 100).toFixed(1);
+                                return `${context.label}: ${context.raw} (${percentage}%)`;
+                            }
+                        }
+                    }
+                },
+                cutout: '60%'
+            }
+        });
+    } catch (error) {
+        console.error('Error loading referrers chart:', error);
+    }
+}
+
+// Inicializar gráficos al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    loadDailyViewsChart(30);
+    loadReferrersChart(30);
+    
+    // Event listener para el selector de días
+    const daysSelect = document.getElementById('chartDaysSelect');
+    if (daysSelect) {
+        daysSelect.addEventListener('change', function() {
+            const days = parseInt(this.value);
+            loadDailyViewsChart(days);
+            loadReferrersChart(days);
+        });
+    }
+});
+</script>
 {% endblock %}

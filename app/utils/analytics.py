@@ -227,3 +227,142 @@ def get_analytics_summary():
             'browsers': [],
             'devices': []
         }
+def get_daily_views_data(days=30):
+    """Obtener datos de visitas diarias para gráficos"""
+    try:
+        from datetime import timedelta
+        today = date.today()
+        start_date = today - timedelta(days=days)
+        
+        # Obtener visitas y visitantes únicos por día
+        daily_data = db.session.query(
+            func.date(PageView.created_at).label('date'),
+            func.count(PageView.id).label('views'),
+            func.count(func.distinct(PageView.ip_address)).label('visitors')
+        ).filter(
+            func.date(PageView.created_at) >= start_date
+        ).group_by(
+            func.date(PageView.created_at)
+        ).order_by(
+            func.date(PageView.created_at)
+        ).all()
+        
+        # Crear diccionario con todos los días (incluso sin visitas)
+        result = {
+            'labels': [],
+            'views': [],
+            'visitors': []
+        }
+        
+        data_dict = {str(row.date): {'views': row.views, 'visitors': row.visitors} for row in daily_data}
+        
+        current = start_date
+        while current <= today:
+            date_str = str(current)
+            result['labels'].append(current.strftime('%d/%m'))
+            
+            if date_str in data_dict:
+                result['views'].append(data_dict[date_str]['views'])
+                result['visitors'].append(data_dict[date_str]['visitors'])
+            else:
+                result['views'].append(0)
+                result['visitors'].append(0)
+            
+            current += timedelta(days=1)
+        
+        return result
+        
+    except Exception as e:
+        return {
+            'labels': [],
+            'views': [],
+            'visitors': []
+        }
+
+def get_referrer_stats(days=30):
+    """Obtener estadísticas de referrers/fuentes de tráfico"""
+    try:
+        from datetime import timedelta
+        today = date.today()
+        start_date = today - timedelta(days=days)
+        
+        # Obtener referrers
+        referrers = db.session.query(
+            PageView.referrer,
+            func.count(PageView.id).label('count')
+        ).filter(
+            func.date(PageView.created_at) >= start_date,
+            PageView.referrer.isnot(None),
+            PageView.referrer != ''
+        ).group_by(
+            PageView.referrer
+        ).order_by(
+            func.count(PageView.id).desc()
+        ).limit(100).all()
+        
+        # Categorizar referrers por buscador/fuente
+        sources = {
+            'Google': 0,
+            'Bing': 0,
+            'Yahoo': 0,
+            'DuckDuckGo': 0,
+            'Facebook': 0,
+            'Twitter/X': 0,
+            'LinkedIn': 0,
+            'Instagram': 0,
+            'YouTube': 0,
+            'Reddit': 0,
+            'Directo': 0,
+            'Otros': 0
+        }
+        
+        for referrer, count in referrers:
+            ref_lower = referrer.lower() if referrer else ''
+            
+            if 'google' in ref_lower:
+                sources['Google'] += count
+            elif 'bing' in ref_lower:
+                sources['Bing'] += count
+            elif 'yahoo' in ref_lower:
+                sources['Yahoo'] += count
+            elif 'duckduckgo' in ref_lower:
+                sources['DuckDuckGo'] += count
+            elif 'facebook' in ref_lower or 'fb.com' in ref_lower:
+                sources['Facebook'] += count
+            elif 'twitter' in ref_lower or 't.co' in ref_lower or 'x.com' in ref_lower:
+                sources['Twitter/X'] += count
+            elif 'linkedin' in ref_lower:
+                sources['LinkedIn'] += count
+            elif 'instagram' in ref_lower:
+                sources['Instagram'] += count
+            elif 'youtube' in ref_lower:
+                sources['YouTube'] += count
+            elif 'reddit' in ref_lower:
+                sources['Reddit'] += count
+            else:
+                sources['Otros'] += count
+        
+        # Contar visitas directas (sin referrer)
+        direct_visits = db.session.query(
+            func.count(PageView.id)
+        ).filter(
+            func.date(PageView.created_at) >= start_date,
+            db.or_(PageView.referrer.is_(None), PageView.referrer == '')
+        ).scalar() or 0
+        
+        sources['Directo'] = direct_visits
+        
+        # Filtrar fuentes con 0 visitas y ordenar
+        sources_filtered = {k: v for k, v in sources.items() if v > 0}
+        sources_sorted = dict(sorted(sources_filtered.items(), key=lambda x: x[1], reverse=True))
+        
+        return {
+            'labels': list(sources_sorted.keys()),
+            'data': list(sources_sorted.values())
+        }
+        
+    except Exception as e:
+        return {
+            'labels': [],
+            'data': []
+        }
