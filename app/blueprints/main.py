@@ -393,13 +393,12 @@ CodexSoto - Especialista en IA y Automatización
             import traceback
             current_app.logger.error(traceback.format_exc())
         
-        flash('Mensaje enviado correctamente. Te contactaré pronto.', 'success')
-        current_app.logger.warning("--- REDIRIGIENDO DESPUÉS DE ÉXITO ---")
-        return redirect(url_for('main.contact'))
+        current_app.logger.warning("--- MOSTRANDO PÁGINA DE ÉXITO ---")
+        return render_template('contact.html', config=config, success=True, user_name=name)
     
     current_app.logger.warning("--- RENDERIZANDO TEMPLATE ---")
     current_app.logger.warning("=== FIN DEBUG ===")
-    return render_template('contact.html', config=config)
+    return render_template('contact.html', config=config, success=False)
 
 @main_bp.route('/proyecto/<slug>')
 def project_detail(slug):

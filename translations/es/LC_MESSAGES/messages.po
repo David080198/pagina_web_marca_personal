@@ -391,3 +391,22 @@ msgstr "Catálogo de diseños y portafolio de plantillas para diferentes nichos 
 # Projects Page - Alondra Soto Portfolio
 msgid "Professional portfolio website for an architect specializing in health infrastructure, sports centers, and urban development projects. Features elegant galleries and project showcases."
 msgstr "Sitio web de portafolio profesional para una arquitecta especializada en infraestructura de salud, centros deportivos y proyectos de desarrollo urbano. Incluye galerías elegantes y exhibición de proyectos."
+
+# Contact Success Page
+msgid "Message Sent Successfully!"
+msgstr "¡Mensaje Enviado Exitosamente!"
+
+msgid "Thank you"
+msgstr "Gracias"
+
+msgid ", your message has been received."
+msgstr ", tu mensaje ha sido recibido."
+
+msgid "I will get back to you as soon as possible, usually within 24 hours."
+msgstr "Te responderé lo antes posible, generalmente en menos de 24 horas."
+
+msgid "Go to Home"
+msgstr "Ir al Inicio"
+
+msgid "View Projects"
+msgstr "Ver Proyectos"
