@@ -157,6 +157,7 @@ def contact():
         
         # Configurar sender
         import os
+        from datetime import datetime
         mail_sender = os.environ.get('MAIL_DEFAULT_SENDER') or os.environ.get('MAIL_USERNAME') or 'codexsoto@gmail.com'
         
         # Enviar email al administrador
@@ -168,11 +169,107 @@ def contact():
             current_app.logger.warning(f"MAIL_SERVER: {current_app.config.get('MAIL_SERVER')}")
             current_app.logger.warning(f"MAIL_USERNAME: {current_app.config.get('MAIL_USERNAME')}")
             
+            # HTML formateado para el admin
+            admin_html = f'''
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0a0a0f;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0a0a0f; padding: 20px;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 212, 255, 0.15);">
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(90deg, #00d4ff, #3b82f6); padding: 25px; text-align: center;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 600;">
+                                📬 Nuevo Mensaje de Contacto
+                            </h1>
+                        </td>
+                    </tr>
+                    
+                    <!-- Body -->
+                    <tr>
+                        <td style="padding: 30px;">
+                            <!-- Info Card -->
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(0, 212, 255, 0.2); margin-bottom: 20px;">
+                                <tr>
+                                    <td style="padding: 20px;">
+                                        <table width="100%" cellpadding="0" cellspacing="0">
+                                            <tr>
+                                                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                                    <span style="color: #00d4ff; font-weight: 600;">👤 Nombre:</span>
+                                                    <span style="color: #e2e8f0; margin-left: 10px;">{name}</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                                    <span style="color: #00d4ff; font-weight: 600;">📧 Email:</span>
+                                                    <a href="mailto:{email}" style="color: #3b82f6; margin-left: 10px; text-decoration: none;">{email}</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                                    <span style="color: #00d4ff; font-weight: 600;">📋 Asunto:</span>
+                                                    <span style="color: #e2e8f0; margin-left: 10px;">{subject}</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 8px 0;">
+                                                    <span style="color: #00d4ff; font-weight: 600;">🕐 Fecha:</span>
+                                                    <span style="color: #a0aec0; margin-left: 10px;">{datetime.now().strftime('%d/%m/%Y a las %H:%M')}</span>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <!-- Message -->
+                            <div style="background: rgba(0, 212, 255, 0.05); border-left: 4px solid #00d4ff; border-radius: 0 8px 8px 0; padding: 20px; margin-bottom: 25px;">
+                                <h3 style="color: #00d4ff; margin: 0 0 15px 0; font-size: 16px;">💬 Mensaje:</h3>
+                                <p style="color: #e2e8f0; line-height: 1.7; margin: 0; white-space: pre-wrap;">{message}</p>
+                            </div>
+                            
+                            <!-- Action Button -->
+                            <table width="100%" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td align="center">
+                                        <a href="mailto:{email}?subject=Re: {subject}" 
+                                           style="display: inline-block; background: linear-gradient(90deg, #00d4ff, #3b82f6); color: #ffffff; padding: 14px 35px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);">
+                                            ✉️ Responder a {name}
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background: rgba(0,0,0,0.3); padding: 20px; text-align: center; border-top: 1px solid rgba(0, 212, 255, 0.2);">
+                            <p style="color: #718096; margin: 0; font-size: 12px;">
+                                Este mensaje fue enviado desde el formulario de contacto de <strong style="color: #00d4ff;">CodexSoto</strong>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+'''
+            
             msg = Message(
                 subject=f'[CodexSoto] {subject}',
                 sender=mail_sender,
                 recipients=[recipient_email],
-                body=f'Nombre: {name}\nEmail: {email}\n\nMensaje:\n{message}'
+                body=f'Nombre: {name}\nEmail: {email}\nAsunto: {subject}\n\nMensaje:\n{message}',
+                html=admin_html
             )
             mail.send(msg)
             current_app.logger.warning("--- EMAIL ENVIADO EXITOSAMENTE ---")
@@ -184,6 +281,92 @@ def contact():
         
         # Enviar email de confirmación al usuario
         try:
+            # HTML formateado para el usuario
+            user_html = f'''
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0a0a0f;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0a0a0f; padding: 20px;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 212, 255, 0.15);">
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(90deg, #00d4ff, #3b82f6); padding: 25px; text-align: center;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 600;">
+                                ✅ ¡Mensaje Recibido!
+                            </h1>
+                        </td>
+                    </tr>
+                    
+                    <!-- Body -->
+                    <tr>
+                        <td style="padding: 30px;">
+                            <h2 style="color: #e2e8f0; margin: 0 0 20px 0; font-size: 20px;">
+                                Hola {name} 👋
+                            </h2>
+                            
+                            <p style="color: #a0aec0; line-height: 1.7; margin: 0 0 25px 0;">
+                                Gracias por ponerte en contacto conmigo. He recibido tu mensaje y te responderé lo antes posible, generalmente en menos de 24 horas.
+                            </p>
+                            
+                            <!-- Summary Card -->
+                            <div style="background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 8px; padding: 20px; margin-bottom: 25px;">
+                                <h3 style="color: #00d4ff; margin: 0 0 15px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
+                                    📝 Resumen de tu mensaje
+                                </h3>
+                                <p style="color: #a0aec0; margin: 0 0 10px 0;">
+                                    <strong style="color: #e2e8f0;">Asunto:</strong> {subject}
+                                </p>
+                                <p style="color: #a0aec0; margin: 0; line-height: 1.6;">
+                                    <strong style="color: #e2e8f0;">Mensaje:</strong><br>
+                                    <span style="color: #718096;">{message[:300]}{'...' if len(message) > 300 else ''}</span>
+                                </p>
+                            </div>
+                            
+                            <p style="color: #a0aec0; line-height: 1.7; margin: 0 0 25px 0;">
+                                Mientras tanto, puedes explorar mis proyectos y cursos en mi sitio web.
+                            </p>
+                            
+                            <!-- CTA Button -->
+                            <table width="100%" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td align="center">
+                                        <a href="https://codexsoto.com" 
+                                           style="display: inline-block; background: linear-gradient(90deg, #00d4ff, #3b82f6); color: #ffffff; padding: 14px 35px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);">
+                                            🌐 Visitar CodexSoto
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background: rgba(0,0,0,0.3); padding: 20px; text-align: center; border-top: 1px solid rgba(0, 212, 255, 0.2);">
+                            <p style="color: #718096; margin: 0 0 10px 0; font-size: 13px;">
+                                Saludos,<br>
+                                <strong style="color: #00d4ff;">David Soto</strong><br>
+                                <span style="color: #a0aec0;">CodexSoto - Especialista en IA y Automatización</span>
+                            </p>
+                            <p style="color: #4a5568; margin: 0; font-size: 11px;">
+                                © {datetime.now().year} CodexSoto. Todos los derechos reservados.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+'''
+            
             confirmation_msg = Message(
                 subject='Gracias por contactarnos - CodexSoto',
                 sender=mail_sender,
@@ -197,8 +380,10 @@ Resumen de tu mensaje:
 - Mensaje: {message[:200]}{'...' if len(message) > 200 else ''}
 
 Saludos,
-El equipo de CodexSoto
-'''
+David Soto
+CodexSoto - Especialista en IA y Automatización
+''',
+                html=user_html
             )
             mail.send(confirmation_msg)
             current_app.logger.warning("--- EMAIL DE CONFIRMACIÓN ENVIADO AL USUARIO ---")
