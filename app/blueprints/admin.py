@@ -593,13 +593,20 @@ def message_detail(message_id):
         'created_at': message.created_at.strftime('%d/%m/%Y %H:%M')
     })
 
-@admin_bp.route('/messages/<int:message_id>/read', methods=['POST'])
+@admin_bp.route('/messages/<int:message_id>/read', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def message_read(message_id):
     message = ContactMessage.query.get_or_404(message_id)
     message.read = True
     db.session.commit()
+    
+    # Si es GET (desde el dashboard), redirigir de vuelta
+    if request.method == 'GET':
+        flash('Mensaje marcado como leído', 'success')
+        return redirect(url_for('admin.dashboard'))
+    
+    # Si es POST (desde la lista de mensajes con AJAX), devolver JSON
     return jsonify({'success': True})
 
 @admin_bp.route('/messages/<int:message_id>/delete', methods=['DELETE'])
