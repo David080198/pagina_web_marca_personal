@@ -847,6 +847,18 @@ def delete_user(user_id):
 
 
 # ============================================
+# ============================================
+# Professional Alterations Monitor
+# ============================================
+
+@admin_bp.route('/alterations-monitor')
+@login_required
+@admin_required
+def alterations_monitor():
+    """Panel de monitoreo de Professional Alterations by Maria"""
+    return render_template('admin/alterations_monitor.html')
+
+
 # API Endpoints para Analytics/Gráficos
 # ============================================
 
