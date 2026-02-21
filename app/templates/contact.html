@@ -109,28 +109,23 @@
                     <div class="card shadow-sm mb-4">
                         <div class="card-body">
                             <h5 class="card-title">{{ _('Contact Information') }}</h5>
-                            {% if config and config.contact_email %}
-                            <p><i class="bi bi-envelope"></i> {{ config.contact_email }}</p>
-                            {% endif %}
+                            <p><i class="bi bi-envelope"></i> codexsoto@gmail.com</p>
                             
                             <div class="mt-4">
                                 <h6>{{ _('Follow me on:') }}</h6>
-                                <div class="d-flex gap-3 mt-3">
-                                    {% if config and config.linkedin_url %}
-                                    <a href="{{ config.linkedin_url }}" class="btn btn-outline-primary" target="_blank">
+                                <div class="d-flex flex-wrap gap-2 mt-3">
+                                    <a href="https://www.linkedin.com/in/david-soto-osorio-972b3723b/" class="btn btn-outline-primary" target="_blank" rel="noopener noreferrer">
                                         <i class="bi bi-linkedin"></i> LinkedIn
                                     </a>
-                                    {% endif %}
-                                    {% if config and config.github_url %}
-                                    <a href="{{ config.github_url }}" class="btn btn-outline-dark" target="_blank">
+                                    <a href="https://github.com/David080198" class="btn btn-outline-dark" target="_blank" rel="noopener noreferrer">
                                         <i class="bi bi-github"></i> GitHub
                                     </a>
-                                    {% endif %}
-                                    {% if config and config.twitter_url %}
-                                    <a href="{{ config.twitter_url }}" class="btn btn-outline-info" target="_blank">
-                                        <i class="bi bi-twitter"></i> Twitter
+                                    <a href="https://www.instagram.com/davidsotoosorio/" class="btn btn-outline-danger" target="_blank" rel="noopener noreferrer">
+                                        <i class="bi bi-instagram"></i> Instagram
                                     </a>
-                                    {% endif %}
+                                    <a href="https://www.facebook.com/profile.php?id=61578686347649" class="btn btn-outline-primary" target="_blank" rel="noopener noreferrer">
+                                        <i class="bi bi-facebook"></i> Facebook
+                                    </a>
                                 </div>
                             </div>
                         </div>
