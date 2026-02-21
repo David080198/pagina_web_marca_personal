@@ -871,8 +871,12 @@ def alterations_proxy(endpoint):
         # Construir URL completa
         url = f"{ALTERATIONS_API_BASE}/api/monitor/{endpoint}"
         
+        current_app.logger.info(f"Proxy request to: {url}")
+        
         # Obtener API key del header si existe
-        headers = {}
+        headers = {
+            'User-Agent': 'CodexSoto-Monitor/1.0'
+        }
         api_key = request.headers.get('X-API-Key')
         if api_key:
             headers['X-API-Key'] = api_key
@@ -881,16 +885,27 @@ def alterations_proxy(endpoint):
         params = request.args.to_dict()
         
         # Hacer la petición al servidor externo
-        response = http_requests.get(url, headers=headers, params=params, timeout=10)
+        response = http_requests.get(url, headers=headers, params=params, timeout=15, verify=True)
+        
+        current_app.logger.info(f"Proxy response status: {response.status_code}")
         
         # Devolver la respuesta
-        return jsonify(response.json()), response.status_code
+        try:
+            return jsonify(response.json()), response.status_code
+        except:
+            return jsonify({'error': 'Invalid JSON response', 'raw': response.text[:500]}), 500
         
     except http_requests.exceptions.Timeout:
+        current_app.logger.error("Proxy timeout")
         return jsonify({'error': 'Timeout - el servidor no responde'}), 504
-    except http_requests.exceptions.ConnectionError:
+    except http_requests.exceptions.SSLError as e:
+        current_app.logger.error(f"SSL Error: {str(e)}")
+        return jsonify({'error': f'SSL Error: {str(e)}'}), 502
+    except http_requests.exceptions.ConnectionError as e:
+        current_app.logger.error(f"Connection error: {str(e)}")
         return jsonify({'error': 'No se puede conectar con el servidor'}), 503
     except Exception as e:
+        current_app.logger.error(f"Proxy error: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 
