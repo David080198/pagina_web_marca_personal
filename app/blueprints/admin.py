@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app
 from flask_login import login_required, current_user
+import requests as http_requests
 from app.models.blog import BlogPost
 from app.models.course import Course
 from app.models.project import Project
@@ -857,6 +858,40 @@ def delete_user(user_id):
 def alterations_monitor():
     """Panel de monitoreo de Professional Alterations by Maria"""
     return render_template('admin/alterations_monitor.html')
+
+
+ALTERATIONS_API_BASE = 'https://professional-alterations-by-maria.com'
+
+@admin_bp.route('/api/alterations-proxy/<path:endpoint>')
+@login_required
+@admin_required
+def alterations_proxy(endpoint):
+    """Proxy para evitar problemas de CORS con la API de Professional Alterations"""
+    try:
+        # Construir URL completa
+        url = f"{ALTERATIONS_API_BASE}/api/monitor/{endpoint}"
+        
+        # Obtener API key del header si existe
+        headers = {}
+        api_key = request.headers.get('X-API-Key')
+        if api_key:
+            headers['X-API-Key'] = api_key
+        
+        # Pasar query params
+        params = request.args.to_dict()
+        
+        # Hacer la petición al servidor externo
+        response = http_requests.get(url, headers=headers, params=params, timeout=10)
+        
+        # Devolver la respuesta
+        return jsonify(response.json()), response.status_code
+        
+    except http_requests.exceptions.Timeout:
+        return jsonify({'error': 'Timeout - el servidor no responde'}), 504
+    except http_requests.exceptions.ConnectionError:
+        return jsonify({'error': 'No se puede conectar con el servidor'}), 503
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 # API Endpoints para Analytics/Gráficos

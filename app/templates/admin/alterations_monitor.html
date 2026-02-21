@@ -688,7 +688,9 @@
 </div>
 
 <script>
-const API_BASE = 'https://professional-alterations-by-maria.com';
+// Usamos un proxy local para evitar problemas de CORS
+const PROXY_BASE = '{{ url_for("admin.alterations_proxy", endpoint="") }}';
+const EXTERNAL_URL = 'https://professional-alterations-by-maria.com';
 let apiKey = '';
 let refreshInterval = null;
 
@@ -711,7 +713,7 @@ async function connectToApi() {
     status.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Conectando...';
     
     try {
-        const response = await fetch(`${API_BASE}/api/monitor/health`, {
+        const response = await fetch(`${PROXY_BASE}health`, {
             headers: getHeaders()
         });
         
@@ -751,8 +753,8 @@ async function connectToApi() {
 async function loadAllData() {
     try {
         const [statsResponse, realtimeResponse] = await Promise.all([
-            fetch(`${API_BASE}/api/monitor/stats`, { headers: getHeaders() }),
-            fetch(`${API_BASE}/api/monitor/realtime`, { headers: getHeaders() })
+            fetch(`${PROXY_BASE}stats`, { headers: getHeaders() }),
+            fetch(`${PROXY_BASE}realtime`, { headers: getHeaders() })
         ]);
         
         const stats = await statsResponse.json();
